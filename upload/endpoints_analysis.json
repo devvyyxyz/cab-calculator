@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the structured list of all API endpoints, parameters, and descriptions:\n\n**1. Player Inventory Endpoint**\n*   **URL:** `https://www.indieun.com/cab/inventory/<USERID>`\n*   **HTTP Method:** (Not specified, implied GET)\n*   **Parameters:**\n    *   `<USERID>`: The ID of the user.\n*   **Description:** Attempts to return PlayerData. Returns an error if something went wrong.\n\n**2. Brainrot Infos Endpoint**\n*   **URL:** `https://www.indieun.com/cab/rots`\n*   **HTTP Method:** (Not specified, implied GET)\n*   **Parameters:** None\n*   **Description:** Returns a dict `{[string] : Species}` of all of the brainrot infos.\n\n**3. Bag Item Infos Endpoint**\n*   **URL:** `https://www.indieun.com/cab/bag`\n*   **HTTP Method:** (Not specified, implied GET)\n*   **Parameters:** None\n*   **Description:** Returns a dict `{[string] : BagItemInfo}` of all of the bag item infos.\n\n**4. Hoverboard Infos Endpoint**\n*   **URL:** `https://www.indieun.com/cab/skins`\n*   **HTTP Method:** (Not specified, implied GET)\n*   **Parameters:** None\n*   **Description:** Returns a dict `{[string] : HoverboardInfo}` of all of the hoverboard infos.\n\n**5. Icon Image Endpoint**\n*   **URL:** `https://www.indieun.com/cab/icons/<ICON>`\n*   **HTTP Method:** (Not specified, implied GET)\n*   **Parameters:**\n    *   `<ICON>`: The identifier for the specific icon.\n*   **Description:** Returns the png icon for an icon.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785886844,
+  "id": "20260805074041129c793128e44f77",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260805074041129c793128e44f77",
+  "usage": {
+    "completion_tokens": 385,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2208,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 2593
+  }
+}

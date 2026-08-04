@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the complete extraction of all text and information from the image, formatted as a structured list of data types, fields, types, and descriptions.\n\n### **1. BagItemInfo**\n**Description:** The BagItemInfo contains information about a bag item. A bag item can be anything like coins, rotboxes, etc.\n**Reference:** You can get a full list of all the bag items at https://indieun.com/cab/bag\n\n| Field Name | Type | Description |\n| :--- | :--- | :--- |\n| **Name** | string | The name of the bag item |\n| **Description** | string | A short description explaining what the bag item does |\n| **Icon** | string | The name of a png file used for the icon, e.g \"x.png\". Then you can download the png at https://indieun.com/cab/icons/x.png |\n\n---\n\n### **2. HoverboardInfo**\n**Description:** The HoverBoardInfo contains information for a type of hoverboard. There is one HoverboardInfo for the “UFO”, one for the “Hacker” skin, etc\n**Reference:** You can get a list of all the hoverboard infos at https://indieun.com/cab/skins\n\n| Field Name | Type | Description |\n| :--- | :--- | :--- |\n| **Name** | string | The name of the hoverboard |\n| **Description** | string | A short funny description for the hoverboard |\n| **Icon** | string | The name of a png file used for the hoverboard icon, e.g \"x.png\". Then you can download the png at https://indieun.com/cab/icons/x.png |\n| **Speed** | number | Represents how fast the hoverboard skin is |\n\n---\n\n### **3. Species**\n**Description:** A “Species” is information about a specific type of Brainrot. So like there is one “Species” for Tung Tung Tung Sahur, one Species for Ballerina Cappuccina, etc.\n**Reference:** You can get a list of all the species at https://indieun.com/cab/rots\n\n| Field Name | Type | Description |\n| :--- | :--- | :--- |\n| **SpawnLocation** | SpawnLocation? | If the brainrot appears at a specific world and zone, this describes which world and which zone. This may be nil for brainrots that don’t spawn in the wild, such as Minibosses and Starters. |\n| **Attack** | number | This is used to calculate how much damage a brainrot deals |\n| **Health** | number | This is used to calculate how much health a brainrot should get |\n| **FullName** | string | The full spelled out name of a brainrot. e.g “Ballerina Cappuccina” |\n| **ShortenedName** | string | A shortened version of the brainrots name. e.g “Ballerina” |\n| **Icon** | string | The name of a png file used for the brainrots Icon, e.g “x.png”. Then you can download the png at https://indieun.com/cab/icons/x.png |\n| **IsExclusive** | boolean | Represents if the rot is exclusive. Right now only demon brainrots are exclusive |\n| **Rarity** | number | A number from 1-6 representing how rare a brainrot is. |\n| **Speed** | number | Represents how fast the brainrot walks next to the player. |\n\n---\n\n### **4. Rot**\n**Description:** A “Rot” represents a Brainrot that was captured by the player. Each Rot has its own individual properties like Level, Nickname etc.\n\n| Field Name | Type | Description |\n| :--- | :--- | :--- |\n| **Box** | string | The name of the RotBox that the brainrot was captured in |\n| **IV** | number | A random number from 0-1 that randomizes the brainrots power. 0 is bad and 1 is good. |\n| **Level** | number | The level of the brainrot |\n| **Moveset** | [string] | An array of four strings. Each string represents the name of a move that the brainrot knows. |\n| **Nickname** | string | The nickname that the player assigned to the rot |\n| **Serial** | number? | A unique number assigned to each rot. May be nil if not yet assigned. |\n| **Species** | string | The name of the rot species |\n| **UID** | string | A unique identifier for the rot |\n\n---\n\n### **5. SpawnLocation**\n**Description:** This is only used in the “Species” data type, to represent the location a brainrot is spawned at\n\n| Field Name | Type | Description |\n| :--- | :--- | :--- |\n| **World** | number | The world the brainrot is spawned in |\n| **Zone** | number | The zone number that the brainrot is spawned in |\n\n---\n\n### **6. Hoverboard**\n**Description:** A “Hoverboard” represents a hoverboard skin owned by a player. There are only two properties, Name and UID.\n\n| Field Name | Type | Description |\n| :--- | :--- | :--- |\n| **Name** | string | The name of the hoverboard |\n| **UID** | string | A unique identifier for the hoverboard |\n\n---\n\n### **7. PlayerData**\n**Description:** The PlayerData can be obtained at https://indieun.com/cab/inventory/<USERID>\n\n| Field Name | Type | Description |\n| :--- | :--- | :--- |\n| **Bag** | {[string] : number} | A dict, where each key is the item name, and the value is how many of the item the player has |\n| **PC** | [Rot] | An array representing the brainrots that the player has stored in their PC |\n| **Team** | [Rot] | An array of up to six brainrots representing the brainrots currently in the players team |\n| **Hoverboards** | [Hoverboard] | An array hoverboards owned by the player |",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785886856,
+  "id": "20260805074045eb13cff1a3bf4bb3",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260805074045eb13cff1a3bf4bb3",
+  "usage": {
+    "completion_tokens": 1283,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 5824,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 7107
+  }
+}
