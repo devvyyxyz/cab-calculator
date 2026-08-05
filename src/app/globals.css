@@ -132,4 +132,54 @@
     -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.8);
     paint-order: stroke fill;
   }
+
+  /* Consistent rounded radius — use everywhere for UI elements */
+  .rounded-cab {
+    border-radius: 1.25rem;
+  }
+  .rounded-cab-sm {
+    border-radius: 0.875rem;
+  }
+
+  /* Stud-textured white input — for search bars */
+  .stud-input {
+    background-color: #ffffff;
+    background-image: url("/stud_texture.png");
+    background-size: 24px 24px;
+    background-blend-mode: multiply;
+    border: 3px solid #1a1f2e;
+  }
+
+  /* Shimmer effect for rare+ slots — animated gradient sweep */
+  @keyframes cab-shimmer {
+    0% { background-position: -150% 0; }
+    100% { background-position: 150% 0; }
+  }
+  .shimmer-rare {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer-rare::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    animation: cab-shimmer 2.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  /* Side-scrolling background animation for onboarding page */
+  @keyframes cab-scroll-x {
+    0% { background-position: 0 0; }
+    100% { background-position: -1000px 0; }
+  }
+  .scroll-studs {
+    animation: cab-scroll-x 18s linear infinite;
+  }
 }

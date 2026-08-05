@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { Rot, Species } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
+import { SmartImage } from "./SmartImage";
 
 /** A single squircle trade slot — empty or filled with a brainrot/item.
  *  The shared dark background is provided by the parent panel grid; each slot
@@ -47,10 +47,11 @@ export function TradeSlot({
       <span className="relative z-10 block h-full w-full">
         {children}
       </span>
-      {/* Hover overlay with remove button — only shows on hover */}
+      {/* Hover overlay with remove button — only shows on hover.
+          Just darkness + large icon, no red container. */}
       {!empty && onRemove && (
         <span
-          className="absolute inset-0 z-20 flex items-center justify-center rounded-[18%] bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+          className="absolute inset-0 z-20 flex items-center justify-center rounded-[18%] bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
           aria-hidden
         >
           <span
@@ -66,7 +67,7 @@ export function TradeSlot({
                 onRemove();
               }
             }}
-            className="grid h-8 w-8 cursor-pointer place-items-center rounded-full bg-red-500 text-xs font-bold text-white shadow-[0_2px_0_#7f1d1d] hover:bg-red-600"
+            className="grid h-10 w-10 cursor-pointer place-items-center text-3xl font-bold text-white/90 hover:text-white"
             aria-label="Remove from offer"
           >
             ✕
@@ -81,70 +82,23 @@ export function TradeSlot({
   );
 }
 
-/** Renders a brainrot icon + level/iv badges inside a slot. */
+/** Renders a brainrot icon inside a slot — no tags/badges, just the icon. */
 export function RotSlotContent({
   rot,
   species,
-  size = 64,
 }: {
   rot: Rot;
   species?: Species;
-  size?: number;
 }) {
-  const icon = species?.Icon ?? "1.png";
-  const rarity = species?.Rarity ?? 0;
-  const rarityColor =
-    rarity >= 5
-      ? "#ffd700"
-      : rarity >= 4
-      ? "#c084fc"
-      : rarity >= 3
-      ? "#3b82f6"
-      : rarity >= 2
-      ? "#22c55e"
-      : "#9ca3af";
-
+  const icon = species?.Icon ?? "";
   return (
     <div className="relative flex h-full w-full items-center justify-center p-1.5">
-      <Image
-        src={iconUrl(icon)}
+      <SmartImage
+        src={icon ? iconUrl(icon) : ""}
         alt={rot.Nickname || rot.Species}
-        width={size}
-        height={size}
-        unoptimized
-        className="h-full w-full object-contain [image-rendering:pixelated]"
+        imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+        fallbackSize={32}
       />
-      {/* Level badge */}
-      <span
-        className="absolute bottom-0.5 left-0.5 rounded px-1 text-[8px] font-bold leading-tight text-white"
-        style={{
-          background: "#1f2937",
-          boxShadow: "0 1px 0 #000",
-          fontFamily: "var(--font-pixel), monospace",
-        }}
-      >
-        L{rot.Level}
-      </span>
-      {/* Rarity / Exclusive */}
-      {species?.IsExclusive && (
-        <span
-          className="absolute right-0.5 top-0.5 rounded px-1 text-[7px] font-bold leading-tight text-white"
-          style={{ background: "#dc2626", fontFamily: "var(--font-pixel), monospace" }}
-          title="Exclusive / Demon rot"
-        >
-          DEMON
-        </span>
-      )}
-      {!species?.IsExclusive && rarity >= 4 && (
-        <span
-          className="absolute right-0.5 top-0.5 h-2.5 w-2.5 rounded-full"
-          style={{
-            background: rarityColor,
-            boxShadow: `0 0 0 2px #1f2937, 0 0 6px ${rarityColor}`,
-          }}
-          title={`Rarity ${rarity.toFixed(2)}`}
-        />
-      )}
     </div>
   );
 }
@@ -153,30 +107,25 @@ export function RotSlotContent({
 export function ItemSlotContent({
   icon,
   qty,
-  size = 64,
   label,
 }: {
   icon: string;
   qty: number;
-  size?: number;
   label?: string;
 }) {
   return (
     <div className="relative flex h-full w-full items-center justify-center p-1.5">
-      <Image
-        src={iconUrl(icon)}
+      <SmartImage
+        src={icon ? iconUrl(icon) : ""}
         alt={label ?? "item"}
-        width={size}
-        height={size}
-        unoptimized
-        className="h-full w-full object-contain [image-rendering:pixelated]"
+        imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+        fallbackSize={32}
       />
       {qty > 1 && (
         <span
-          className="absolute bottom-0.5 right-0.5 rounded px-1 text-[8px] font-bold leading-tight text-white"
+          className="absolute bottom-0.5 right-0.5 px-1 text-[8px] font-bold leading-tight text-white"
           style={{
             background: "#1f2937",
-            boxShadow: "0 1px 0 #000",
             fontFamily: "var(--font-pixel), monospace",
           }}
         >

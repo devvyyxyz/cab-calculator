@@ -9,6 +9,7 @@ import { TradeSlot, RotSlotContent, ItemSlotContent } from "@/components/trade/T
 import { SideNav, type NavView } from "@/components/trade/SideNav";
 import { Preloader } from "@/components/trade/Preloader";
 import { Onboarding } from "@/components/trade/Onboarding";
+import { SmartImage } from "@/components/trade/SmartImage";
 import {
   getRots,
   getBag,
@@ -65,6 +66,7 @@ export default function Home() {
   );
 
   const [loading, setLoading] = useState<"you" | "meta" | null>(null);
+  const [metaLoaded, setMetaLoaded] = useState(false);
   const [navView, setNavView] = useState<NavView>("trade");
 
   // ----- Load meta (rots + bag) once -----
@@ -80,7 +82,10 @@ export default function Home() {
       } catch (e) {
         toast.error(`Failed to load game data: ${(e as Error).message}`);
       } finally {
-        if (!cancelled) setLoading(null);
+        if (!cancelled) {
+          setLoading(null);
+          setMetaLoaded(true);
+        }
       }
     })();
     return () => {
@@ -299,6 +304,8 @@ export default function Home() {
   return (
     <>
       <Preloader />
+      {/* Game data preloader — stays until rots + bag are loaded */}
+      <Preloader visible={!metaLoaded} message="LOADING GAME DATA" />
       {!onboarded && <Onboarding onConfirm={handleOnboarded} />}
       <SideNav active={navView} onNavigate={setNavView} />
       <main
@@ -432,19 +439,6 @@ export default function Home() {
         />
       )}
 
-      {loading === "meta" && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm">
-          <div className="rounded-2xl bg-white/10 p-6 text-center">
-            <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-white/30 border-t-white" />
-            <p
-              className="text-sm text-white"
-              style={{ fontFamily: "var(--font-pixel), monospace" }}
-            >
-              LOADING GAME DATA...
-            </p>
-          </div>
-        </div>
-      )}
       </main>
     </>
   );
@@ -737,16 +731,15 @@ function InventoryDrawer({
                     >
                       <div className="flex items-center gap-2">
                         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
-                          {info.Icon && (
-                            <Image
-                              src={iconUrl(info.Icon)}
-                              alt={name}
-                              width={40}
-                              height={40}
-                              unoptimized
-                              className="h-full w-full object-contain [image-rendering:pixelated]"
-                            />
-                          )}
+                          <SmartImage
+                            src={info.Icon ? iconUrl(info.Icon) : ""}
+                            alt={name}
+                            className="h-full w-full"
+                            imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
+                            fallbackSize={24}
+                            fill={false}
+                            showCaption={false}
+                          />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-xs font-semibold text-white">
@@ -798,16 +791,15 @@ function InventoryDrawer({
                     style={{ border: "2px solid rgba(255,255,255,0.1)" }}
                   >
                     <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
-                      {sp.Icon && (
-                        <Image
-                          src={iconUrl(sp.Icon)}
-                          alt={name}
-                          width={48}
-                          height={48}
-                          unoptimized
-                          className="h-full w-full object-contain [image-rendering:pixelated]"
-                        />
-                      )}
+                      <SmartImage
+                        src={sp.Icon ? iconUrl(sp.Icon) : ""}
+                        alt={name}
+                        className="h-full w-full"
+                        imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
+                        fallbackSize={28}
+                        fill={false}
+                        showCaption={false}
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-xs font-semibold text-white">
@@ -815,15 +807,6 @@ function InventoryDrawer({
                       </div>
                       <div className="truncate text-[10px] text-white/60">
                         {sp.ShortenedName}
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-1 text-[9px]">
-                        <Badge>Rarity {sp.Rarity.toFixed(2)}</Badge>
-                        {sp.IsExclusive && <Badge color="#dc2626">DEMON</Badge>}
-                        {sp.SpawnLocation && (
-                          <Badge color="#374151">
-                            W{sp.SpawnLocation.World}Z{sp.SpawnLocation.Zone}
-                          </Badge>
-                        )}
                       </div>
                     </div>
                     <PixelButton
@@ -951,16 +934,15 @@ function InventoryDrawer({
                   >
                     <div className="flex items-center gap-2">
                       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
-                        {info?.Icon && (
-                          <Image
-                            src={iconUrl(info.Icon)}
-                            alt={name}
-                            width={40}
-                            height={40}
-                            unoptimized
-                            className="h-full w-full object-contain [image-rendering:pixelated]"
-                          />
-                        )}
+                        <SmartImage
+                          src={info?.Icon ? iconUrl(info.Icon) : ""}
+                          alt={name}
+                          className="h-full w-full"
+                          imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
+                          fallbackSize={24}
+                          fill={false}
+                          showCaption={false}
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-xs font-semibold text-white">
@@ -1021,16 +1003,15 @@ function InventoryDrawer({
                     }}
                   >
                     <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
-                      {sp?.Icon && (
-                        <Image
-                          src={iconUrl(sp.Icon)}
-                          alt={rot.Species}
-                          width={48}
-                          height={48}
-                          unoptimized
-                          className="h-full w-full object-contain [image-rendering:pixelated]"
-                        />
-                      )}
+                      <SmartImage
+                        src={sp?.Icon ? iconUrl(sp.Icon) : ""}
+                        alt={rot.Species}
+                        className="h-full w-full"
+                        imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
+                        fallbackSize={28}
+                        fill={false}
+                        showCaption={false}
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-xs font-semibold text-white">
@@ -1038,15 +1019,6 @@ function InventoryDrawer({
                       </div>
                       <div className="truncate text-[10px] text-white/60">
                         {rot.Species}
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-1 text-[9px]">
-                        <Badge>L{rot.Level}</Badge>
-                        <Badge>IV {(rot.IV * 100).toFixed(0)}%</Badge>
-                        {sp?.Rarity !== undefined && (
-                          <Badge>Rarity {sp.Rarity.toFixed(2)}</Badge>
-                        )}
-                        {sp?.IsExclusive && <Badge color="#dc2626">DEMON</Badge>}
-                        <Badge color="#374151">{rot.Box}</Badge>
                       </div>
                     </div>
                     <PixelButton
@@ -1107,15 +1079,10 @@ function EmptyState({ text }: { text: string }) {
 /** Rarity tier → background color for slot tiles. Matches the in-game look
  *  where slots are color-coded by rarity tier. */
 function rarityTierColor(rarity: number, isExclusive: boolean): string {
-  if (isExclusive) return "#7f1d1d"; // demon = deep red
-  if (rarity >= 5) return "#fbbf24"; // legendary = gold
-  if (rarity >= 4) return "#a3e635"; // epic = bright green
-  if (rarity >= 3) return "#e5e7eb"; // rare = light grey
-  if (rarity >= 2) return "#fca5a5"; // uncommon = light red
-  return "#c62828"; // common = deep red
+  return rarityTier(rarity, isExclusive).color;
 }
 
-/** Brainrots page — grid of all species, color-coded by rarity tier. */
+/** Brainrots page — grid of all species, color-coded by rarity tier, with shimmer for rare+. */
 function BrainrotsView({
   rotsData,
 }: {
@@ -1148,44 +1115,40 @@ function BrainrotsView({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="search brainrots..."
-          className="h-9 max-w-md bg-white/95 text-sm text-gray-900"
+          className="stud-input h-9 max-w-md text-sm text-gray-900"
+          style={{ borderRadius: "0.875rem" }}
         />
       </div>
 
-      {/* Grid — 8 columns on desktop like the in-game collection view */}
-      <div
-        className="grid grid-cols-4 gap-2 rounded-xl p-3 sm:grid-cols-6 md:grid-cols-8"
-        style={{
-          background: "#1a1f2e",
-          border: "4px solid #0d1018",
-          boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
-        }}
-      >
-        {filtered.map(([name, sp]) => (
-          <div
-            key={name}
-            className="group relative aspect-square cursor-help"
-            style={{
-              background: rarityTierColor(sp.Rarity, sp.IsExclusive),
-              borderRadius: "18%",
-              boxShadow:
-                "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
-            }}
-            title={`${sp.FullName} · Rarity ${sp.Rarity.toFixed(2)}${sp.IsExclusive ? " · DEMON" : ""}${sp.SpawnLocation ? ` · W${sp.SpawnLocation.World}Z${sp.SpawnLocation.Zone}` : ""}`}
-          >
-            <Image
-              src={iconUrl(sp.Icon)}
-              alt={sp.FullName}
-              fill
-              unoptimized
-              className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
-            />
-            {/* Hover tooltip */}
-            <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
-              {sp.ShortenedName} · R{sp.Rarity.toFixed(1)}
+      {/* Grid — no dark background container, slots float on the page bg */}
+      <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
+        {filtered.map(([name, sp]) => {
+          const tier = rarityTier(sp.Rarity, sp.IsExclusive);
+          return (
+            <div
+              key={name}
+              className={`group relative aspect-square cursor-help ${tier.shimmer ? "shimmer-rare" : ""}`}
+              style={{
+                background: tier.color,
+                borderRadius: "1.25rem",
+                boxShadow:
+                  "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
+              }}
+              title={`${sp.FullName} · Rarity ${sp.Rarity.toFixed(2)}${sp.IsExclusive ? " · DEMON" : ""}${sp.SpawnLocation ? ` · W${sp.SpawnLocation.World}Z${sp.SpawnLocation.Zone}` : ""}`}
+            >
+              <SmartImage
+                src={iconUrl(sp.Icon)}
+                alt={sp.FullName}
+                imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                fallbackSize={32}
+              />
+              {/* Hover tooltip */}
+              <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+                {sp.ShortenedName} · R{sp.Rarity.toFixed(1)}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {filtered.length === 0 && (
           <EmptyState text="No brainrots match your search" />
         )}
@@ -1202,6 +1165,16 @@ function BrainrotsView({
       </div>
     </div>
   );
+}
+
+/** Rarity tier → { color, shimmer } for slot backgrounds. */
+function rarityTier(rarity: number, isExclusive: boolean): { color: string; shimmer: boolean } {
+  if (isExclusive) return { color: "#7f1d1d", shimmer: true }; // demon
+  if (rarity >= 5) return { color: "#fbbf24", shimmer: true }; // legendary
+  if (rarity >= 4) return { color: "#a3e635", shimmer: true }; // epic
+  if (rarity >= 3) return { color: "#e5e7eb", shimmer: true }; // rare
+  if (rarity >= 2) return { color: "#fca5a5", shimmer: false }; // uncommon
+  return { color: "#c62828", shimmer: false }; // common
 }
 
 function LegendChip({ color, label }: { color: string; label: string }) {
@@ -1247,37 +1220,30 @@ function ItemsView({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="search items..."
-          className="h-9 max-w-md bg-white/95 text-sm text-gray-900"
+          className="stud-input h-9 max-w-md text-sm text-gray-900"
+          style={{ borderRadius: "0.875rem" }}
         />
       </div>
 
-      {/* Grid */}
-      <div
-        className="grid grid-cols-4 gap-2 rounded-xl p-3 sm:grid-cols-6 md:grid-cols-8"
-        style={{
-          background: "#1a1f2e",
-          border: "4px solid #0d1018",
-          boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
-        }}
-      >
+      {/* Grid — no dark background container */}
+      <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
         {filtered.map(([name, info]) => (
           <div
             key={name}
             className="group relative aspect-square cursor-help"
             style={{
               background: "#374151",
-              borderRadius: "18%",
+              borderRadius: "1.25rem",
               boxShadow:
                 "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
             }}
             title={`${name} — ${info.Description}`}
           >
-            <Image
+            <SmartImage
               src={iconUrl(info.Icon)}
               alt={name}
-              fill
-              unoptimized
-              className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+              imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+              fallbackSize={32}
             />
             <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
               {name}
@@ -1386,16 +1352,9 @@ function InventoryView({
         ))}
       </div>
 
-      {/* Content */}
+      {/* Content — no dark background container, slots float on page bg */}
       {tab === "bag" ? (
-        <div
-          className="grid grid-cols-3 gap-2 rounded-xl p-3 sm:grid-cols-5 md:grid-cols-7"
-          style={{
-            background: "#1a1f2e",
-            border: "4px solid #0d1018",
-            boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
-          }}
-        >
+        <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-5 md:grid-cols-7 sm:p-2">
           {bagEntries.map(([name, qty]) => {
             const info = bagData[name];
             return (
@@ -1404,30 +1363,29 @@ function InventoryView({
                 className="group relative aspect-square"
                 style={{
                   background: "#374151",
-                  borderRadius: "18%",
+                  borderRadius: "1.25rem",
                   boxShadow:
                     "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
                 }}
                 title={`${name} ×${qty}`}
               >
-                {info?.Icon && (
-                  <Image
-                    src={iconUrl(info.Icon)}
-                    alt={name}
-                    fill
-                    unoptimized
-                    className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
-                  />
+                <SmartImage
+                  src={info?.Icon ? iconUrl(info.Icon) : ""}
+                  alt={name}
+                  imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                  fallbackSize={32}
+                />
+                {qty > 1 && (
+                  <span
+                    className="absolute bottom-0.5 right-0.5 px-1 text-[8px] text-white"
+                    style={{
+                      background: "#1f2937",
+                      fontFamily: "var(--font-pixel), monospace",
+                    }}
+                  >
+                    ×{qty}
+                  </span>
                 )}
-                <span
-                  className="absolute bottom-0.5 right-0.5 rounded px-1 text-[8px] text-white"
-                  style={{
-                    background: "#1f2937",
-                    fontFamily: "var(--font-pixel), monospace",
-                  }}
-                >
-                  ×{qty}
-                </span>
                 <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
                   {name}
                 </div>
@@ -1439,48 +1397,30 @@ function InventoryView({
           )}
         </div>
       ) : (
-        <div
-          className="grid grid-cols-2 gap-2 rounded-xl p-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
-          style={{
-            background: "#1a1f2e",
-            border: "4px solid #0d1018",
-            boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
-          }}
-        >
+        <div className="grid grid-cols-2 gap-2 p-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:p-2">
           {currentRots.map((rot) => {
             const sp = rotsData[rot.Species];
+            const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
             return (
               <div
                 key={rot.UID}
-                className="group relative aspect-square"
+                className={`group relative aspect-square ${tier.shimmer ? "shimmer-rare" : ""}`}
                 style={{
-                  background: rarityTierColor(sp?.Rarity ?? 0, sp?.IsExclusive ?? false),
-                  borderRadius: "18%",
+                  background: tier.color,
+                  borderRadius: "1.25rem",
                   boxShadow:
                     "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
                 }}
-                title={`${rot.Nickname || rot.Species} · L${rot.Level} · IV ${(rot.IV * 100).toFixed(0)}%`}
+                title={`${rot.Nickname || rot.Species}`}
               >
-                {sp?.Icon && (
-                  <Image
-                    src={iconUrl(sp.Icon)}
-                    alt={rot.Species}
-                    fill
-                    unoptimized
-                    className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
-                  />
-                )}
-                <span
-                  className="absolute bottom-0.5 left-0.5 rounded px-1 text-[8px] text-white"
-                  style={{
-                    background: "#1f2937",
-                    fontFamily: "var(--font-pixel), monospace",
-                  }}
-                >
-                  L{rot.Level}
-                </span>
+                <SmartImage
+                  src={sp?.Icon ? iconUrl(sp.Icon) : ""}
+                  alt={rot.Species}
+                  imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                  fallbackSize={32}
+                />
                 <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
-                  {rot.Nickname || rot.Species} · L{rot.Level} · IV {(rot.IV * 100).toFixed(0)}%
+                  {rot.Nickname || rot.Species}
                 </div>
               </div>
             );
