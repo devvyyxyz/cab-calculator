@@ -3,21 +3,16 @@ import { Silkscreen, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
+// All UI text is bold — load Silkscreen at 700 weight only
 const pixel = Silkscreen({
-  weight: "400",
+  weight: "700",
   variable: "--font-pixel",
   subsets: ["latin"],
   display: "swap",
 });
 
-const pixelBold = Silkscreen({
-  weight: "700",
-  variable: "--font-pixel-bold",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 const body = Inter({
+  weight: ["400", "700"],
   variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
@@ -45,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${pixel.variable} ${pixelBold.variable} ${body.variable} antialiased bg-background text-foreground`}
+        className={`${pixel.variable} ${body.variable} antialiased bg-background text-foreground font-bold`}
       >
         {children}
         <Toaster />

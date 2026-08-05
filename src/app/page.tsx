@@ -28,6 +28,7 @@ import {
   verdict,
   type ValuedRot,
   type ValuedItem,
+  type TradeVerdict,
 } from "@/lib/trade-values";
 
 const SLOTS_PER_PANEL = 12; // 4 cols x 3 rows
@@ -320,49 +321,7 @@ export default function Home() {
         />
       </div>
 
-      {/* Verdict banner */}
-      <section className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
-        <div
-          className="flex flex-col items-stretch gap-2 rounded-2xl p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4"
-          style={{
-            background: "rgba(0,0,0,0.35)",
-            boxShadow: "0 4px 0 rgba(0,0,0,0.35)",
-            border: "3px solid rgba(255,255,255,0.18)",
-            backdropFilter: "blur(6px)",
-          }}
-        >
-          <VerdictPill label="YOUR VALUE" value={yourTotal} color="#7cb3ff" />
-          <div className="flex flex-1 flex-col items-center justify-center gap-1">
-            <div
-              className="px-3 py-1.5 text-xs sm:text-sm"
-              style={{
-                background: v.color,
-                color: "#1f2937",
-                borderRadius: "10px",
-                boxShadow: "0 3px 0 rgba(0,0,0,0.4)",
-                fontFamily: "var(--font-pixel), monospace",
-                fontWeight: 700,
-              }}
-            >
-              {v.label}
-            </div>
-            <div className="text-[10px] text-white/80 sm:text-xs">
-              {v.winner === "fair"
-                ? "Even trade — both sides gain equally"
-                : v.winner === "you"
-                ? `You're ahead by ${Math.abs(v.diff).toFixed(1)} units (${(
-                    v.percent * 100
-                  ).toFixed(0)}%)`
-                : `They're ahead by ${Math.abs(v.diff).toFixed(1)} units (${(
-                    v.percent * 100
-                  ).toFixed(0)}%)`}
-            </div>
-          </div>
-          <VerdictPill label="THEIR VALUE" value={theirTotal} color="#7ed957" />
-        </div>
-      </section>
-
-      {/* Trade window */}
+      {/* Trade window — fairness badge sits in the center gap, overlapping both panels */}
       <section className="relative z-10 mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
         <TradePanel
           title="YOUR OFFER"
@@ -403,6 +362,12 @@ export default function Home() {
         >
           {renderOfferSlots("them")}
         </TradePanel>
+
+        {/* Fairness badge — sits in the center gap, overlapping both panels.
+            +  = you're winning (green)
+            -  = you're losing (red)
+            =  = fair trade (amber) */}
+        <FairnessBadge verdict={v} />
       </section>
 
       {/* Bottom action bar */}
@@ -546,36 +511,49 @@ function UserIdInput({
   );
 }
 
-function VerdictPill({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: number;
-  color: string;
-}) {
+function FairnessBadge({ verdict }: { verdict: TradeVerdict }) {
+  // Determine symbol, color, and background based on who's winning
+  // +  = you're winning (green)
+  // -  = you're losing (red)
+  // =  = fair trade (amber)
+  const symbol = verdict.winner === "you" ? "+" : verdict.winner === "them" ? "−" : "=";
+  const color = verdict.winner === "you" ? "#22c55e" : verdict.winner === "them" ? "#ef4444" : "#fbbf24";
+  const borderColor = verdict.winner === "you" ? "#14532d" : verdict.winner === "them" ? "#7f1d1d" : "#92400e";
+  const textColor = verdict.winner === "fair" ? "#1f2937" : "#ffffff";
+
   return (
     <div
-      className="flex flex-1 items-center justify-between gap-2 rounded-xl px-3 py-2 sm:flex-none sm:justify-center sm:gap-3"
-      style={{
-        background: color,
-        boxShadow: `0 3px 0 rgba(0,0,0,0.35)`,
-        border: "2px solid rgba(0,0,0,0.3)",
-      }}
+      className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 md:left-[calc(50%)]"
+      style={{ pointerEvents: "auto" }}
     >
-      <span
-        className="text-outline-sm text-[9px] text-white sm:text-[10px]"
-        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      <div
+        className="relative grid h-14 w-14 place-items-center rounded-full sm:h-16 sm:w-16"
+        style={{
+          background: color,
+          border: `4px solid ${borderColor}`,
+          boxShadow: `0 4px 0 0 ${borderColor}, 0 0 16px ${color}aa`,
+          fontFamily: "var(--font-pixel), monospace",
+        }}
+        title={
+          verdict.winner === "fair"
+            ? "Fair trade"
+            : verdict.winner === "you"
+            ? `You're ahead by ${Math.abs(verdict.diff).toFixed(1)} (${(verdict.percent * 100).toFixed(0)}%)`
+            : `They're ahead by ${Math.abs(verdict.diff).toFixed(1)} (${(verdict.percent * 100).toFixed(0)}%)`
+        }
       >
-        {label}
-      </span>
-      <span
-        className="text-outline text-base text-white sm:text-lg"
-        style={{ fontFamily: "var(--font-pixel), monospace" }}
-      >
-        {value.toFixed(0)}
-      </span>
+        <span
+          className="text-2xl leading-none sm:text-3xl"
+          style={{
+            color: textColor,
+            WebkitTextStroke:
+              verdict.winner === "fair" ? "none" : `2px ${borderColor}`,
+            paintOrder: "stroke fill",
+          }}
+        >
+          {symbol}
+        </span>
+      </div>
     </div>
   );
 }
@@ -605,7 +583,6 @@ function TradePanel({
 }) {
   const bg = variant === "you" ? "#7cb3ff" : "#7ed957";
   const border = variant === "you" ? "#1e3a5f" : "#2e5a1f";
-  const headerBg = variant === "you" ? "#5b8dee" : "#5cb843";
 
   return (
     <div
