@@ -6,7 +6,7 @@ import type { Rot, Species } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
 
 /** A single squircle trade slot — empty or filled with a brainrot/item.
- *  Dark recessed background matching the original in-game trade UI. */
+ *  "Light box inside a dark box" recessed well effect, matching the original in-game trade UI. */
 export function TradeSlot({
   children,
   variant = "you",
@@ -20,30 +20,45 @@ export function TradeSlot({
   onRemove?: () => void;
   empty?: boolean;
 }) {
-  // Dark recessed slot — matches the original in-game look.
-  // Same dark interior for both sides; the panel color provides the side distinction.
-  const slotBg = "#1a1f2e"; // dark interior
-  const slotBorder = variant === "you" ? "#1e3a5f" : "#2e5a1f"; // matches panel border
-  const slotInset = variant === "you" ? "#0d1018" : "#0d1018";
+  // Outer dark well (navy for you / dark green for them)
+  const outerBg = variant === "you" ? "#2f4053" : "#34472e";
+  const outerBorder = variant === "you" ? "#1e3a5f" : "#2e5a1f";
+  // Inner light floor (pale blue-grey / pale green-grey)
+  const innerBg = variant === "you" ? "#d4e0eb" : "#d8ecc8";
+  const innerShadow = variant === "you" ? "rgba(30,58,95,0.45)" : "rgba(46,90,31,0.45)";
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "relative aspect-square w-full select-none transition-transform",
+        "relative aspect-square w-full select-none p-[10%] transition-transform",
         "active:translate-y-0.5"
       )}
       style={{
-        background: slotBg,
+        background: outerBg,
         borderRadius: "22%",
-        // Inset shadow = recessed/pressed-in look (top dark, bottom light)
-        boxShadow: `inset 0 3px 4px 0 ${slotInset}, inset 0 -2px 2px 0 rgba(255,255,255,0.08)`,
-        border: `3px solid ${slotBorder}`,
+        // soft outer drop shadow
+        boxShadow: "0 3px 0 0 rgba(0,0,0,0.35)",
+        border: `2px solid ${outerBorder}`,
       }}
       aria-label={empty ? "Empty trade slot" : "Filled trade slot"}
     >
-      {children}
+      {/* Inner light floor — the recessed "well" surface */}
+      <span
+        className="absolute inset-[10%] block"
+        style={{
+          background: innerBg,
+          borderRadius: "18%",
+          // inset shadow on bottom-right = sunken look
+          boxShadow: `inset 2px 2px 3px 0 ${innerShadow}, inset -1px -1px 1px 0 rgba(255,255,255,0.5)`,
+        }}
+        aria-hidden
+      />
+      {/* Content sits above the floor */}
+      <span className="relative z-10 block h-full w-full">
+        {children}
+      </span>
       {!empty && onRemove && (
         <span
           role="button"
@@ -58,7 +73,7 @@ export function TradeSlot({
               onRemove();
             }
           }}
-          className="absolute -right-2 -top-2 z-10 grid h-6 w-6 cursor-pointer place-items-center rounded-full bg-red-500 text-xs font-bold text-white shadow-[0_2px_0_#7f1d1d] hover:bg-red-600"
+          className="absolute -right-2 -top-2 z-20 grid h-6 w-6 cursor-pointer place-items-center rounded-full bg-red-500 text-xs font-bold text-white shadow-[0_2px_0_#7f1d1d] hover:bg-red-600"
           aria-label="Remove from offer"
         >
           ✕

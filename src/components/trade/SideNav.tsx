@@ -50,15 +50,28 @@ export function SideNav({
     <aside
       className="fixed left-0 top-0 z-40 flex h-screen w-16 flex-col items-center gap-2 border-r-4 border-black/50 py-3 sm:w-20"
       style={{
-        background: "linear-gradient(180deg, #1a1f2e 0%, #0f1320 100%)",
-        boxShadow: "4px 0 0 rgba(0,0,0,0.3)",
+        backgroundColor: "#0a1230",
+        backgroundImage: "url('/stud_texture.png')",
+        backgroundSize: "50px 50px",
+        backgroundRepeat: "repeat",
+        // Soft dark vignette so icons stay legible but studs are still visible
+        boxShadow:
+          "4px 0 0 rgba(0,0,0,0.3), inset 0 0 60px 0 rgba(8,12,30,0.55)",
       }}
       aria-label="Main navigation"
     >
+      {/* Semi-transparent dark overlay layer for extra contrast on top of studs */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(15,19,32,0.35) 0%, rgba(15,19,32,0.55) 100%)",
+        }}
+      />
       {/* Logo — raw icon, no background box */}
       <a
         href="/"
-        className="group relative mb-2 block"
+        className="group relative z-10 mb-2 block"
         aria-label="CAB Trade Calc home"
       >
         <Image
@@ -72,10 +85,10 @@ export function SideNav({
       </a>
 
       {/* Divider */}
-      <div className="my-1 h-0.5 w-8 rounded-full bg-white/15" />
+      <div className="relative z-10 my-1 h-0.5 w-8 rounded-full bg-white/15" />
 
       {/* Nav items */}
-      <nav className="flex flex-1 flex-col items-center gap-2">
+      <nav className="relative z-10 flex flex-1 flex-col items-center gap-2">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = active === item.id;
@@ -141,7 +154,7 @@ export function SideNav({
 
       {/* Footer badge */}
       <div
-        className="rounded-md px-1 py-1 text-[7px] text-white/40"
+        className="relative z-10 rounded-md px-1 py-1 text-[7px] text-white/40"
         style={{ fontFamily: "var(--font-pixel), monospace" }}
       >
         v1.0
