@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Press_Start_2P, Inter } from "next/font/google";
+import { Silkscreen, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-const pixel = Press_Start_2P({
+const pixel = Silkscreen({
   weight: "400",
   variable: "--font-pixel",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const pixelBold = Silkscreen({
+  weight: "700",
+  variable: "--font-pixel-bold",
   subsets: ["latin"],
   display: "swap",
 });
@@ -38,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${pixel.variable} ${body.variable} antialiased bg-background text-foreground`}
+        className={`${pixel.variable} ${pixelBold.variable} ${body.variable} antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster />

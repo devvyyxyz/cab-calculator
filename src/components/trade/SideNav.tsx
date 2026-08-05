@@ -1,15 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import {
-  ArrowLeftRight,
-  Backpack,
-  BookOpen,
-  Rocket,
-  Scale,
-  Info,
-  type LucideIcon,
-} from "lucide-react";
+import { PixelIcon, type PixelIconName } from "./PixelIcon";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,17 +16,17 @@ export type NavView =
 interface NavItem {
   id: NavView;
   label: string;
-  icon: LucideIcon;
+  icon: PixelIconName;
   color: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "trade", label: "Trade", icon: ArrowLeftRight, color: "#7cb3ff" },
-  { id: "inventory", label: "Inventory", icon: Backpack, color: "#7ed957" },
-  { id: "rots", label: "Brainrots", icon: BookOpen, color: "#fbbf24" },
-  { id: "skins", label: "Hoverboards", icon: Rocket, color: "#c084fc" },
-  { id: "values", label: "Values", icon: Scale, color: "#f472b6" },
-  { id: "about", label: "About", icon: Info, color: "#94a3b8" },
+  { id: "trade", label: "Trade", icon: "trade", color: "#7cb3ff" },
+  { id: "inventory", label: "Inventory", icon: "inventory", color: "#7ed957" },
+  { id: "rots", label: "Brainrots", icon: "rots", color: "#fbbf24" },
+  { id: "skins", label: "Hoverboards", icon: "skins", color: "#c084fc" },
+  { id: "values", label: "Values", icon: "values", color: "#f472b6" },
+  { id: "about", label: "About", icon: "about", color: "#94a3b8" },
 ];
 
 export function SideNav({
@@ -90,9 +82,7 @@ export function SideNav({
       {/* Nav items */}
       <nav className="relative z-10 flex flex-1 flex-col items-center gap-2">
         {NAV_ITEMS.map((item) => {
-          const Icon = item.icon;
           const isActive = active === item.id;
-          const isHovered = hovered === item.id;
           return (
             <button
               key={item.id}
@@ -118,12 +108,11 @@ export function SideNav({
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon
-                className="h-5 w-5 sm:h-6 sm:w-6"
-                style={{
-                  color: isActive ? "#0f1320" : "#cbd5e1",
-                  strokeWidth: 2.5,
-                }}
+              <PixelIcon
+                name={item.icon}
+                size={24}
+                color={isActive ? "#0f1320" : "#e2e8f0"}
+                className="sm:block"
               />
               {/* Tooltip */}
               <span
