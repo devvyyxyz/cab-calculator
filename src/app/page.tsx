@@ -65,8 +65,6 @@ export default function Home() {
   );
 
   const [loading, setLoading] = useState<"you" | "meta" | null>(null);
-  const [yourReady, setYourReady] = useState(false);
-  const [theirReady, setTheirReady] = useState(false);
   const [navView, setNavView] = useState<NavView>("trade");
 
   // ----- Load meta (rots + bag) once -----
@@ -98,13 +96,12 @@ export default function Home() {
       const data = (res as { Data: PlayerData }).Data;
       setYourData(data);
       setYourOffer(EMPTY_OFFER);
-      setYourReady(false);
       toast.success(
         `Loaded your inventory — ${data.PC.length} rots, ${data.Team.length} team, ${Object.keys(data.Bag).length} bag items`
       );
     } catch (e) {
       toast.error(
-        `Failed to load inventory: ${(e as Error).message}`
+        `No Catch a Brainrot inventory found for this Roblox account. You can still use the catalog picker.`
       );
     } finally {
       setLoading(null);
@@ -241,8 +238,6 @@ export default function Home() {
   const reset = useCallback(() => {
     setYourOffer(EMPTY_OFFER);
     setTheirOffer(EMPTY_OFFER);
-    setYourReady(false);
-    setTheirReady(false);
     toast("Trade reset");
   }, []);
 
@@ -317,7 +312,7 @@ export default function Home() {
         }}
       >
       {/* Your profile chip */}
-      {youProfile && (
+      {youProfile && navView === "trade" && (
         <div className="relative z-10 mx-auto flex max-w-7xl items-center justify-center px-4 pt-4 sm:px-6">
           <div
             className="flex items-center gap-2 rounded-xl px-3 py-1.5"
@@ -347,101 +342,75 @@ export default function Home() {
         </div>
       )}
 
-      {/* Trade window — fairness badge sits in the center gap, overlapping both panels */}
-      <section className="relative z-10 mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
-        <TradePanel
-          title="YOUR OFFER"
-          variant="you"
-          total={yourTotal}
-          valuedRots={yourValued}
-          items={yourItems}
-          ready={yourReady}
-          inventoryLoaded={!!yourData}
-          onOpenInventory={() => setInventoryOpenFor("you")}
-          onToggleReady={() => {
-            if (yourOffer.rots.length + yourOffer.items.length === 0) {
-              toast.error("Add at least one item before readying");
-              return;
-            }
-            setYourReady((r) => !r);
-          }}
-        >
-          {renderOfferSlots("you")}
-        </TradePanel>
+      {/* ===== TRADE VIEW ===== */}
+      {navView === "trade" && (
+        <>
+          <section className="relative z-10 mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
+            <TradePanel
+              title="YOUR OFFER"
+              variant="you"
+              total={yourTotal}
+              valuedRots={yourValued}
+              items={yourItems}
+              inventoryLoaded={!!yourData}
+              onOpenInventory={() => setInventoryOpenFor("you")}
+            >
+              {renderOfferSlots("you")}
+            </TradePanel>
 
-        <TradePanel
-          title="THEIR OFFER"
-          variant="them"
-          total={theirTotal}
-          valuedRots={theirValued}
-          items={theirItems}
-          ready={theirReady}
-          inventoryLoaded={true}
-          onOpenInventory={() => setInventoryOpenFor("them")}
-          onToggleReady={() => {
-            if (theirOffer.rots.length + theirOffer.items.length === 0) {
-              toast.error("Add at least one item before readying");
-              return;
-            }
-            setTheirReady((r) => !r);
-          }}
-        >
-          {renderOfferSlots("them")}
-        </TradePanel>
+            <TradePanel
+              title="THEIR OFFER"
+              variant="them"
+              total={theirTotal}
+              valuedRots={theirValued}
+              items={theirItems}
+              inventoryLoaded={true}
+              onOpenInventory={() => setInventoryOpenFor("them")}
+            >
+              {renderOfferSlots("them")}
+            </TradePanel>
 
-        {/* Fairness badge — sits in the center gap, overlapping both panels.
-            +  = you're winning (green)
-            -  = you're losing (red)
-            =  = fair trade (amber) */}
-        <FairnessBadge verdict={v} />
-      </section>
+            <FairnessBadge verdict={v} />
+          </section>
 
-      {/* Bottom action bar */}
-      <footer
-        className="fixed bottom-0 right-0 left-16 z-30 border-t-4 border-black/40 px-4 py-3 backdrop-blur-md sm:left-20"
-        style={{ background: "rgba(0,0,0,0.55)" }}
-      >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-3">
-          <PixelButton
-            variant="blue"
-            size="md"
-            onClick={() => setInventoryOpenFor("you")}
-            className="flex-1 sm:flex-none"
-          >
-            ◀ YOUR ITEMS ▶
-          </PixelButton>
-          <PixelButton
-            variant="amber"
-            size="md"
-            onClick={reset}
-            className="flex-1 sm:flex-none"
-          >
-            CANCEL
-          </PixelButton>
-          <PixelButton
-            variant={yourReady && theirReady ? "green" : "olive"}
-            size="md"
-            onClick={() => {
-              if (yourReady && theirReady) {
-                toast.success("✅ Trade accepted! (simulated)");
-              }
-              setYourReady((r) => !r);
-              setTheirReady((r) => !r);
-            }}
-            className="flex-1 sm:flex-none"
-          >
-            {yourReady && theirReady ? "CONFIRM" : "READY"}
-          </PixelButton>
-          <PixelButton
-            variant="green"
-            size="md"
-            onClick={() => setInventoryOpenFor("them")}
-            className="flex-1 sm:flex-none"
-          >
-            ◀ THEIR ITEMS ▶
-          </PixelButton>
-        </div>
-      </footer>
+          <div className="mx-auto flex max-w-7xl justify-center px-4 pb-28 sm:px-6">
+            <PixelButton variant="amber" size="sm" onClick={reset}>
+              RESET TRADE
+            </PixelButton>
+          </div>
+        </>
+      )}
+
+      {/* ===== INVENTORY VIEW ===== */}
+      {navView === "inventory" && (
+        <InventoryView
+          youProfile={youProfile}
+          yourData={yourData}
+          rotsData={rotsData}
+          bagData={bagData}
+          loading={loading === "you"}
+        />
+      )}
+
+      {/* ===== BRAINROTS VIEW ===== */}
+      {navView === "rots" && (
+        <BrainrotsView rotsData={rotsData} />
+      )}
+
+      {/* ===== ITEMS VIEW ===== */}
+      {navView === "skins" && (
+        <ItemsView bagData={bagData} />
+      )}
+
+      {/* ===== VALUES VIEW (placeholder) ===== */}
+      {navView === "values" && (
+        <PlaceholderView title="VALUES" subtitle="Trade value tiers coming soon" />
+      )}
+
+      {/* ===== ABOUT VIEW (placeholder) ===== */}
+      {navView === "about" && (
+        <PlaceholderView title="ABOUT" subtitle="CAB Trade Calculator — value your trades before you ready up" />
+      )}
 
       {/* Inventory / Catalog drawer */}
       {inventoryOpenFor && (
@@ -538,10 +507,8 @@ function TradePanel({
   total,
   valuedRots,
   items,
-  ready,
   inventoryLoaded,
   onOpenInventory,
-  onToggleReady,
   children,
 }: {
   title: string;
@@ -549,10 +516,8 @@ function TradePanel({
   total: number;
   valuedRots: ValuedRot[];
   items: ValuedItem[];
-  ready: boolean;
   inventoryLoaded: boolean;
   onOpenInventory: () => void;
-  onToggleReady: () => void;
   children: React.ReactNode;
 }) {
   const bg = variant === "you" ? "#7cb3ff" : "#7ed957";
@@ -637,14 +602,6 @@ function TradePanel({
           className="flex-1"
         >
           {inventoryLoaded ? "+ ADD ITEMS" : "LOAD INV FIRST"}
-        </PixelButton>
-        <PixelButton
-          variant={ready ? "green" : "olive"}
-          size="sm"
-          onClick={onToggleReady}
-          className="flex-1"
-        >
-          {ready ? "✓ READY" : "READY"}
         </PixelButton>
       </div>
     </div>
@@ -1139,6 +1096,421 @@ function EmptyState({ text }: { text: string }) {
     <div className="col-span-full grid place-items-center py-10 text-center">
       <div className="text-3xl opacity-40">📦</div>
       <p className="mt-2 text-xs text-white/50">{text}</p>
+    </div>
+  );
+}
+
+// ============================================================
+// Full-page views (sidebar navigation)
+// ============================================================
+
+/** Rarity tier → background color for slot tiles. Matches the in-game look
+ *  where slots are color-coded by rarity tier. */
+function rarityTierColor(rarity: number, isExclusive: boolean): string {
+  if (isExclusive) return "#7f1d1d"; // demon = deep red
+  if (rarity >= 5) return "#fbbf24"; // legendary = gold
+  if (rarity >= 4) return "#a3e635"; // epic = bright green
+  if (rarity >= 3) return "#e5e7eb"; // rare = light grey
+  if (rarity >= 2) return "#fca5a5"; // uncommon = light red
+  return "#c62828"; // common = deep red
+}
+
+/** Brainrots page — grid of all species, color-coded by rarity tier. */
+function BrainrotsView({
+  rotsData,
+}: {
+  rotsData: Record<string, Species>;
+}) {
+  const [search, setSearch] = useState("");
+  const species = Object.entries(rotsData);
+  const filtered = species.filter(([name, sp]) =>
+    `${name} ${sp.ShortenedName} ${sp.FullName}`.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
+      {/* Header */}
+      <div className="mb-4 flex flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          BRAINROTS
+        </h2>
+        <p className="text-[10px] text-white/70">
+          {species.length} species · color = rarity tier
+        </p>
+      </div>
+
+      {/* Search */}
+      <div className="mb-4 flex justify-center">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="search brainrots..."
+          className="h-9 max-w-md bg-white/95 text-sm text-gray-900"
+        />
+      </div>
+
+      {/* Grid — 8 columns on desktop like the in-game collection view */}
+      <div
+        className="grid grid-cols-4 gap-2 rounded-xl p-3 sm:grid-cols-6 md:grid-cols-8"
+        style={{
+          background: "#1a1f2e",
+          border: "4px solid #0d1018",
+          boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
+        }}
+      >
+        {filtered.map(([name, sp]) => (
+          <div
+            key={name}
+            className="group relative aspect-square cursor-help"
+            style={{
+              background: rarityTierColor(sp.Rarity, sp.IsExclusive),
+              borderRadius: "18%",
+              boxShadow:
+                "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
+            }}
+            title={`${sp.FullName} · Rarity ${sp.Rarity.toFixed(2)}${sp.IsExclusive ? " · DEMON" : ""}${sp.SpawnLocation ? ` · W${sp.SpawnLocation.World}Z${sp.SpawnLocation.Zone}` : ""}`}
+          >
+            <Image
+              src={iconUrl(sp.Icon)}
+              alt={sp.FullName}
+              fill
+              unoptimized
+              className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+            />
+            {/* Hover tooltip */}
+            <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+              {sp.ShortenedName} · R{sp.Rarity.toFixed(1)}
+            </div>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <EmptyState text="No brainrots match your search" />
+        )}
+      </div>
+
+      {/* Legend */}
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[9px] text-white/80">
+        <LegendChip color="#c62828" label="Common" />
+        <LegendChip color="#fca5a5" label="Uncommon" />
+        <LegendChip color="#e5e7eb" label="Rare" />
+        <LegendChip color="#a3e635" label="Epic" />
+        <LegendChip color="#fbbf24" label="Legendary" />
+        <LegendChip color="#7f1d1d" label="Demon" />
+      </div>
+    </div>
+  );
+}
+
+function LegendChip({ color, label }: { color: string; label: string }) {
+  return (
+    <div className="flex items-center gap-1">
+      <span
+        className="inline-block h-3 w-3 rounded"
+        style={{ background: color }}
+      />
+      <span style={{ fontFamily: "var(--font-pixel), monospace" }}>{label}</span>
+    </div>
+  );
+}
+
+/** Items page — grid of all bag items. */
+function ItemsView({
+  bagData,
+}: {
+  bagData: Record<string, BagItemInfo>;
+}) {
+  const [search, setSearch] = useState("");
+  const items = Object.entries(bagData);
+  const filtered = items.filter(([name]) =>
+    name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
+      {/* Header */}
+      <div className="mb-4 flex flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          ITEMS
+        </h2>
+        <p className="text-[10px] text-white/70">{items.length} item types</p>
+      </div>
+
+      {/* Search */}
+      <div className="mb-4 flex justify-center">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="search items..."
+          className="h-9 max-w-md bg-white/95 text-sm text-gray-900"
+        />
+      </div>
+
+      {/* Grid */}
+      <div
+        className="grid grid-cols-4 gap-2 rounded-xl p-3 sm:grid-cols-6 md:grid-cols-8"
+        style={{
+          background: "#1a1f2e",
+          border: "4px solid #0d1018",
+          boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
+        }}
+      >
+        {filtered.map(([name, info]) => (
+          <div
+            key={name}
+            className="group relative aspect-square cursor-help"
+            style={{
+              background: "#374151",
+              borderRadius: "18%",
+              boxShadow:
+                "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+            }}
+            title={`${name} — ${info.Description}`}
+          >
+            <Image
+              src={iconUrl(info.Icon)}
+              alt={name}
+              fill
+              unoptimized
+              className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+            />
+            <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+              {name}
+            </div>
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <EmptyState text="No items match your search" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Inventory page — shows the player's loaded inventory (team, PC, bag). */
+function InventoryView({
+  youProfile,
+  yourData,
+  rotsData,
+  bagData,
+  loading,
+}: {
+  youProfile: { id: string; displayName: string; avatarUrl?: string } | null;
+  yourData: PlayerData | null;
+  rotsData: Record<string, Species>;
+  bagData: Record<string, BagItemInfo>;
+  loading: boolean;
+}) {
+  const [tab, setTab] = useState<"team" | "pc" | "bag">("team");
+
+  if (!youProfile) {
+    return (
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+        <p className="text-outline text-base text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+          COMPLETE ONBOARDING FIRST
+        </p>
+      </div>
+    );
+  }
+
+  if (loading && !yourData) {
+    return (
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+        <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-white" />
+        <p className="text-outline text-base text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+          LOADING INVENTORY...
+        </p>
+      </div>
+    );
+  }
+
+  if (!yourData) {
+    return (
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+        <p
+          className="text-outline mb-3 text-base text-white"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          NO INVENTORY FOUND
+        </p>
+        <p className="mx-auto max-w-md text-[10px] text-white/70">
+          Your Roblox account doesn&apos;t have a Catch a Brainrot save yet.
+          Play the game and come back, or use the catalog picker on the trade view.
+        </p>
+      </div>
+    );
+  }
+
+  const teamRots = yourData.Team;
+  const pcRots = yourData.PC;
+  const bagEntries = Object.entries(yourData.Bag).filter(([, q]) => q > 0);
+  const currentRots = tab === "team" ? teamRots : pcRots;
+
+  return (
+    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
+      {/* Header */}
+      <div className="mb-4 flex flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          YOUR INVENTORY
+        </h2>
+        <p className="text-[10px] text-white/70">
+          {teamRots.length} team · {pcRots.length} PC · {bagEntries.length} bag types
+        </p>
+      </div>
+
+      {/* Tabs */}
+      <div className="mb-4 flex justify-center gap-2">
+        {(["team", "pc", "bag"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="rounded-md px-4 py-2 text-[10px] uppercase transition-colors"
+            style={{
+              background: tab === t ? "#7cb3ff" : "rgba(255,255,255,0.1)",
+              color: "#fff",
+              fontFamily: "var(--font-pixel), monospace",
+              boxShadow: tab === t ? "0 2px 0 #1e3a5f" : "none",
+              border: "2px solid rgba(255,255,255,0.15)",
+            }}
+          >
+            {t === "team" ? `TEAM (${teamRots.length})` : t === "pc" ? `PC (${pcRots.length})` : `BAG (${bagEntries.length})`}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      {tab === "bag" ? (
+        <div
+          className="grid grid-cols-3 gap-2 rounded-xl p-3 sm:grid-cols-5 md:grid-cols-7"
+          style={{
+            background: "#1a1f2e",
+            border: "4px solid #0d1018",
+            boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
+          }}
+        >
+          {bagEntries.map(([name, qty]) => {
+            const info = bagData[name];
+            return (
+              <div
+                key={name}
+                className="group relative aspect-square"
+                style={{
+                  background: "#374151",
+                  borderRadius: "18%",
+                  boxShadow:
+                    "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+                }}
+                title={`${name} ×${qty}`}
+              >
+                {info?.Icon && (
+                  <Image
+                    src={iconUrl(info.Icon)}
+                    alt={name}
+                    fill
+                    unoptimized
+                    className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                  />
+                )}
+                <span
+                  className="absolute bottom-0.5 right-0.5 rounded px-1 text-[8px] text-white"
+                  style={{
+                    background: "#1f2937",
+                    fontFamily: "var(--font-pixel), monospace",
+                  }}
+                >
+                  ×{qty}
+                </span>
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+                  {name}
+                </div>
+              </div>
+            );
+          })}
+          {bagEntries.length === 0 && (
+            <EmptyState text="No bag items" />
+          )}
+        </div>
+      ) : (
+        <div
+          className="grid grid-cols-2 gap-2 rounded-xl p-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6"
+          style={{
+            background: "#1a1f2e",
+            border: "4px solid #0d1018",
+            boxShadow: "inset 0 2px 4px 0 rgba(0,0,0,0.45)",
+          }}
+        >
+          {currentRots.map((rot) => {
+            const sp = rotsData[rot.Species];
+            return (
+              <div
+                key={rot.UID}
+                className="group relative aspect-square"
+                style={{
+                  background: rarityTierColor(sp?.Rarity ?? 0, sp?.IsExclusive ?? false),
+                  borderRadius: "18%",
+                  boxShadow:
+                    "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
+                }}
+                title={`${rot.Nickname || rot.Species} · L${rot.Level} · IV ${(rot.IV * 100).toFixed(0)}%`}
+              >
+                {sp?.Icon && (
+                  <Image
+                    src={iconUrl(sp.Icon)}
+                    alt={rot.Species}
+                    fill
+                    unoptimized
+                    className="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                  />
+                )}
+                <span
+                  className="absolute bottom-0.5 left-0.5 rounded px-1 text-[8px] text-white"
+                  style={{
+                    background: "#1f2937",
+                    fontFamily: "var(--font-pixel), monospace",
+                  }}
+                >
+                  L{rot.Level}
+                </span>
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+                  {rot.Nickname || rot.Species} · L{rot.Level} · IV {(rot.IV * 100).toFixed(0)}%
+                </div>
+              </div>
+            );
+          })}
+          {currentRots.length === 0 && (
+            <EmptyState text={`No ${tab === "team" ? "team" : "PC"} rots`} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Placeholder view for not-yet-built pages. */
+function PlaceholderView({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+      <h2
+        className="text-outline text-2xl text-white sm:text-3xl"
+        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      >
+        {title}
+      </h2>
+      <p className="mt-3 text-[10px] text-white/70">{subtitle}</p>
     </div>
   );
 }

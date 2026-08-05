@@ -32,7 +32,7 @@ export function TradeSlot({
       type="button"
       onClick={onClick}
       className={cn(
-        "relative aspect-square w-full select-none transition-transform",
+        "group relative aspect-square w-full select-none transition-transform",
         "active:translate-y-0.5"
       )}
       style={{
@@ -47,30 +47,36 @@ export function TradeSlot({
       <span className="relative z-10 block h-full w-full">
         {children}
       </span>
+      {/* Hover overlay with remove button — only shows on hover */}
       {!empty && onRemove && (
         <span
-          role="button"
-          tabIndex={0}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
+          className="absolute inset-0 z-20 flex items-center justify-center rounded-[18%] bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+          aria-hidden
+        >
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
               e.stopPropagation();
               onRemove();
-            }
-          }}
-          className="absolute -right-2 -top-2 z-20 grid h-6 w-6 cursor-pointer place-items-center rounded-full bg-red-500 text-xs font-bold text-white shadow-[0_2px_0_#7f1d1d] hover:bg-red-600"
-          aria-label="Remove from offer"
-        >
-          ✕
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
+                onRemove();
+              }
+            }}
+            className="grid h-8 w-8 cursor-pointer place-items-center rounded-full bg-red-500 text-xs font-bold text-white shadow-[0_2px_0_#7f1d1d] hover:bg-red-600"
+            aria-label="Remove from offer"
+          >
+            ✕
+          </span>
         </span>
       )}
       <span className="sr-only">
         {variant === "you" ? "Your offer" : "Their offer"} slot
       </span>
-      <span className="pointer-events-none absolute inset-0 rounded-[22%] ring-1 ring-inset ring-white/30" />
+      <span className="pointer-events-none absolute inset-0 rounded-[18%] ring-1 ring-inset ring-white/30" />
     </button>
   );
 }

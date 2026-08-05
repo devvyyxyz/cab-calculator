@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { PixelIcon } from "./PixelIcon";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export type NavView =
   | "trade"
@@ -24,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "trade", label: "Trade", icon: "repeat", color: "#7cb3ff" },
   { id: "inventory", label: "Inventory", icon: "backpack", color: "#7ed957" },
   { id: "rots", label: "Brainrots", icon: "book-open", color: "#fbbf24" },
-  { id: "skins", label: "Hoverboards", icon: "fire", color: "#c084fc" },
+  { id: "skins", label: "Items", icon: "fire", color: "#c084fc" },
   { id: "values", label: "Values", icon: "scale", color: "#f472b6" },
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
 ];
@@ -87,12 +86,7 @@ export function SideNav({
             <button
               key={item.id}
               type="button"
-              onClick={() => {
-                if (item.id !== "trade") {
-                  toast.info(`${item.label} view — coming soon!`);
-                }
-                onNavigate?.(item.id);
-              }}
+              onClick={() => onNavigate?.(item.id)}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
               /* No container box — just the icon with an outline */
