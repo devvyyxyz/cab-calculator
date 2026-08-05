@@ -6,7 +6,8 @@ import type { Rot, Species } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
 
 /** A single squircle trade slot — empty or filled with a brainrot/item.
- *  "Light box inside a dark box" recessed well effect, matching the original in-game trade UI. */
+ *  The shared dark background is provided by the parent panel grid; each slot
+ *  is just the pale recessed "floor" surface where items sit. */
 export function TradeSlot({
   children,
   variant = "you",
@@ -20,41 +21,28 @@ export function TradeSlot({
   onRemove?: () => void;
   empty?: boolean;
 }) {
-  // Outer dark well (navy for you / dark green for them)
-  const outerBg = variant === "you" ? "#2f4053" : "#34472e";
-  const outerBorder = variant === "you" ? "#1e3a5f" : "#2e5a1f";
   // Inner light floor (pale blue-grey / pale green-grey)
   const innerBg = variant === "you" ? "#d4e0eb" : "#d8ecc8";
-  const innerShadow = variant === "you" ? "rgba(30,58,95,0.45)" : "rgba(46,90,31,0.45)";
+  const innerShadow = variant === "you" ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.4)";
+  const innerHighlight =
+    variant === "you" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.6)";
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "relative aspect-square w-full select-none p-[10%] transition-transform",
+        "relative aspect-square w-full select-none transition-transform",
         "active:translate-y-0.5"
       )}
       style={{
-        background: outerBg,
-        borderRadius: "22%",
-        // soft outer drop shadow
-        boxShadow: "0 3px 0 0 rgba(0,0,0,0.35)",
-        border: `2px solid ${outerBorder}`,
+        background: innerBg,
+        borderRadius: "18%",
+        // Recessed well: top highlight, bottom dark inset
+        boxShadow: `inset 0 2px 2px 0 ${innerHighlight}, inset 0 -2px 3px 0 ${innerShadow}`,
       }}
       aria-label={empty ? "Empty trade slot" : "Filled trade slot"}
     >
-      {/* Inner light floor — the recessed "well" surface */}
-      <span
-        className="absolute inset-[10%] block"
-        style={{
-          background: innerBg,
-          borderRadius: "18%",
-          // inset shadow on bottom-right = sunken look
-          boxShadow: `inset 2px 2px 3px 0 ${innerShadow}, inset -1px -1px 1px 0 rgba(255,255,255,0.5)`,
-        }}
-        aria-hidden
-      />
       {/* Content sits above the floor */}
       <span className="relative z-10 block h-full w-full">
         {children}

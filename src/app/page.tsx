@@ -8,6 +8,7 @@ import { PixelButton } from "@/components/trade/PixelButton";
 import { TradeSlot, RotSlotContent, ItemSlotContent } from "@/components/trade/TradeSlot";
 import { SideNav, type NavView } from "@/components/trade/SideNav";
 import { Preloader } from "@/components/trade/Preloader";
+import { Onboarding } from "@/components/trade/Onboarding";
 import {
   getRots,
   getBag,
@@ -33,8 +34,7 @@ import {
 
 const SLOTS_PER_PANEL = 12; // 4 cols x 3 rows
 
-const DEMO_YOU_ID = "1559610713";
-const DEMO_THEM_ID = "1559610713"; // same player by default — user can swap
+const DEMO_YOU_ID = "1559610713"; // fallback only — real flow uses onboarding
 
 interface Offer {
   rots: Rot[]; // selected rots (max ~6 by game rules, but allow up to SLOTS_PER_PANEL)
@@ -44,11 +44,15 @@ interface Offer {
 const EMPTY_OFFER: Offer = { rots: [], items: [] };
 
 export default function Home() {
-  const [yourId, setYourId] = useState(DEMO_YOU_ID);
-  const [theirId, setTheirId] = useState(DEMO_THEM_ID);
+  // Onboarding — runs until the user confirms their Roblox account
+  const [onboarded, setOnboarded] = useState(false);
+  const [youProfile, setYouProfile] = useState<{
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  } | null>(null);
 
   const [yourData, setYourData] = useState<PlayerData | null>(null);
-  const [theirData, setTheirData] = useState<PlayerData | null>(null);
 
   const [rotsData, setRotsData] = useState<Record<string, Species>>({});
   const [bagData, setBagData] = useState<Record<string, BagItemInfo>>({});
@@ -60,7 +64,7 @@ export default function Home() {
     null
   );
 
-  const [loading, setLoading] = useState<"you" | "them" | "meta" | null>(null);
+  const [loading, setLoading] = useState<"you" | "meta" | null>(null);
   const [yourReady, setYourReady] = useState(false);
   const [theirReady, setTheirReady] = useState(false);
   const [navView, setNavView] = useState<NavView>("trade");
@@ -86,43 +90,40 @@ export default function Home() {
     };
   }, []);
 
-  // ----- Load inventory for a side -----
-  const loadInventory = useCallback(
-    async (side: "you" | "them", id: string) => {
-      if (!id.trim()) {
-        toast.error("Please enter a user ID");
-        return;
-      }
-      setLoading(side);
-      try {
-        const res = await getInventory(id.trim());
-        const data = (res as { Data: PlayerData }).Data;
-        if (side === "you") {
-          setYourData(data);
-          setYourOffer(EMPTY_OFFER);
-          setYourReady(false);
-        } else {
-          setTheirData(data);
-          setTheirOffer(EMPTY_OFFER);
-          setTheirReady(false);
-        }
-        toast.success(
-          `Loaded ${side === "you" ? "your" : "their"} inventory — ${data.PC.length} rots, ${
-            data.Team.length
-          } team, ${Object.keys(data.Bag).length} bag items`
-        );
-      } catch (e) {
-        toast.error(
-          `Failed to load inventory for ${id}: ${(e as Error).message}`
-        );
-      } finally {
-        setLoading(null);
-      }
+  // ----- Load inventory for "you" side (after onboarding confirms identity) -----
+  const loadYourInventory = useCallback(async (userId: string) => {
+    setLoading("you");
+    try {
+      const res = await getInventory(userId.trim());
+      const data = (res as { Data: PlayerData }).Data;
+      setYourData(data);
+      setYourOffer(EMPTY_OFFER);
+      setYourReady(false);
+      toast.success(
+        `Loaded your inventory — ${data.PC.length} rots, ${data.Team.length} team, ${Object.keys(data.Bag).length} bag items`
+      );
+    } catch (e) {
+      toast.error(
+        `Failed to load inventory: ${(e as Error).message}`
+      );
+    } finally {
+      setLoading(null);
+    }
+  }, []);
+
+  // ----- Onboarding complete — fetch inventory and dismiss modal -----
+  const handleOnboarded = useCallback(
+    (userId: string, displayName: string, avatarUrl?: string) => {
+      setYouProfile({ id: userId, displayName, avatarUrl });
+      setOnboarded(true);
+      void loadYourInventory(userId);
     },
-    []
+    [loadYourInventory]
   );
 
   // ----- Offer manipulation -----
+  // For "you" side: rot must come from loaded inventory (real UID).
+  // For "them" side: any rot can be added — we generate a synthetic UID.
   const addRot = useCallback((side: "you" | "them", rot: Rot) => {
     const set = side === "you" ? setYourOffer : setTheirOffer;
     set((prev) => {
@@ -138,6 +139,24 @@ export default function Home() {
       return { ...prev, rots: [...prev.rots, rot] };
     });
   }, []);
+
+  // Add a rot from the game catalog (species) to the "them" side — used when
+  // there's no inventory to pull from. Generates a synthetic UID.
+  const addCatalogRot = useCallback((speciesName: string) => {
+    const sp = rotsData[speciesName];
+    if (!sp) return;
+    const syntheticRot: Rot = {
+      Box: "Rot Box",
+      IV: 0.5,
+      Level: 1,
+      Moveset: [],
+      Nickname: sp.ShortenedName,
+      Serial: null,
+      Species: speciesName,
+      UID: `CAT-${speciesName}-${Date.now()}`,
+    };
+    addRot("them", syntheticRot);
+  }, [rotsData, addRot]);
 
   const removeRot = useCallback((side: "you" | "them", uid: string) => {
     const set = side === "you" ? setYourOffer : setTheirOffer;
@@ -230,8 +249,6 @@ export default function Home() {
   // ----- Render helpers -----
   const renderOfferSlots = (side: "you" | "them") => {
     const offer = side === "you" ? yourOffer : theirOffer;
-    const set = side === "you" ? setYourOffer : setTheirOffer;
-    const data = side === "you" ? yourData : theirData;
     const slots: React.ReactNode[] = [];
 
     offer.rots.forEach((rot) => {
@@ -270,12 +287,9 @@ export default function Home() {
           variant={side}
           empty
           onClick={() => {
-            if (!data) {
-              toast.error(
-                `Load ${
-                  side === "you" ? "your" : "their"
-                } inventory first`
-              );
+            // "you" side needs loaded inventory; "them" side opens catalog directly
+            if (side === "you" && !yourData) {
+              toast.error("Load your inventory first");
               return;
             }
             setInventoryOpenFor(side);
@@ -290,6 +304,7 @@ export default function Home() {
   return (
     <>
       <Preloader />
+      {!onboarded && <Onboarding onConfirm={handleOnboarded} />}
       <SideNav active={navView} onNavigate={setNavView} />
       <main
         suppressHydrationWarning
@@ -301,25 +316,36 @@ export default function Home() {
           backgroundRepeat: "repeat",
         }}
       >
-      {/* Compact user ID loader bar */}
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-wrap items-end justify-center gap-2 px-4 pt-4 sm:gap-3 sm:px-6">
-        <UserIdInput
-          label="YOU"
-          value={yourId}
-          onChange={setYourId}
-          onLoad={() => loadInventory("you", yourId)}
-          loading={loading === "you"}
-          color="blue"
-        />
-        <UserIdInput
-          label="THEM"
-          value={theirId}
-          onChange={setTheirId}
-          onLoad={() => loadInventory("them", theirId)}
-          loading={loading === "them"}
-          color="green"
-        />
-      </div>
+      {/* Your profile chip */}
+      {youProfile && (
+        <div className="relative z-10 mx-auto flex max-w-7xl items-center justify-center px-4 pt-4 sm:px-6">
+          <div
+            className="flex items-center gap-2 rounded-xl px-3 py-1.5"
+            style={{
+              background: "rgba(0,0,0,0.35)",
+              border: "2px solid rgba(255,255,255,0.18)",
+              backdropFilter: "blur(6px)",
+            }}
+          >
+            {youProfile.avatarUrl ? (
+              <img
+                src={youProfile.avatarUrl}
+                alt={youProfile.displayName}
+                className="h-6 w-6 rounded-full [image-rendering:pixelated]"
+              />
+            ) : null}
+            <span
+              className="text-outline-sm text-[10px] text-white"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              {youProfile.displayName}
+            </span>
+            <span className="text-[9px] text-white/50">
+              · ID {youProfile.id}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Trade window — fairness badge sits in the center gap, overlapping both panels */}
       <section className="relative z-10 mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
@@ -350,7 +376,7 @@ export default function Home() {
           valuedRots={theirValued}
           items={theirItems}
           ready={theirReady}
-          inventoryLoaded={!!theirData}
+          inventoryLoaded={true}
           onOpenInventory={() => setInventoryOpenFor("them")}
           onToggleReady={() => {
             if (theirOffer.rots.length + theirOffer.items.length === 0) {
@@ -417,16 +443,17 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Inventory drawer */}
+      {/* Inventory / Catalog drawer */}
       {inventoryOpenFor && (
         <InventoryDrawer
           side={inventoryOpenFor}
-          data={inventoryOpenFor === "you" ? yourData : theirData}
+          data={inventoryOpenFor === "you" ? yourData : null}
           rotsData={rotsData}
           bagData={bagData}
           onClose={() => setInventoryOpenFor(null)}
           onAddRot={(rot) => addRot(inventoryOpenFor, rot)}
           onAddItem={(name, qty) => addItem(inventoryOpenFor, name, qty)}
+          onAddCatalogRot={(speciesName) => addCatalogRot(speciesName)}
           offerRots={
             inventoryOpenFor === "you" ? yourOffer.rots : theirOffer.rots
           }
@@ -458,59 +485,6 @@ export default function Home() {
 // Sub-components
 // ============================================================
 
-function UserIdInput({
-  label,
-  value,
-  onChange,
-  onLoad,
-  loading,
-  color,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  onLoad: () => void;
-  loading: boolean;
-  color: "blue" | "green";
-}) {
-  const palette =
-    color === "blue"
-      ? { bg: "#7cb3ff", shadow: "#1e3a5f", label: "YOUR ID" }
-      : { bg: "#7ed957", shadow: "#2e5a1f", label: "THEIR ID" };
-
-  return (
-    <div className="flex flex-col gap-1">
-      <label
-        className="text-[10px] text-white/90"
-        style={{ fontFamily: "var(--font-pixel), monospace" }}
-      >
-        {palette.label}
-      </label>
-      <div className="flex items-stretch gap-1">
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") onLoad();
-          }}
-          inputMode="numeric"
-          placeholder="user id"
-          className="h-9 w-32 bg-white/95 font-mono text-sm text-gray-900 shadow-[0_2px_0_rgba(0,0,0,0.3)] sm:w-40"
-        />
-        <PixelButton
-          variant={color}
-          size="sm"
-          onClick={onLoad}
-          disabled={loading}
-          className="h-9"
-        >
-          {loading ? "..." : "LOAD"}
-        </PixelButton>
-      </div>
-    </div>
-  );
-}
-
 function FairnessBadge({ verdict }: { verdict: TradeVerdict }) {
   // Determine symbol, color, and background based on who's winning
   // +  = you're winning (green)
@@ -531,7 +505,7 @@ function FairnessBadge({ verdict }: { verdict: TradeVerdict }) {
         style={{
           background: color,
           border: `4px solid ${borderColor}`,
-          boxShadow: `0 4px 0 0 ${borderColor}, 0 0 16px ${color}aa`,
+          boxShadow: `0 4px 0 0 ${borderColor}`,
           fontFamily: "var(--font-pixel), monospace",
         }}
         title={
@@ -609,8 +583,17 @@ function TradePanel({
         </h2>
       </div>
 
-      {/* Slots grid */}
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">{children}</div>
+      {/* Slots grid — shared dark recessed background surrounding all slots */}
+      <div
+        className="grid grid-cols-4 gap-2 rounded-xl p-2 sm:gap-3 sm:p-3"
+        style={{
+          background: variant === "you" ? "#1e3a5f" : "#2e5a1f",
+          boxShadow:
+            "inset 0 2px 4px 0 rgba(0,0,0,0.45), inset 0 -1px 2px 0 rgba(255,255,255,0.1)",
+        }}
+      >
+        {children}
+      </div>
 
       {/* Value breakdown */}
       {(valuedRots.length > 0 || items.length > 0) && (
@@ -680,6 +663,7 @@ function InventoryDrawer({
   onClose,
   onAddRot,
   onAddItem,
+  onAddCatalogRot,
   offerRots,
   offerItems,
 }: {
@@ -690,13 +674,222 @@ function InventoryDrawer({
   onClose: () => void;
   onAddRot: (rot: Rot) => void;
   onAddItem: (name: string, qty: number) => void;
+  onAddCatalogRot?: (speciesName: string) => void;
   offerRots: Rot[];
   offerItems: { name: string; qty: number }[];
 }) {
-  const [tab, setTab] = useState<"team" | "pc" | "bag">("team");
+  // Catalog mode = "them" side, no inventory data → show all species + all bag items
+  const catalogMode = side === "them" && !data;
+  const [tab, setTab] = useState<"team" | "pc" | "bag" | "rots" | "items">(
+    catalogMode ? "rots" : "team"
+  );
   const [search, setSearch] = useState("");
   const [qtyInput, setQtyInput] = useState<Record<string, string>>({});
 
+  const accent = side === "you" ? "#7cb3ff" : "#7ed957";
+  const accentBorder = side === "you" ? "#1e3a5f" : "#2e5a1f";
+
+  // ---- Catalog mode (them side, no inventory) ----
+  if (catalogMode) {
+    const allSpecies = Object.entries(rotsData);
+    const allBag = Object.entries(bagData);
+    const filteredSpecies = allSpecies.filter(([name, sp]) =>
+      `${name} ${sp.ShortenedName} ${sp.FullName}`.toLowerCase().includes(search.toLowerCase())
+    );
+    const filteredBag = allBag.filter(([name]) =>
+      name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    return (
+      <div
+        className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+        onClick={onClose}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl sm:w-full sm:max-w-4xl sm:rounded-3xl"
+          style={{
+            background: "#1a1f2e",
+            boxShadow: `0 -4px 0 ${accentBorder}, inset 0 2px 0 rgba(255,255,255,0.1)`,
+            border: `4px solid ${accentBorder}`,
+          }}
+        >
+          {/* Header */}
+          <div
+            className="flex items-center justify-between gap-3 px-4 py-3"
+            style={{ background: accent, borderBottom: `3px solid ${accentBorder}` }}
+          >
+            <div>
+              <h3
+                className="text-outline text-sm text-white sm:text-base"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                THEIR ITEMS — CATALOG
+              </h3>
+              <p className="text-[10px] text-white/90">
+                Pick any brainrot or item · {allSpecies.length} rots · {allBag.length} items
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="grid h-9 w-9 place-items-center rounded-full bg-red-500 text-white shadow-[0_3px_0_#7f1d1d]"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Tabs + search */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-2">
+            <div className="flex gap-1">
+              {(["rots", "items"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className="rounded-md px-3 py-1.5 text-[10px] uppercase transition-colors"
+                  style={{
+                    background: tab === t ? accent : "rgba(255,255,255,0.08)",
+                    color: "#fff",
+                    fontFamily: "var(--font-pixel), monospace",
+                    boxShadow: tab === t ? `0 2px 0 ${accentBorder}` : "none",
+                  }}
+                >
+                  {t === "rots" ? `Rots (${allSpecies.length})` : `Items (${allBag.length})`}
+                </button>
+              ))}
+            </div>
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="search..."
+              className="h-8 flex-1 min-w-[100px] bg-white/10 text-xs text-white placeholder:text-white/40"
+            />
+          </div>
+
+          {/* List */}
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+            {tab === "items" ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                {filteredBag.map(([name, info]) => {
+                  const inOffer = offerItems.find((i) => i.name === name)?.qty ?? 0;
+                  return (
+                    <div
+                      key={name}
+                      className="flex flex-col gap-2 rounded-xl bg-white/5 p-2"
+                      style={{ border: "2px solid rgba(255,255,255,0.1)" }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+                          {info.Icon && (
+                            <Image
+                              src={iconUrl(info.Icon)}
+                              alt={name}
+                              width={40}
+                              height={40}
+                              unoptimized
+                              className="h-full w-full object-contain [image-rendering:pixelated]"
+                            />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-xs font-semibold text-white">
+                            {name}
+                          </div>
+                          <div className="text-[10px] text-white/60">
+                            In offer: {inOffer}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          min={1}
+                          value={qtyInput[name] ?? "1"}
+                          onChange={(e) =>
+                            setQtyInput((p) => ({ ...p, [name]: e.target.value }))
+                          }
+                          className="h-7 w-12 bg-white/10 px-1 text-xs text-white"
+                        />
+                        <PixelButton
+                          variant="green"
+                          size="sm"
+                          onClick={() => {
+                            const n = Math.max(
+                              1,
+                              parseInt(qtyInput[name] ?? "1", 10) || 1
+                            );
+                            onAddItem(name, n);
+                          }}
+                          className="flex-1"
+                        >
+                          ADD
+                        </PixelButton>
+                      </div>
+                    </div>
+                  );
+                })}
+                {filteredBag.length === 0 && (
+                  <EmptyState text="No items match your search" />
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {filteredSpecies.map(([name, sp]) => (
+                  <div
+                    key={name}
+                    className="flex items-center gap-3 rounded-xl bg-white/5 p-2"
+                    style={{ border: "2px solid rgba(255,255,255,0.1)" }}
+                  >
+                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+                      {sp.Icon && (
+                        <Image
+                          src={iconUrl(sp.Icon)}
+                          alt={name}
+                          width={48}
+                          height={48}
+                          unoptimized
+                          className="h-full w-full object-contain [image-rendering:pixelated]"
+                        />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-xs font-semibold text-white">
+                        {sp.FullName}
+                      </div>
+                      <div className="truncate text-[10px] text-white/60">
+                        {sp.ShortenedName}
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1 text-[9px]">
+                        <Badge>Rarity {sp.Rarity.toFixed(2)}</Badge>
+                        {sp.IsExclusive && <Badge color="#dc2626">DEMON</Badge>}
+                        {sp.SpawnLocation && (
+                          <Badge color="#374151">
+                            W{sp.SpawnLocation.World}Z{sp.SpawnLocation.Zone}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <PixelButton
+                      variant="green"
+                      size="sm"
+                      onClick={() => onAddCatalogRot?.(name)}
+                    >
+                      +
+                    </PixelButton>
+                  </div>
+                ))}
+                {filteredSpecies.length === 0 && (
+                  <EmptyState text="No rots match your search" />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Inventory mode (you side, real inventory) ----
   if (!data) return null;
 
   const allRots = [...data.Team, ...data.PC];
@@ -718,9 +911,6 @@ function InventoryDrawer({
     offerRots.some((r) => r.UID === uid);
   const itemQtyInOffer = (name: string) =>
     offerItems.find((i) => i.name === name)?.qty ?? 0;
-
-  const accent = side === "you" ? "#7cb3ff" : "#7ed957";
-  const accentBorder = side === "you" ? "#1e3a5f" : "#2e5a1f";
 
   return (
     <div

@@ -107,15 +107,6 @@ export function SideNav({
                 outline={isActive ? "#000000" : "rgba(0,0,0,0.7)"}
                 outlineWidth={2}
               />
-              {/* Glow ring for active state */}
-              {isActive && (
-                <span
-                  className="pointer-events-none absolute inset-0 rounded-lg"
-                  style={{
-                    boxShadow: `0 0 14px ${item.color}88`,
-                  }}
-                />
-              )}
               {/* Tooltip */}
               <span
                 className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 sm:block"
@@ -128,16 +119,6 @@ export function SideNav({
               >
                 {item.label}
               </span>
-              {/* Active indicator dot */}
-              {isActive && (
-                <span
-                  className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full"
-                  style={{
-                    background: "#fff",
-                    boxShadow: "0 0 6px #fff",
-                  }}
-                />
-              )}
             </button>
           );
         })}
