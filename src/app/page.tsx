@@ -300,14 +300,7 @@ export default function Home() {
           key={`empty-${slots.length}`}
           variant={side}
           empty
-          onClick={() => {
-            // "you" side needs loaded inventory; "them" side opens catalog directly
-            if (side === "you" && !yourData) {
-              toast.error("Load your inventory first");
-              return;
-            }
-            setInventoryOpenFor(side);
-          }}
+          onClick={() => setInventoryOpenFor(side)}
         />
       );
     }
@@ -373,8 +366,6 @@ export default function Home() {
               total={yourTotal}
               valuedRots={yourValued}
               items={yourItems}
-              inventoryLoaded={!!yourData}
-              onOpenInventory={() => setInventoryOpenFor("you")}
             >
               {renderOfferSlots("you")}
             </TradePanel>
@@ -385,8 +376,6 @@ export default function Home() {
               total={theirTotal}
               valuedRots={theirValued}
               items={theirItems}
-              inventoryLoaded={true}
-              onOpenInventory={() => setInventoryOpenFor("them")}
             >
               {renderOfferSlots("them")}
             </TradePanel>
@@ -515,8 +504,6 @@ function TradePanel({
   total,
   valuedRots,
   items,
-  inventoryLoaded,
-  onOpenInventory,
   children,
 }: {
   title: string;
@@ -524,8 +511,6 @@ function TradePanel({
   total: number;
   valuedRots: ValuedRot[];
   items: ValuedItem[];
-  inventoryLoaded: boolean;
-  onOpenInventory: () => void;
   children: React.ReactNode;
 }) {
   const bg = variant === "you" ? "#7cb3ff" : "#7ed957";
@@ -599,19 +584,6 @@ function TradePanel({
           ))}
         </div>
       )}
-
-      {/* Actions */}
-      <div className="mt-3 flex items-center gap-2">
-        <PixelButton
-          variant={inventoryLoaded ? "dark" : "amber"}
-          size="sm"
-          onClick={onOpenInventory}
-          disabled={!inventoryLoaded}
-          className="flex-1"
-        >
-          {inventoryLoaded ? "+ ADD ITEMS" : "LOAD INV FIRST"}
-        </PixelButton>
-      </div>
     </div>
   );
 }
@@ -674,7 +646,11 @@ function InventoryDrawer({
           onClick={(e) => e.stopPropagation()}
           className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl sm:w-full sm:max-w-4xl sm:rounded-3xl"
           style={{
-            background: "#1a1f2e",
+            backgroundColor: "#1a1f2e",
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "40px 40px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "soft-light",
             boxShadow: `0 -4px 0 ${accentBorder}, inset 0 2px 0 rgba(255,255,255,0.1)`,
             border: `4px solid ${accentBorder}`,
           }}
@@ -739,9 +715,11 @@ function InventoryDrawer({
                 {filteredBag.map(([name, info]) => {
                   const inOffer = offerItems.find((i) => i.name === name)?.qty ?? 0;
                   return (
-                    <div
+                    <button
                       key={name}
-                      className="flex flex-col gap-2 rounded-xl bg-white/5 p-2"
+                      type="button"
+                      onClick={() => onAddItem(name, 1)}
+                      className="flex flex-col gap-2 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15"
                       style={{ border: "2px solid rgba(255,255,255,0.1)" }}
                     >
                       <div className="flex items-center gap-2">
@@ -765,32 +743,7 @@ function InventoryDrawer({
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Input
-                          type="number"
-                          min={1}
-                          value={qtyInput[name] ?? "1"}
-                          onChange={(e) =>
-                            setQtyInput((p) => ({ ...p, [name]: e.target.value }))
-                          }
-                          className="h-7 w-12 bg-white/10 px-1 text-xs text-white"
-                        />
-                        <PixelButton
-                          variant="green"
-                          size="sm"
-                          onClick={() => {
-                            const n = Math.max(
-                              1,
-                              parseInt(qtyInput[name] ?? "1", 10) || 1
-                            );
-                            onAddItem(name, n);
-                          }}
-                          className="flex-1"
-                        >
-                          ADD
-                        </PixelButton>
-                      </div>
-                    </div>
+                    </button>
                   );
                 })}
                 {filteredBag.length === 0 && (
@@ -800,9 +753,11 @@ function InventoryDrawer({
             ) : (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {filteredSpecies.map(([name, sp]) => (
-                  <div
+                  <button
                     key={name}
-                    className="flex items-center gap-3 rounded-xl bg-white/5 p-2"
+                    type="button"
+                    onClick={() => onAddCatalogRot?.(name)}
+                    className="flex items-center gap-3 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15"
                     style={{ border: "2px solid rgba(255,255,255,0.1)" }}
                   >
                     <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
@@ -824,14 +779,7 @@ function InventoryDrawer({
                         {sp.ShortenedName}
                       </div>
                     </div>
-                    <PixelButton
-                      variant="green"
-                      size="sm"
-                      onClick={() => onAddCatalogRot?.(name)}
-                    >
-                      +
-                    </PixelButton>
-                  </div>
+                  </button>
                 ))}
                 {filteredSpecies.length === 0 && (
                   <EmptyState text="No rots match your search" />
@@ -876,7 +824,11 @@ function InventoryDrawer({
         onClick={(e) => e.stopPropagation()}
         className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl sm:w-full sm:max-w-4xl sm:rounded-3xl"
         style={{
-          background: "#1a1f2e",
+          backgroundColor: "#1a1f2e",
+          backgroundImage: "url('/stud_texture.png')",
+          backgroundSize: "40px 40px",
+          backgroundRepeat: "repeat",
+          backgroundBlendMode: "soft-light",
           boxShadow: `0 -4px 0 ${accentBorder}, inset 0 2px 0 rgba(255,255,255,0.1)`,
           border: `4px solid ${accentBorder}`,
         }}
@@ -943,9 +895,12 @@ function InventoryDrawer({
                 const info = bagData[name];
                 const remaining = qty - inOffer;
                 return (
-                  <div
+                  <button
                     key={name}
-                    className="flex flex-col gap-2 rounded-xl bg-white/5 p-2"
+                    type="button"
+                    disabled={remaining <= 0}
+                    onClick={() => onAddItem(name, 1)}
+                    className="flex flex-col gap-2 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15 disabled:opacity-40"
                     style={{ border: "2px solid rgba(255,255,255,0.1)" }}
                   >
                     <div className="flex items-center gap-2">
@@ -969,34 +924,7 @@ function InventoryDrawer({
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        min={1}
-                        max={remaining}
-                        value={qtyInput[name] ?? "1"}
-                        onChange={(e) =>
-                          setQtyInput((p) => ({ ...p, [name]: e.target.value }))
-                        }
-                        className="h-7 w-12 bg-white/10 px-1 text-xs text-white"
-                      />
-                      <PixelButton
-                        variant={side === "you" ? "blue" : "green"}
-                        size="sm"
-                        disabled={remaining <= 0}
-                        onClick={() => {
-                          const n = Math.max(
-                            1,
-                            Math.min(remaining, parseInt(qtyInput[name] ?? "1", 10) || 1)
-                          );
-                          onAddItem(name, n);
-                        }}
-                        className="flex-1"
-                      >
-                        ADD
-                      </PixelButton>
-                    </div>
-                  </div>
+                  </button>
                 );
               })}
               {filteredBag.length === 0 && (
@@ -1009,9 +937,12 @@ function InventoryDrawer({
                 const sp = rotsData[rot.Species];
                 const inOffer = isRotInOffer(rot.UID);
                 return (
-                  <div
+                  <button
                     key={rot.UID}
-                    className="flex items-center gap-3 rounded-xl bg-white/5 p-2"
+                    type="button"
+                    disabled={inOffer}
+                    onClick={() => onAddRot(rot)}
+                    className="flex items-center gap-3 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15 disabled:opacity-40"
                     style={{
                       border: `2px solid ${
                         inOffer ? accent : "rgba(255,255,255,0.1)"
@@ -1037,15 +968,7 @@ function InventoryDrawer({
                         {rot.Species}
                       </div>
                     </div>
-                    <PixelButton
-                      variant={inOffer ? "dark" : side === "you" ? "blue" : "green"}
-                      size="sm"
-                      disabled={inOffer}
-                      onClick={() => onAddRot(rot)}
-                    >
-                      {inOffer ? "✓" : "+"}
-                    </PixelButton>
-                  </div>
+                  </button>
                 );
               })}
               {(tab === "team" ? filteredTeam : filteredPc).length === 0 && (
@@ -1248,16 +1171,12 @@ function rarityTier(rarity: number, isExclusive: boolean): { color: string; shim
   return { color: "#c62828", shimmer: false, label: "Common" }; // common
 }
 
-/** Section divider — a titled header that separates groups when sorted. */
-function SectionDivider({ label, color }: { label: string; color?: string }) {
+/** Section divider — a large titled header that separates groups when sorted. */
+function SectionDivider({ label }: { label: string; color?: string }) {
   return (
-    <div className="col-span-full flex items-center gap-3 py-2">
-      <span
-        className="h-3 w-3 shrink-0 rounded-full"
-        style={{ background: color ?? "#ffffff" }}
-      />
+    <div className="col-span-full flex items-center gap-3 py-3">
       <h3
-        className="text-outline text-xs text-white sm:text-sm"
+        className="text-outline text-lg text-white sm:text-2xl"
         style={{ fontFamily: "var(--font-pixel), monospace" }}
       >
         {label}
@@ -1550,8 +1469,8 @@ function InventoryView({
         />
       </div>
 
-      {/* Tab pills — below search, with icons */}
-      <div className="mb-4 flex justify-center gap-2">
+      {/* Tab pills — below search, with icons, styled like sort/search bars */}
+      <div className="mb-4 flex flex-wrap justify-center gap-2">
         {([
           { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
           { id: "pc", icon: "book-open", label: `PC (${pcRots.length})` },
@@ -1562,20 +1481,20 @@ function InventoryView({
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className="flex items-center gap-2 px-4 py-2 text-[10px] uppercase transition-all"
+              className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase transition-all"
               style={{
-                background: isActive ? "#7cb3ff" : "rgba(255,255,255,0.1)",
-                color: "#fff",
+                color: isActive ? "#1e3a5f" : "#374151",
                 fontFamily: "var(--font-pixel), monospace",
-                boxShadow: isActive ? "0 2px 0 #1e3a5f" : "none",
-                border: "2px solid rgba(255,255,255,0.15)",
-                borderRadius: "999px",
+                borderRadius: "0.875rem",
+                background: isActive
+                  ? "rgba(124,179,255,0.6)"
+                  : undefined,
               }}
             >
               <PixelIcon
                 name={t.icon}
                 size={16}
-                color={isActive ? "#0f1320" : "#cbd5e1"}
+                color={isActive ? "#1e3a5f" : "#6b7280"}
               />
               {t.label}
             </button>

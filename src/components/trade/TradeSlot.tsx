@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { Rot, Species } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
 import { SmartImage } from "./SmartImage";
+import { PixelIcon } from "./PixelIcon";
 
 /** A single squircle trade slot — empty or filled with a brainrot/item.
  *  The shared dark background is provided by the parent panel grid; each slot
@@ -48,7 +49,7 @@ export function TradeSlot({
         {children}
       </span>
       {/* Hover overlay with remove button — only shows on hover.
-          Just darkness + large icon, no red container. */}
+          Just darkness + large pixel icon, no red container. */}
       {!empty && onRemove && (
         <span
           className="absolute inset-0 z-20 flex items-center justify-center rounded-[18%] bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
@@ -67,10 +68,10 @@ export function TradeSlot({
                 onRemove();
               }
             }}
-            className="grid h-10 w-10 cursor-pointer place-items-center text-3xl font-bold text-white/90 hover:text-white"
+            className="grid h-10 w-10 cursor-pointer place-items-center"
             aria-label="Remove from offer"
           >
-            ✕
+            <PixelIcon name="close" size={32} color="#ffffff" />
           </span>
         </span>
       )}

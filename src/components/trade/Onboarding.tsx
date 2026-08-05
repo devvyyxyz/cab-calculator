@@ -142,7 +142,7 @@ export function Onboarding({
 
           {/* Stage: input */}
           {stage === "input" && (
-            <div className="flex flex-col gap-3">
+            <div suppressHydrationWarning className="flex flex-col gap-3">
               <Input
                 autoFocus
                 value={username}
