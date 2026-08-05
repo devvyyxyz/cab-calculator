@@ -127,15 +127,47 @@ export default function Home() {
     }
   }, []);
 
-  // ----- Onboarding complete — fetch inventory and dismiss modal -----
+  // ----- Onboarding complete — fetch inventory, dismiss modal, save to localStorage -----
   const handleOnboarded = useCallback(
     (userId: string, displayName: string, avatarUrl?: string) => {
       setYouProfile({ id: userId, displayName, avatarUrl });
       setOnboarded(true);
+      // Save to localStorage so refresh shows "Is this you?" directly
+      try {
+        localStorage.setItem(
+          "cab_profile",
+          JSON.stringify({ id: userId, displayName, avatarUrl })
+        );
+      } catch {
+        /* ignore quota errors */
+      }
       void loadYourInventory(userId);
     },
     [loadYourInventory]
   );
+
+  // ----- On mount: check localStorage for saved profile -----
+  // If found, start onboarding at the "confirm" stage instead of "input".
+  // Uses a lazy initializer so the first render already has the saved value
+  // (avoids a flash of the "ENTER USERNAME" stage on refresh).
+  const [savedProfile, setSavedProfile] = useState<{
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  } | null>(() => {
+    try {
+      const raw = localStorage.getItem("cab_profile");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.id && parsed?.displayName) {
+          return parsed;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  });
 
   // ----- Offer manipulation -----
   // For "you" side: rot must come from loaded inventory (real UID).
@@ -254,12 +286,6 @@ export default function Home() {
 
   const v = useMemo(() => verdict(yourTotal, theirTotal), [yourTotal, theirTotal]);
 
-  const reset = useCallback(() => {
-    setYourOffer(EMPTY_OFFER);
-    setTheirOffer(EMPTY_OFFER);
-    toast("Trade reset");
-  }, []);
-
   // ----- Render helpers -----
   const renderOfferSlots = (side: "you" | "them") => {
     const offer = side === "you" ? yourOffer : theirOffer;
@@ -313,11 +339,16 @@ export default function Home() {
       <Preloader />
       {/* Game data preloader — stays until rots + bag are loaded */}
       <Preloader visible={!metaLoaded} message="LOADING GAME DATA" />
-      {!onboarded && <Onboarding onConfirm={handleOnboarded} />}
+      {!onboarded && (
+        <Onboarding
+          onConfirm={handleOnboarded}
+          initialProfile={savedProfile}
+        />
+      )}
       <SideNav active={navView} onNavigate={setNavView} />
       <main
         suppressHydrationWarning
-        className="relative min-h-screen w-full overflow-x-hidden pl-16 sm:pl-20"
+        className="relative flex h-screen w-full flex-col overflow-hidden pl-16 sm:pl-20"
         style={{
           backgroundColor: "#0099ff",
           backgroundImage: "url('/stud_texture.png')",
@@ -358,8 +389,9 @@ export default function Home() {
 
       {/* ===== TRADE VIEW ===== */}
       {navView === "trade" && (
+        <div className="relative z-10 min-h-0 flex-1 overflow-y-auto">
         <>
-          <section className="relative z-10 mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
+          <section className="mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-28 sm:px-6 md:grid-cols-2">
             <TradePanel
               title="YOUR OFFER"
               variant="you"
@@ -382,13 +414,8 @@ export default function Home() {
 
             <FairnessBadge verdict={v} />
           </section>
-
-          <div className="mx-auto flex max-w-7xl justify-center px-4 pb-28 sm:px-6">
-            <PixelButton variant="amber" size="sm" onClick={reset}>
-              RESET TRADE
-            </PixelButton>
-          </div>
         </>
+        </div>
       )}
 
       {/* ===== INVENTORY VIEW ===== */}
@@ -1050,9 +1077,9 @@ function BrainrotsView({
     });
 
   return (
-    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
-      {/* Header */}
-      <div className="mb-4 flex flex-col items-center gap-2">
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      {/* Header — fixed */}
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -1061,8 +1088,8 @@ function BrainrotsView({
         </h2>
       </div>
 
-      {/* Search + Sort row */}
-      <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+      {/* Search + Sort row — fixed */}
+      <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1085,48 +1112,50 @@ function BrainrotsView({
         />
       </div>
 
-      {/* Grid with section dividers when sorted by rarity */}
-      <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
-        {(() => {
-          if (filtered.length === 0) {
-            return <EmptyState text="No brainrots match your search" />;
-          }
-          // When sorted by rarity, group by tier with section dividers
-          if (sortBy === "rarity-asc" || sortBy === "rarity-desc") {
-            const sections: { label: string; color: string; items: typeof filtered }[] = [];
-            for (const [name, sp] of filtered) {
-              const tier = rarityTier(sp.Rarity, sp.IsExclusive);
-              let section = sections.find((s) => s.label === tier.label);
-              if (!section) {
-                section = { label: tier.label, color: tier.color, items: [] };
-                sections.push(section);
-              }
-              section.items.push([name, sp]);
+      {/* Scrollable content — grid + legend */}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
+          {(() => {
+            if (filtered.length === 0) {
+              return <EmptyState text="No brainrots match your search" />;
             }
-            return sections.map((section) => (
-              <div key={section.label} className="contents">
-                <SectionDivider label={section.label} color={section.color} />
-                {section.items.map(([name, sp]) => (
-                  <BrainrotSlot key={name} name={name} sp={sp} />
-                ))}
-              </div>
+            // When sorted by rarity, group by tier with section dividers
+            if (sortBy === "rarity-asc" || sortBy === "rarity-desc") {
+              const sections: { label: string; color: string; items: typeof filtered }[] = [];
+              for (const [name, sp] of filtered) {
+                const tier = rarityTier(sp.Rarity, sp.IsExclusive);
+                let section = sections.find((s) => s.label === tier.label);
+                if (!section) {
+                  section = { label: tier.label, color: tier.color, items: [] };
+                  sections.push(section);
+                }
+                section.items.push([name, sp]);
+              }
+              return sections.map((section) => (
+                <div key={section.label} className="contents">
+                  <SectionDivider label={section.label} color={section.color} />
+                  {section.items.map(([name, sp]) => (
+                    <BrainrotSlot key={name} name={name} sp={sp} />
+                  ))}
+                </div>
+              ));
+            }
+            // Otherwise just render flat
+            return filtered.map(([name, sp]) => (
+              <BrainrotSlot key={name} name={name} sp={sp} />
             ));
-          }
-          // Otherwise just render flat
-          return filtered.map(([name, sp]) => (
-            <BrainrotSlot key={name} name={name} sp={sp} />
-          ));
-        })()}
-      </div>
+          })()}
+        </div>
 
-      {/* Legend */}
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[9px] text-white/80">
-        <LegendChip color="#c62828" label="Common" />
-        <LegendChip color="#fca5a5" label="Uncommon" />
-        <LegendChip color="#e5e7eb" label="Rare" />
-        <LegendChip color="#a3e635" label="Epic" />
-        <LegendChip color="#fbbf24" label="Legendary" />
-        <LegendChip color="#7f1d1d" label="Demon" />
+        {/* Legend */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[9px] text-white/80">
+          <LegendChip color="#c62828" label="Common" />
+          <LegendChip color="#fca5a5" label="Uncommon" />
+          <LegendChip color="#e5e7eb" label="Rare" />
+          <LegendChip color="#a3e635" label="Epic" />
+          <LegendChip color="#fbbf24" label="Legendary" />
+          <LegendChip color="#7f1d1d" label="Demon" />
+        </div>
       </div>
     </div>
   );
@@ -1226,9 +1255,9 @@ function ItemsView({
     });
 
   return (
-    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
-      {/* Header */}
-      <div className="mb-4 flex flex-col items-center gap-2">
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      {/* Header — fixed */}
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -1237,8 +1266,8 @@ function ItemsView({
         </h2>
       </div>
 
-      {/* Search + Sort row */}
-      <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+      {/* Search + Sort row — fixed */}
+      <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1260,38 +1289,40 @@ function ItemsView({
         />
       </div>
 
-      {/* Grid with section dividers when sorted by type */}
-      <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
-        {(() => {
-          if (filtered.length === 0) {
-            return <EmptyState text="No items match your search" />;
-          }
-          // When sorted by type, group by tier with section dividers
-          if (sortBy === "type") {
-            const sections: { label: string; items: typeof filtered }[] = [];
-            for (const entry of filtered) {
-              const tier = classifyItem(entry[0]).tier;
-              let section = sections.find((s) => s.label === tier);
-              if (!section) {
-                section = { label: tier, items: [] };
-                sections.push(section);
-              }
-              section.items.push(entry);
+      {/* Scrollable content — grid */}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
+          {(() => {
+            if (filtered.length === 0) {
+              return <EmptyState text="No items match your search" />;
             }
-            return sections.map((section) => (
-              <div key={section.label} className="contents">
-                <SectionDivider label={section.label} />
-                {section.items.map(([name, info]) => (
-                  <ItemSlot key={name} name={name} info={info} />
-                ))}
-              </div>
+            // When sorted by type, group by tier with section dividers
+            if (sortBy === "type") {
+              const sections: { label: string; items: typeof filtered }[] = [];
+              for (const entry of filtered) {
+                const tier = classifyItem(entry[0]).tier;
+                let section = sections.find((s) => s.label === tier);
+                if (!section) {
+                  section = { label: tier, items: [] };
+                  sections.push(section);
+                }
+                section.items.push(entry);
+              }
+              return sections.map((section) => (
+                <div key={section.label} className="contents">
+                  <SectionDivider label={section.label} />
+                  {section.items.map(([name, info]) => (
+                    <ItemSlot key={name} name={name} info={info} />
+                  ))}
+                </div>
+              ));
+            }
+            // Otherwise just render flat
+            return filtered.map(([name, info]) => (
+              <ItemSlot key={name} name={name} info={info} />
             ));
-          }
-          // Otherwise just render flat
-          return filtered.map(([name, info]) => (
-            <ItemSlot key={name} name={name} info={info} />
-          ));
-        })()}
+          })()}
+        </div>
       </div>
     </div>
   );
@@ -1424,9 +1455,9 @@ function InventoryView({
   const currentRots = tab === "team" ? teamRots : pcRots;
 
   return (
-    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
-      {/* Header */}
-      <div className="mb-4 flex flex-col items-center gap-2">
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      {/* Header — fixed */}
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -1435,8 +1466,8 @@ function InventoryView({
         </h2>
       </div>
 
-      {/* Search */}
-      <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+      {/* Search — fixed */}
+      <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1469,8 +1500,8 @@ function InventoryView({
         />
       </div>
 
-      {/* Tab pills — below search, with icons, styled like sort/search bars */}
-      <div className="mb-4 flex flex-wrap justify-center gap-2">
+      {/* Tab pills — fixed */}
+      <div className="mb-4 flex shrink-0 flex-wrap justify-center gap-2">
         {([
           { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
           { id: "pc", icon: "book-open", label: `PC (${pcRots.length})` },
@@ -1502,73 +1533,75 @@ function InventoryView({
         })}
       </div>
 
-      {/* Content — no dark background container, slots float on page bg */}
-      {tab === "bag" ? (
-        <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-5 md:grid-cols-7 sm:p-2">
-          {(() => {
-            if (bagEntries.length === 0) {
-              return <EmptyState text="No bag items" />;
-            }
-            // When sorted by type (default), group by tier with section dividers
-            if (sortBy === "rarity-asc") {
-              const sections: { label: string; items: typeof bagEntries }[] = [];
-              for (const entry of bagEntries) {
-                const tier = classifyItem(entry[0]).tier;
-                let section = sections.find((s) => s.label === tier);
-                if (!section) {
-                  section = { label: tier, items: [] };
-                  sections.push(section);
-                }
-                section.items.push(entry);
+      {/* Scrollable content — slots float on page bg */}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {tab === "bag" ? (
+          <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-5 md:grid-cols-7 sm:p-2">
+            {(() => {
+              if (bagEntries.length === 0) {
+                return <EmptyState text="No bag items" />;
               }
-              return sections.map((section) => (
-                <div key={section.label} className="contents">
-                  <SectionDivider label={section.label} />
-                  {section.items.map(([name, qty]) => (
-                    <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
-                  ))}
-                </div>
-              ));
-            }
-            return bagEntries.map(([name, qty]) => (
-              <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
-            ));
-          })()}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-2 p-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:p-2">
-          {(() => {
-            if (currentRots.length === 0) {
-              return <EmptyState text={`No ${tab === "team" ? "team" : "PC"} rots`} />;
-            }
-            // When sorted by rarity, group by tier with section dividers
-            if (sortBy === "rarity-asc" || sortBy === "rarity-desc") {
-              const sections: { label: string; color: string; items: Rot[] }[] = [];
-              for (const rot of currentRots) {
-                const sp = rotsData[rot.Species];
-                const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
-                let section = sections.find((s) => s.label === tier.label);
-                if (!section) {
-                  section = { label: tier.label, color: tier.color, items: [] };
-                  sections.push(section);
+              // When sorted by type (default), group by tier with section dividers
+              if (sortBy === "rarity-asc") {
+                const sections: { label: string; items: typeof bagEntries }[] = [];
+                for (const entry of bagEntries) {
+                  const tier = classifyItem(entry[0]).tier;
+                  let section = sections.find((s) => s.label === tier);
+                  if (!section) {
+                    section = { label: tier, items: [] };
+                    sections.push(section);
+                  }
+                  section.items.push(entry);
                 }
-                section.items.push(rot);
+                return sections.map((section) => (
+                  <div key={section.label} className="contents">
+                    <SectionDivider label={section.label} />
+                    {section.items.map(([name, qty]) => (
+                      <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
+                    ))}
+                  </div>
+                ));
               }
-              return sections.map((section) => (
-                <div key={section.label} className="contents">
-                  <SectionDivider label={section.label} color={section.color} />
-                  {section.items.map((rot) => (
-                    <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
-                  ))}
-                </div>
+              return bagEntries.map(([name, qty]) => (
+                <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
               ));
-            }
-            return currentRots.map((rot) => (
-              <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
-            ));
-          })()}
-        </div>
-      )}
+            })()}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 p-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:p-2">
+            {(() => {
+              if (currentRots.length === 0) {
+                return <EmptyState text={`No ${tab === "team" ? "team" : "PC"} rots`} />;
+              }
+              // When sorted by rarity, group by tier with section dividers
+              if (sortBy === "rarity-asc" || sortBy === "rarity-desc") {
+                const sections: { label: string; color: string; items: Rot[] }[] = [];
+                for (const rot of currentRots) {
+                  const sp = rotsData[rot.Species];
+                  const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
+                  let section = sections.find((s) => s.label === tier.label);
+                  if (!section) {
+                    section = { label: tier.label, color: tier.color, items: [] };
+                    sections.push(section);
+                  }
+                  section.items.push(rot);
+                }
+                return sections.map((section) => (
+                  <div key={section.label} className="contents">
+                    <SectionDivider label={section.label} color={section.color} />
+                    {section.items.map((rot) => (
+                      <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+                    ))}
+                  </div>
+                ));
+              }
+              return currentRots.map((rot) => (
+                <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+              ));
+            })()}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1621,9 +1654,8 @@ function InventoryBagSlot({ name, qty, info }: { name: string; qty: number; info
       />
       {qty > 1 && (
         <span
-          className="absolute bottom-0.5 right-0.5 px-1 text-[8px] text-white"
+          className="text-outline-sm absolute bottom-0.5 right-0.5 text-xs text-white"
           style={{
-            background: "#1f2937",
             fontFamily: "var(--font-pixel), monospace",
           }}
         >

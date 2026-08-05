@@ -48,6 +48,16 @@ export function TradeSlot({
       <span className="relative z-10 block h-full w-full">
         {children}
       </span>
+      {/* Pixel plus icon on empty slots */}
+      {empty && (
+        <span className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center opacity-30 transition-opacity group-hover:opacity-60">
+          <PixelIcon
+            name="plus"
+            size={28}
+            color={variant === "you" ? "#1e3a5f" : "#2e5a1f"}
+          />
+        </span>
+      )}
       {/* Hover overlay with remove button — only shows on hover.
           Just darkness + large pixel icon, no red container. */}
       {!empty && onRemove && (
@@ -124,9 +134,8 @@ export function ItemSlotContent({
       />
       {qty > 1 && (
         <span
-          className="absolute bottom-0.5 right-0.5 px-1 text-[8px] font-bold leading-tight text-white"
+          className="text-outline-sm absolute bottom-0.5 right-0.5 text-xs text-white"
           style={{
-            background: "#1f2937",
             fontFamily: "var(--font-pixel), monospace",
           }}
         >

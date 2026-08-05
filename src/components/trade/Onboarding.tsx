@@ -22,14 +22,39 @@ type Stage = "input" | "searching" | "confirm" | "multiple" | "loading-inv" | "e
  */
 export function Onboarding({
   onConfirm,
+  initialProfile,
 }: {
   onConfirm: (userId: string, displayName: string, avatarUrl?: string) => void;
+  /** If provided (from localStorage), skip straight to the "Is this you?" confirm stage. */
+  initialProfile?: {
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  } | null;
 }) {
-  const [stage, setStage] = useState<Stage>("input");
+  const [stage, setStage] = useState<Stage>(initialProfile ? "confirm" : "input");
   const [username, setUsername] = useState("");
   const [matches, setMatches] = useState<RobloxUser[]>([]);
-  const [selected, setSelected] = useState<RobloxUser | null>(null);
+  const [selected, setSelected] = useState<RobloxUser | null>(
+    initialProfile
+      ? {
+          id: Number(initialProfile.id) || 0,
+          name: initialProfile.displayName,
+          displayName: initialProfile.displayName,
+          hasVerifiedBadge: false,
+          avatarUrl: initialProfile.avatarUrl,
+        }
+      : null
+  );
   const [error, setError] = useState("");
+
+  // Allow user to start fresh (clears saved profile choice in-memory)
+  const resetToInput = () => {
+    setSelected(null);
+    setMatches([]);
+    setUsername("");
+    setStage("input");
+  };
 
   const search = async () => {
     if (!username.trim()) {
@@ -187,12 +212,7 @@ export function Onboarding({
                 <PixelButton
                   variant="amber"
                   size="md"
-                  onClick={() => {
-                    setSelected(null);
-                    setMatches([]);
-                    setUsername("");
-                    setStage("input");
-                  }}
+                  onClick={resetToInput}
                   className="flex-1"
                 >
                   NO, RETRY
