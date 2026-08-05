@@ -457,14 +457,14 @@ export default function Home() {
         <ItemsView bagData={bagData} />
       )}
 
-      {/* ===== VALUES VIEW (placeholder) ===== */}
+      {/* ===== VALUES VIEW ===== */}
       {navView === "values" && (
-        <PlaceholderView title="VALUES" subtitle="Trade value tiers coming soon" />
+        <ValuesView rotsData={rotsData} bagData={bagData} />
       )}
 
-      {/* ===== ABOUT VIEW (placeholder) ===== */}
+      {/* ===== ABOUT VIEW ===== */}
       {navView === "about" && (
-        <PlaceholderView title="ABOUT" subtitle="CAB Trade Calculator — value your trades before you ready up" />
+        <AboutView />
       )}
 
       {/* Inventory / Catalog drawer */}
@@ -2003,22 +2003,238 @@ function InventoryBagSlot({
 }
 
 /** Placeholder view for not-yet-built pages. */
-function PlaceholderView({
-  title,
-  subtitle,
+/** Values page — shows value tiers for all brainrots and items. */
+function ValuesView({
+  rotsData,
+  bagData,
 }: {
-  title: string;
-  subtitle: string;
+  rotsData: Record<string, Species>;
+  bagData: Record<string, BagItemInfo>;
 }) {
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<"rots" | "items">("rots");
+
+  // Compute values for all rots (base value at L1, IV 0.5)
+  const rotValues = Object.entries(rotsData)
+    .map(([name, sp]) => {
+      const base = sp.Rarity * 10;
+      const ivMult = 0.6 + 0.5 * 0.8; // IV 0.5
+      const value = base * ivMult * (sp.IsExclusive ? 1.5 : 1);
+      return { name, sp, value, tier: rarityTier(sp.Rarity, sp.IsExclusive) };
+    })
+    .filter((r) =>
+      `${r.name} ${r.sp.ShortenedName} ${r.sp.FullName}`.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => b.value - a.value);
+
+  // Compute values for all items
+  const itemValues = Object.entries(bagData)
+    .map(([name, info]) => {
+      const { tier, value } = classifyItem(name);
+      return { name, info, value, tier };
+    })
+    .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => b.value - a.value);
+
   return (
-    <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      {/* Header — fixed */}
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          VALUES
+        </h2>
+      </div>
+
+      {/* Search — fixed */}
+      <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="search values..."
+          className="stud-input h-9 max-w-md text-sm text-gray-900"
+          style={{
+            borderRadius: "0.875rem",
+            fontFamily: "var(--font-pixel), monospace",
+          }}
+        />
+      </div>
+
+      {/* Tab pills — fixed */}
+      <div className="mb-4 flex shrink-0 flex-wrap justify-center gap-2">
+        {([
+          { id: "rots", icon: "book-open", label: `ROTS (${rotValues.length})` },
+          { id: "items", icon: "fire", label: `ITEMS (${itemValues.length})` },
+        ] as const).map((t) => {
+          const isActive = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase transition-all"
+              style={{
+                color: isActive ? "#1e3a5f" : "#374151",
+                fontFamily: "var(--font-pixel), monospace",
+                borderRadius: "0.875rem",
+                background: isActive ? "rgba(124,179,255,0.6)" : undefined,
+              }}
+            >
+              <PixelIcon
+                name={t.icon}
+                size={16}
+                color={isActive ? "#1e3a5f" : "#6b7280"}
+              />
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Scrollable content */}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {tab === "rots" ? (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {rotValues.length === 0 ? (
+              <EmptyState text="No rots match your search" />
+            ) : (
+              rotValues.map(({ name, sp, value, tier }) => (
+                <div
+                  key={name}
+                  className="flex items-center gap-3 rounded-xl p-2"
+                  style={{
+                    background: "rgba(0,0,0,0.25)",
+                    border: `2px solid ${tier.color}40`,
+                  }}
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+                    <SmartImage
+                      src={sp.Icon ? iconUrl(sp.Icon) : ""}
+                      alt={sp.FullName}
+                      fill={false}
+                      fallbackSize={32}
+                      imgClassName="object-contain [image-rendering:pixelated]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-xs font-semibold text-white">
+                      {sp.FullName}
+                    </div>
+                    <div className="truncate text-[10px] text-white/60">
+                      {tier.label} · R{sp.Rarity.toFixed(2)}
+                    </div>
+                  </div>
+                  <span
+                    className="text-outline-sm text-sm text-white"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    {value.toFixed(0)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {itemValues.length === 0 ? (
+              <EmptyState text="No items match your search" />
+            ) : (
+              itemValues.map(({ name, info, value, tier }) => (
+                <div
+                  key={name}
+                  className="flex items-center gap-3 rounded-xl bg-black/25 p-2"
+                  style={{ border: "2px solid rgba(255,255,255,0.1)" }}
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+                    <SmartImage
+                      src={info.Icon ? iconUrl(info.Icon) : ""}
+                      alt={name}
+                      fill={false}
+                      fallbackSize={32}
+                      imgClassName="object-contain [image-rendering:pixelated]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-xs font-semibold text-white">
+                      {name}
+                    </div>
+                    <div className="truncate text-[10px] text-white/60">
+                      {tier}
+                    </div>
+                  </div>
+                  <span
+                    className="text-outline-sm text-sm text-white"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    {value.toFixed(0)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** About / Info page — simple and minimal. */
+function AboutView() {
+  return (
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-md flex-col items-center justify-center px-4 text-center sm:px-6">
+      {/* Logo */}
+      <Image
+        src="/cab_icon.png"
+        alt="CAB"
+        width={80}
+        height={80}
+        priority
+        className="mb-6 h-20 w-20 rounded-2xl object-cover [image-rendering:pixelated]"
+      />
+
       <h2
-        className="text-outline text-2xl text-white sm:text-3xl"
+        className="text-outline mb-4 text-xl text-white"
         style={{ fontFamily: "var(--font-pixel), monospace" }}
       >
-        {title}
+        CAB TRADE CALC
       </h2>
-      <p className="mt-3 text-[10px] text-white/70">{subtitle}</p>
+
+      <p
+        className="mb-6 text-[10px] leading-relaxed text-white/70"
+        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      >
+        A trade calculator for Catch a Brainrot. Load your inventory, build offers, and compare trade values.
+      </p>
+
+      {/* Links */}
+      <div className="flex flex-col gap-2">
+        <a
+          href="https://indieun.com/cab/rots"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="stud-input rounded-cab-sm px-4 py-2 text-[10px] uppercase text-gray-900 no-underline transition-colors hover:bg-blue-100"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          API DOCS
+        </a>
+        <a
+          href="https://www.roblox.com/games/Catch-a-Brainrot"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="stud-input rounded-cab-sm px-4 py-2 text-[10px] uppercase text-gray-900 no-underline transition-colors hover:bg-blue-100"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          PLAY ON ROBLOX
+        </a>
+      </div>
+
+      <p
+        className="mt-8 text-[8px] text-white/40"
+        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      >
+        NOT AFFILIATED WITH ROBLOX
+      </p>
     </div>
   );
 }
