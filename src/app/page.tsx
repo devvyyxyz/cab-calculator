@@ -10,6 +10,8 @@ import { SideNav, type NavView } from "@/components/trade/SideNav";
 import { Preloader } from "@/components/trade/Preloader";
 import { Onboarding } from "@/components/trade/Onboarding";
 import { SmartImage } from "@/components/trade/SmartImage";
+import { SortPill } from "@/components/trade/SortPill";
+import { PixelIcon } from "@/components/trade/PixelIcon";
 import {
   getRots,
   getBag,
@@ -28,6 +30,7 @@ import {
   valueRot,
   valueItem,
   verdict,
+  classifyItem,
   type ValuedRot,
   type ValuedItem,
   type TradeVerdict,
@@ -1102,10 +1105,26 @@ function BrainrotsView({
   rotsData: Record<string, Species>;
 }) {
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"rarity-asc" | "rarity-desc" | "name-az" | "name-za">("rarity-asc");
   const species = Object.entries(rotsData);
-  const filtered = species.filter(([name, sp]) =>
-    `${name} ${sp.ShortenedName} ${sp.FullName}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = species
+    .filter(([name, sp]) =>
+      `${name} ${sp.ShortenedName} ${sp.FullName}`.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "rarity-asc":
+          return a[1].Rarity - b[1].Rarity || a[1].FullName.localeCompare(b[1].FullName);
+        case "rarity-desc":
+          return b[1].Rarity - a[1].Rarity || a[1].FullName.localeCompare(b[1].FullName);
+        case "name-az":
+          return a[1].FullName.localeCompare(b[1].FullName);
+        case "name-za":
+          return b[1].FullName.localeCompare(a[1].FullName);
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
@@ -1122,8 +1141,8 @@ function BrainrotsView({
         </p>
       </div>
 
-      {/* Search */}
-      <div className="mb-4 flex justify-center">
+      {/* Search + Sort row */}
+      <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1133,6 +1152,16 @@ function BrainrotsView({
             borderRadius: "0.875rem",
             fontFamily: "var(--font-pixel), monospace",
           }}
+        />
+        <SortPill
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "rarity-asc", label: "Rarity ↑" },
+            { value: "rarity-desc", label: "Rarity ↓" },
+            { value: "name-az", label: "Name A-Z" },
+            { value: "name-za", label: "Name Z-A" },
+          ]}
         />
       </div>
 
@@ -1213,10 +1242,25 @@ function ItemsView({
   bagData: Record<string, BagItemInfo>;
 }) {
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"type" | "name-az" | "name-za">("type");
   const items = Object.entries(bagData);
-  const filtered = items.filter(([name]) =>
-    name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = items
+    .filter(([name]) => name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "type": {
+          const ta = classifyItem(a[0]).tier;
+          const tb = classifyItem(b[0]).tier;
+          return ta.localeCompare(tb) || a[0].localeCompare(b[0]);
+        }
+        case "name-az":
+          return a[0].localeCompare(b[0]);
+        case "name-za":
+          return b[0].localeCompare(a[0]);
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div className="relative z-10 mx-auto max-w-7xl px-4 pt-4 pb-28 sm:px-6">
@@ -1231,8 +1275,8 @@ function ItemsView({
         <p className="text-[10px] text-white/70">{items.length} item types</p>
       </div>
 
-      {/* Search */}
-      <div className="mb-4 flex justify-center">
+      {/* Search + Sort row */}
+      <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1242,6 +1286,15 @@ function ItemsView({
             borderRadius: "0.875rem",
             fontFamily: "var(--font-pixel), monospace",
           }}
+        />
+        <SortPill
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "type", label: "Type" },
+            { value: "name-az", label: "Name A-Z" },
+            { value: "name-za", label: "Name Z-A" },
+          ]}
         />
       </div>
 
@@ -1294,6 +1347,7 @@ function InventoryView({
 }) {
   const [tab, setTab] = useState<"team" | "pc" | "bag">("team");
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"rarity-asc" | "rarity-desc" | "name-az" | "name-za" | "level-asc" | "level-desc">("rarity-asc");
 
   if (!youProfile) {
     return (
@@ -1333,15 +1387,48 @@ function InventoryView({
     );
   }
 
-  const teamRots = yourData.Team.filter((r) =>
-    `${r.Nickname} ${r.Species}`.toLowerCase().includes(search.toLowerCase())
+  const sortRots = (arr: Rot[]) =>
+    [...arr].sort((a, b) => {
+      const spA = rotsData[a.Species];
+      const spB = rotsData[b.Species];
+      const rA = spA?.Rarity ?? 0;
+      const rB = spB?.Rarity ?? 0;
+      switch (sortBy) {
+        case "rarity-asc":
+          return rA - rB || (a.Nickname || a.Species).localeCompare(b.Nickname || b.Species);
+        case "rarity-desc":
+          return rB - rA || (a.Nickname || a.Species).localeCompare(b.Nickname || b.Species);
+        case "name-az":
+          return (a.Nickname || a.Species).localeCompare(b.Nickname || b.Species);
+        case "name-za":
+          return (b.Nickname || b.Species).localeCompare(a.Nickname || a.Species);
+        case "level-asc":
+          return a.Level - b.Level;
+        case "level-desc":
+          return b.Level - a.Level;
+        default:
+          return 0;
+      }
+    });
+
+  const teamRots = sortRots(
+    yourData.Team.filter((r) =>
+      `${r.Nickname} ${r.Species}`.toLowerCase().includes(search.toLowerCase())
+    )
   );
-  const pcRots = yourData.PC.filter((r) =>
-    `${r.Nickname} ${r.Species}`.toLowerCase().includes(search.toLowerCase())
+  const pcRots = sortRots(
+    yourData.PC.filter((r) =>
+      `${r.Nickname} ${r.Species}`.toLowerCase().includes(search.toLowerCase())
+    )
   );
-  const bagEntries = Object.entries(yourData.Bag).filter(
-    ([name, q]) => q > 0 && name.toLowerCase().includes(search.toLowerCase())
-  );
+  const bagEntries = Object.entries(yourData.Bag)
+    .filter(([name, q]) => q > 0 && name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (sortBy === "name-az") return a[0].localeCompare(b[0]);
+      if (sortBy === "name-za") return b[0].localeCompare(a[0]);
+      // default: type
+      return classifyItem(a[0]).tier.localeCompare(classifyItem(b[0]).tier) || a[0].localeCompare(b[0]);
+    });
   const currentRots = tab === "team" ? teamRots : pcRots;
 
   return (
@@ -1359,28 +1446,8 @@ function InventoryView({
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="mb-4 flex justify-center gap-2">
-        {(["team", "pc", "bag"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className="rounded-md px-4 py-2 text-[10px] uppercase transition-colors"
-            style={{
-              background: tab === t ? "#7cb3ff" : "rgba(255,255,255,0.1)",
-              color: "#fff",
-              fontFamily: "var(--font-pixel), monospace",
-              boxShadow: tab === t ? "0 2px 0 #1e3a5f" : "none",
-              border: "2px solid rgba(255,255,255,0.15)",
-            }}
-          >
-            {t === "team" ? `TEAM (${teamRots.length})` : t === "pc" ? `PC (${pcRots.length})` : `BAG (${bagEntries.length})`}
-          </button>
-        ))}
-      </div>
-
       {/* Search */}
-      <div className="mb-4 flex justify-center">
+      <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1391,6 +1458,59 @@ function InventoryView({
             fontFamily: "var(--font-pixel), monospace",
           }}
         />
+        <SortPill
+          value={sortBy}
+          onChange={setSortBy}
+          options={
+            tab === "bag"
+              ? [
+                  { value: "rarity-asc", label: "Type" },
+                  { value: "name-az", label: "Name A-Z" },
+                  { value: "name-za", label: "Name Z-A" },
+                ]
+              : [
+                  { value: "rarity-asc", label: "Rarity ↑" },
+                  { value: "rarity-desc", label: "Rarity ↓" },
+                  { value: "name-az", label: "Name A-Z" },
+                  { value: "name-za", label: "Name Z-A" },
+                  { value: "level-asc", label: "Level ↑" },
+                  { value: "level-desc", label: "Level ↓" },
+                ]
+          }
+        />
+      </div>
+
+      {/* Tab pills — below search, with icons */}
+      <div className="mb-4 flex justify-center gap-2">
+        {([
+          { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
+          { id: "pc", icon: "book-open", label: `PC (${pcRots.length})` },
+          { id: "bag", icon: "fire", label: `BAG (${bagEntries.length})` },
+        ] as const).map((t) => {
+          const isActive = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className="flex items-center gap-2 px-4 py-2 text-[10px] uppercase transition-all"
+              style={{
+                background: isActive ? "#7cb3ff" : "rgba(255,255,255,0.1)",
+                color: "#fff",
+                fontFamily: "var(--font-pixel), monospace",
+                boxShadow: isActive ? "0 2px 0 #1e3a5f" : "none",
+                border: "2px solid rgba(255,255,255,0.15)",
+                borderRadius: "999px",
+              }}
+            >
+              <PixelIcon
+                name={t.icon}
+                size={16}
+                color={isActive ? "#0f1320" : "#cbd5e1"}
+              />
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Content — no dark background container, slots float on page bg */}

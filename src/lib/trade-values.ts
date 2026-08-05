@@ -69,7 +69,7 @@ const ITEM_TIER_KEYWORDS: { test: RegExp; tier: string; value: number }[] = [
   { test: /(candy|rot candy|snow candy)/i, tier: "Consumable", value: 15 },
 ];
 
-function classifyItem(name: string): { tier: string; value: number } {
+export function classifyItem(name: string): { tier: string; value: number } {
   for (const { test, tier, value } of ITEM_TIER_KEYWORDS) {
     if (test.test(name)) return { tier, value };
   }
