@@ -65,6 +65,7 @@ export function SmartImage({
         unoptimized
         onError={() => setErrored(true)}
         className={imgClassName ?? "h-full w-full object-contain p-1 [image-rendering:pixelated]"}
+        style={{ imageRendering: "pixelated" }}
       />
     );
   }
@@ -78,6 +79,7 @@ export function SmartImage({
       unoptimized
       onError={() => setErrored(true)}
       className={imgClassName ?? "object-contain [image-rendering:pixelated]"}
+      style={{ imageRendering: "pixelated" }}
     />
   );
 }

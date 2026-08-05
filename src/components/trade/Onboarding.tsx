@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { PixelButton } from "./PixelButton";
@@ -16,15 +16,9 @@ interface RobloxUser {
 type Stage = "input" | "searching" | "confirm" | "multiple" | "loading-inv" | "error";
 
 /**
- * Onboarding page — full-screen takeover with a side-scrolling dark blue stud
- * background. Runs on first load until the user confirms their Roblox account.
- *
- * Flow:
- *   1. Ask for Roblox username
- *   2. Fetch matches from /api/roblox/user
- *   3. If one exact match → confirm "is this you?"
- *   4. If multiple matches → let user pick
- *   5. Once confirmed, pass back to parent to load inventory
+ * Onboarding page — full-screen takeover with the site blue background and a
+ * side-scrolling stud texture. Runs on first load until the user confirms
+ * their Roblox account.
  */
 export function Onboarding({
   onConfirm,
@@ -56,7 +50,6 @@ export function Onboarding({
         setStage("error");
         return;
       }
-      // Fetch avatars for all matches in parallel
       const withAvatars = await Promise.all(
         found.map(async (u) => {
           try {
@@ -99,9 +92,7 @@ export function Onboarding({
   return (
     <div
       className="fixed inset-0 z-[200] overflow-y-auto"
-      style={{
-        backgroundColor: "#0a1a4a",
-      }}
+      style={{ backgroundColor: "#0099ff" }}
     >
       {/* Side-scrolling stud texture background */}
       <div
@@ -110,24 +101,20 @@ export function Onboarding({
           backgroundImage: "url('/stud_texture.png')",
           backgroundSize: "100px 100px",
           backgroundRepeat: "repeat",
-          opacity: 0.35,
-        }}
-      />
-      {/* Dark blue overlay tint */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(8,20,60,0.4) 0%, rgba(8,20,60,0.7) 100%)",
+          opacity: 0.5,
         }}
       />
 
-      {/* Centered content card */}
+      {/* Centered content card with stud background */}
       <div className="relative z-10 grid min-h-screen place-items-center p-4">
         <div
           className="w-full max-w-md overflow-hidden p-6"
           style={{
-            background: "linear-gradient(180deg, #1a1f2e 0%, #0f1320 100%)",
+            backgroundColor: "#1a1f2e",
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "40px 40px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "soft-light",
             border: "4px solid #1e3a5f",
             boxShadow: "0 8px 0 0 rgba(0,0,0,0.6)",
             borderRadius: "1.5rem",
@@ -147,19 +134,11 @@ export function Onboarding({
           </div>
 
           <h2
-            className="text-outline mb-2 text-center text-base text-white"
+            className="text-outline mb-5 text-center text-base text-white"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
-            WELCOME
+            {stage === "confirm" ? "IS THIS YOU?" : "ENTER USERNAME"}
           </h2>
-          <p className="mb-5 text-center text-xs text-white/70">
-            {stage === "input" && "Enter your Roblox username to load your Catch a Brainrot inventory"}
-            {stage === "searching" && "Searching Roblox..."}
-            {stage === "confirm" && "Is this you?"}
-            {stage === "multiple" && "Multiple matches found — pick your account"}
-            {stage === "loading-inv" && "Loading your inventory..."}
-            {stage === "error" && "Something went wrong"}
-          </p>
 
           {/* Stage: input */}
           {stage === "input" && (
@@ -172,8 +151,12 @@ export function Onboarding({
                   if (e.key === "Enter") search();
                 }}
                 placeholder="Your Roblox username"
-                className="stud-input h-11 text-sm text-gray-900"
-                style={{ borderRadius: "0.875rem" }}
+                className="stud-input h-11 text-sm"
+                style={{
+                  borderRadius: "0.875rem",
+                  fontFamily: "var(--font-pixel), monospace",
+                  color: "#1f2937",
+                }}
               />
               {error && (
                 <p className="text-center text-xs text-red-400">{error}</p>

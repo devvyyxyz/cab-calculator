@@ -69,6 +69,17 @@ export default function Home() {
   const [metaLoaded, setMetaLoaded] = useState(false);
   const [navView, setNavView] = useState<NavView>("trade");
 
+  // ----- ESC key closes any open modal/drawer -----
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && inventoryOpenFor) {
+        setInventoryOpenFor(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [inventoryOpenFor]);
+
   // ----- Load meta (rots + bag) once -----
   useEffect(() => {
     let cancelled = false;
@@ -713,7 +724,8 @@ function InventoryDrawer({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="search..."
-              className="h-8 flex-1 min-w-[100px] bg-white/10 text-xs text-white placeholder:text-white/40"
+              className="stud-input h-8 flex-1 min-w-[100px] text-xs text-gray-900 placeholder:text-gray-500"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
             />
           </div>
 
@@ -914,7 +926,8 @@ function InventoryDrawer({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="search..."
-            className="h-8 flex-1 min-w-[100px] bg-white/10 text-xs text-white placeholder:text-white/40"
+            className="stud-input h-8 flex-1 min-w-[100px] text-xs text-gray-900 placeholder:text-gray-500"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
           />
         </div>
 
@@ -1116,7 +1129,10 @@ function BrainrotsView({
           onChange={(e) => setSearch(e.target.value)}
           placeholder="search brainrots..."
           className="stud-input h-9 max-w-md text-sm text-gray-900"
-          style={{ borderRadius: "0.875rem" }}
+          style={{
+            borderRadius: "0.875rem",
+            fontFamily: "var(--font-pixel), monospace",
+          }}
         />
       </div>
 
@@ -1167,12 +1183,13 @@ function BrainrotsView({
   );
 }
 
-/** Rarity tier → { color, shimmer } for slot backgrounds. */
+/** Rarity tier → { color, shimmer } for slot backgrounds.
+ *  Only legendary (rarity >= 5) and demon get the shimmer effect. */
 function rarityTier(rarity: number, isExclusive: boolean): { color: string; shimmer: boolean } {
   if (isExclusive) return { color: "#7f1d1d", shimmer: true }; // demon
   if (rarity >= 5) return { color: "#fbbf24", shimmer: true }; // legendary
-  if (rarity >= 4) return { color: "#a3e635", shimmer: true }; // epic
-  if (rarity >= 3) return { color: "#e5e7eb", shimmer: true }; // rare
+  if (rarity >= 4) return { color: "#a3e635", shimmer: false }; // epic
+  if (rarity >= 3) return { color: "#e5e7eb", shimmer: false }; // rare
   if (rarity >= 2) return { color: "#fca5a5", shimmer: false }; // uncommon
   return { color: "#c62828", shimmer: false }; // common
 }
@@ -1221,7 +1238,10 @@ function ItemsView({
           onChange={(e) => setSearch(e.target.value)}
           placeholder="search items..."
           className="stud-input h-9 max-w-md text-sm text-gray-900"
-          style={{ borderRadius: "0.875rem" }}
+          style={{
+            borderRadius: "0.875rem",
+            fontFamily: "var(--font-pixel), monospace",
+          }}
         />
       </div>
 
@@ -1273,6 +1293,7 @@ function InventoryView({
   loading: boolean;
 }) {
   const [tab, setTab] = useState<"team" | "pc" | "bag">("team");
+  const [search, setSearch] = useState("");
 
   if (!youProfile) {
     return (
@@ -1312,9 +1333,15 @@ function InventoryView({
     );
   }
 
-  const teamRots = yourData.Team;
-  const pcRots = yourData.PC;
-  const bagEntries = Object.entries(yourData.Bag).filter(([, q]) => q > 0);
+  const teamRots = yourData.Team.filter((r) =>
+    `${r.Nickname} ${r.Species}`.toLowerCase().includes(search.toLowerCase())
+  );
+  const pcRots = yourData.PC.filter((r) =>
+    `${r.Nickname} ${r.Species}`.toLowerCase().includes(search.toLowerCase())
+  );
+  const bagEntries = Object.entries(yourData.Bag).filter(
+    ([name, q]) => q > 0 && name.toLowerCase().includes(search.toLowerCase())
+  );
   const currentRots = tab === "team" ? teamRots : pcRots;
 
   return (
@@ -1350,6 +1377,20 @@ function InventoryView({
             {t === "team" ? `TEAM (${teamRots.length})` : t === "pc" ? `PC (${pcRots.length})` : `BAG (${bagEntries.length})`}
           </button>
         ))}
+      </div>
+
+      {/* Search */}
+      <div className="mb-4 flex justify-center">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="search inventory..."
+          className="stud-input h-9 max-w-md text-sm text-gray-900"
+          style={{
+            borderRadius: "0.875rem",
+            fontFamily: "var(--font-pixel), monospace",
+          }}
+        />
       </div>
 
       {/* Content — no dark background container, slots float on page bg */}
