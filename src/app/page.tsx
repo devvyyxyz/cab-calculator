@@ -13,6 +13,7 @@ import { SmartImage } from "@/components/trade/SmartImage";
 import { SortPill } from "@/components/trade/SortPill";
 import { PixelIcon } from "@/components/trade/PixelIcon";
 import { usePersistentState } from "@/components/trade/usePersistentState";
+import { ItemDetailModal } from "@/components/trade/ItemDetailModal";
 import {
   getRots,
   getBag,
@@ -1621,6 +1622,8 @@ function InventoryView({
   const [tab, setTab] = useState<"team" | "pc" | "bag">("team");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = usePersistentState<"rarity-asc" | "rarity-desc" | "name-az" | "name-za" | "level-asc" | "level-desc">("cab_sort_inventory", "rarity-desc");
+  const [detailRot, setDetailRot] = useState<Rot | null>(null);
+  const [detailBag, setDetailBag] = useState<{ name: string; info: BagItemInfo; qty: number } | null>(null);
 
   if (!youProfile) {
     return (
@@ -1807,7 +1810,7 @@ function InventoryView({
                   <div key={section.label} className="contents">
                     <SectionDivider label={section.label} />
                     {section.items.map(([name, qty]) => (
-                      <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
+                      <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} onClick={() => setDetailBag({ name, info: bagData[name], qty })} />
                     ))}
                   </div>
                 ));
@@ -1829,13 +1832,13 @@ function InventoryView({
                   <div key={section.label} className="contents">
                     <SectionDivider label={section.label} />
                     {section.items.map(([name, qty]) => (
-                      <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
+                      <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} onClick={() => setDetailBag({ name, info: bagData[name], qty })} />
                     ))}
                   </div>
                 ));
               }
               return bagEntries.map(([name, qty]) => (
-                <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
+                <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} onClick={() => setDetailBag({ name, info: bagData[name], qty })} />
               ));
             })()}
           </div>
@@ -1862,7 +1865,7 @@ function InventoryView({
                   <div key={section.label} className="contents">
                     <SectionDivider label={section.label} color={section.color} />
                     {section.items.map((rot) => (
-                      <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+                      <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} onClick={() => setDetailRot(rot)} />
                     ))}
                   </div>
                 ));
@@ -1885,28 +1888,51 @@ function InventoryView({
                   <div key={section.label} className="contents">
                     <SectionDivider label={section.label} />
                     {section.items.map((rot) => (
-                      <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+                      <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} onClick={() => setDetailRot(rot)} />
                     ))}
                   </div>
                 ));
               }
               return currentRots.map((rot) => (
-                <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+                <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} onClick={() => setDetailRot(rot)} />
               ));
             })()}
           </div>
         )}
       </div>
+
+      {/* Detail modal */}
+      {(detailRot || detailBag) && (
+        <ItemDetailModal
+          rot={detailRot ?? undefined}
+          species={detailRot ? rotsData[detailRot.Species] : undefined}
+          bagItem={detailBag ?? undefined}
+          onClose={() => {
+            setDetailRot(null);
+            setDetailBag(null);
+          }}
+        />
+      )}
     </div>
   );
 }
 
 /** Single inventory rot slot — extracted for reuse. */
-function InventoryRotSlot({ rot, sp }: { rot: Rot; sp?: Species }) {
+function InventoryRotSlot({
+  rot,
+  sp,
+  onClick,
+}: {
+  rot: Rot;
+  sp?: Species;
+  onClick?: () => void;
+}) {
   const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
   return (
-    <div
-      className={`group relative aspect-square ${tier.shimmer ? "shimmer-rare" : ""}`}
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group relative aspect-square cursor-pointer ${tier.shimmer ? "shimmer-rare" : ""}`}
       style={{
         background: tier.color,
         borderRadius: "1.25rem",
@@ -1924,15 +1950,27 @@ function InventoryRotSlot({ rot, sp }: { rot: Rot; sp?: Species }) {
       <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
         {rot.Nickname || rot.Species}
       </div>
-    </div>
+    </button>
   );
 }
 
 /** Single inventory bag slot — extracted for reuse. */
-function InventoryBagSlot({ name, qty, info }: { name: string; qty: number; info?: BagItemInfo }) {
+function InventoryBagSlot({
+  name,
+  qty,
+  info,
+  onClick,
+}: {
+  name: string;
+  qty: number;
+  info?: BagItemInfo;
+  onClick?: () => void;
+}) {
   return (
-    <div
-      className="group relative aspect-square"
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative aspect-square cursor-pointer"
       style={{
         background: "#374151",
         borderRadius: "1.25rem",
@@ -1960,7 +1998,7 @@ function InventoryBagSlot({ name, qty, info }: { name: string; qty: number; info
       <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
         {name}
       </div>
-    </div>
+    </button>
   );
 }
 
