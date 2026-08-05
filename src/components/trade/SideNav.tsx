@@ -55,30 +55,20 @@ export function SideNav({
       }}
       aria-label="Main navigation"
     >
-      {/* Logo */}
+      {/* Logo — raw icon, no background box */}
       <a
         href="/"
         className="group relative mb-2 block"
         aria-label="CAB Trade Calc home"
       >
-        <div
-          className="grid h-11 w-11 place-items-center overflow-hidden rounded-xl sm:h-14 sm:w-14"
-          style={{
-            background: "#fbbf24",
-            border: "3px solid #92400e",
-            boxShadow:
-              "0 4px 0 #92400e, inset 0 2px 0 rgba(255,255,255,0.4)",
-          }}
-        >
-          <Image
-            src="/cab_icon.png"
-            alt="Catch a Brainrot"
-            width={40}
-            height={40}
-            priority
-            className="h-full w-full object-cover [image-rendering:pixelated] transition-transform group-hover:scale-110"
-          />
-        </div>
+        <Image
+          src="/cab_icon.png"
+          alt="Catch a Brainrot"
+          width={44}
+          height={44}
+          priority
+          className="h-11 w-11 rounded-lg object-cover [image-rendering:pixelated] transition-transform group-hover:scale-110 sm:h-14 sm:w-14"
+        />
       </a>
 
       {/* Divider */}

@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import type { Rot, Species } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
 
-/** A single squircle trade slot — empty or filled with a brainrot/item. */
+/** A single squircle trade slot — empty or filled with a brainrot/item.
+ *  Dark recessed background matching the original in-game trade UI. */
 export function TradeSlot({
   children,
   variant = "you",
@@ -19,8 +20,11 @@ export function TradeSlot({
   onRemove?: () => void;
   empty?: boolean;
 }) {
-  const slotBg = variant === "you" ? "#cfe0ff" : "#d7f5c0";
-  const slotShadow = variant === "you" ? "#3d5a99" : "#3a6b1f";
+  // Dark recessed slot — matches the original in-game look.
+  // Same dark interior for both sides; the panel color provides the side distinction.
+  const slotBg = "#1a1f2e"; // dark interior
+  const slotBorder = variant === "you" ? "#1e3a5f" : "#2e5a1f"; // matches panel border
+  const slotInset = variant === "you" ? "#0d1018" : "#0d1018";
 
   return (
     <button
@@ -33,8 +37,9 @@ export function TradeSlot({
       style={{
         background: slotBg,
         borderRadius: "22%",
-        boxShadow: `0 4px 0 0 ${slotShadow}, inset 0 2px 0 0 rgba(255,255,255,0.55)`,
-        border: `3px solid ${slotShadow}`,
+        // Inset shadow = recessed/pressed-in look (top dark, bottom light)
+        boxShadow: `inset 0 3px 4px 0 ${slotInset}, inset 0 -2px 2px 0 rgba(255,255,255,0.08)`,
+        border: `3px solid ${slotBorder}`,
       }}
       aria-label={empty ? "Empty trade slot" : "Filled trade slot"}
     >

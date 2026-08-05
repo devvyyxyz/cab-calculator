@@ -292,101 +292,31 @@ export default function Home() {
         suppressHydrationWarning
         className="relative min-h-screen w-full overflow-x-hidden pl-16 sm:pl-20"
         style={{
-          background:
-            "linear-gradient(180deg, #00b3ff 0%, #0099ff 60%, #0077dd 100%)",
+          backgroundColor: "#0099ff",
+          backgroundImage: "url('/stud_texture.png')",
+          backgroundSize: "100px 100px",
+          backgroundRepeat: "repeat",
         }}
       >
-      {/* Pixel grid overlay */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-25"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.7) 1px, transparent 0)",
-          backgroundSize: "16px 16px",
-        }}
-      />
-
-      {/* Floating decorative clouds */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {[
-          { top: "8%", left: "5%", size: 80 },
-          { top: "60%", left: "12%", size: 60 },
-          { top: "20%", right: "8%", size: 90 },
-          { top: "75%", right: "10%", size: 70 },
-        ].map((c, i) => (
-          <div
-            key={i}
-            className="absolute"
-            style={{
-              top: c.top,
-              left: c.left,
-              right: c.right as string | undefined,
-            }}
-          >
-            <div
-              className="rounded-full bg-white/70 blur-[1px]"
-              style={{
-                width: c.size,
-                height: c.size * 0.5,
-              }}
-            />
-          </div>
-        ))}
+      {/* Compact user ID loader bar */}
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-wrap items-end justify-center gap-2 px-4 pt-4 sm:gap-3 sm:px-6">
+        <UserIdInput
+          label="YOU"
+          value={yourId}
+          onChange={setYourId}
+          onLoad={() => loadInventory("you", yourId)}
+          loading={loading === "you"}
+          color="blue"
+        />
+        <UserIdInput
+          label="THEM"
+          value={theirId}
+          onChange={setTheirId}
+          onLoad={() => loadInventory("them", theirId)}
+          loading={loading === "them"}
+          color="green"
+        />
       </div>
-
-      {/* Header / nav */}
-      <header className="relative z-10 mx-auto flex max-w-7xl flex-col gap-3 px-4 pt-5 sm:px-6 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div
-            className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl shadow-[0_4px_0_#92400e]"
-            style={{
-              border: "3px solid #92400e",
-              background: "#fbbf24",
-            }}
-            aria-hidden
-          >
-            <Image
-              src="/cab_icon.png"
-              alt="CAB"
-              width={36}
-              height={36}
-              priority
-              className="h-full w-full object-cover [image-rendering:pixelated]"
-            />
-          </div>
-          <div>
-            <h1
-              className="text-xl text-white drop-shadow-[2px_2px_0_#1e3a5f] sm:text-2xl"
-              style={{ fontFamily: "var(--font-pixel), monospace" }}
-            >
-              CAB TRADE CALC
-            </h1>
-            <p className="text-[10px] text-white/80 sm:text-xs">
-              Catch a Brainrot — value your trade before you ready up
-            </p>
-          </div>
-        </div>
-
-        {/* User ID inputs */}
-        <div className="flex flex-wrap items-end gap-2 sm:gap-3">
-          <UserIdInput
-            label="YOU"
-            value={yourId}
-            onChange={setYourId}
-            onLoad={() => loadInventory("you", yourId)}
-            loading={loading === "you"}
-            color="blue"
-          />
-          <UserIdInput
-            label="THEM"
-            value={theirId}
-            onChange={setTheirId}
-            onLoad={() => loadInventory("them", theirId)}
-            loading={loading === "them"}
-            color="green"
-          />
-        </div>
-      </header>
 
       {/* Verdict banner */}
       <section className="relative z-10 mx-auto mt-4 max-w-7xl px-4 sm:px-6">
