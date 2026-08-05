@@ -80,10 +80,9 @@ export function SideNav({
       <div className="relative z-10 my-1 h-0.5 w-8 rounded-full bg-white/15" />
 
       {/* Nav items */}
-      <nav className="relative z-10 flex flex-1 flex-col items-center gap-2">
+      <nav className="relative z-10 flex flex-1 flex-col items-center gap-3">
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
-          const isHovered = hovered === item.id;
           return (
             <button
               key={item.id}
@@ -96,21 +95,27 @@ export function SideNav({
               }}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
-              className="group relative flex h-11 w-11 items-center justify-center rounded-lg transition-all sm:h-12 sm:w-14"
-              style={{
-                background: isActive ? item.color : "rgba(255,255,255,0.06)",
-                border: `2px solid ${
-                  isActive ? item.color : "rgba(255,255,255,0.12)"
-                }`,
-                boxShadow: isActive
-                  ? `0 3px 0 rgba(0,0,0,0.5), 0 0 12px ${item.color}66`
-                  : "none",
-                color: isActive ? "#0f1320" : "#e2e8f0",
-              }}
+              /* No container box — just the icon with an outline */
+              className="group relative flex h-11 w-11 items-center justify-center transition-transform hover:scale-110 sm:h-12 sm:w-14"
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
             >
-              <PixelIcon name={item.icon} size={24} color="currentColor" />
+              <PixelIcon
+                name={item.icon}
+                size={28}
+                color={isActive ? item.color : "#e2e8f0"}
+                outline={isActive ? "#000000" : "rgba(0,0,0,0.7)"}
+                outlineWidth={2}
+              />
+              {/* Glow ring for active state */}
+              {isActive && (
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-lg"
+                  style={{
+                    boxShadow: `0 0 14px ${item.color}88`,
+                  }}
+                />
+              )}
               {/* Tooltip */}
               <span
                 className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 sm:block"

@@ -616,11 +616,17 @@ function TradePanel({
         border: `4px solid ${border}`,
       }}
     >
-      {/* Title bar — centered text with outline, no box, value inline */}
-      <div className="mb-3 flex items-center justify-center py-1">
+      {/* Title bar — centered, large, outlined with a darker shade of the panel color */}
+      <div className="mb-4 flex items-center justify-center py-1">
         <h2
-          className="text-outline text-center text-sm text-white sm:text-base"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
+          className="text-center text-lg sm:text-2xl"
+          style={{
+            fontFamily: "var(--font-pixel-bold, var(--font-pixel)), monospace",
+            color: "#ffffff",
+            // Outline = darker shade of the container's blue/green
+            WebkitTextStroke: `3px ${border}`,
+            paintOrder: "stroke fill",
+          }}
         >
           {title} ({total.toFixed(0)})
         </h2>
