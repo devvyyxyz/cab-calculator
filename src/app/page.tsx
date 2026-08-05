@@ -83,16 +83,41 @@ export default function Home() {
     return () => window.removeEventListener("keydown", onKey);
   }, [inventoryOpenFor]);
 
-  // ----- Load meta (rots + bag) once -----
+  // ----- Load meta (rots + bag) once, with localStorage caching -----
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Try cached data first for instant load
+      try {
+        const cachedRots = localStorage.getItem("cab_rots_cache");
+        const cachedBag = localStorage.getItem("cab_bag_cache");
+        if (cachedRots && cachedBag) {
+          const r = JSON.parse(cachedRots) as RotsResponse;
+          const b = JSON.parse(cachedBag) as BagResponse;
+          if (r?.Data && b?.Data) {
+            setRotsData(r.Data);
+            setBagData(b.Data);
+            setMetaLoaded(true);
+          }
+        }
+      } catch {
+        /* ignore corrupt cache */
+      }
+
+      // Always fetch fresh data in background to update cache
       setLoading("meta");
       try {
         const [r, b] = await Promise.all([getRots(), getBag()]);
         if (cancelled) return;
         setRotsData((r as RotsResponse).Data);
         setBagData((b as BagResponse).Data);
+        // Save to cache
+        try {
+          localStorage.setItem("cab_rots_cache", JSON.stringify(r));
+          localStorage.setItem("cab_bag_cache", JSON.stringify(b));
+        } catch {
+          /* ignore quota */
+        }
       } catch (e) {
         toast.error(`Failed to load game data: ${(e as Error).message}`);
       } finally {
@@ -107,7 +132,7 @@ export default function Home() {
     };
   }, []);
 
-  // ----- Load inventory for "you" side (after onboarding confirms identity) -----
+  // ----- Load inventory for "you" side (with localStorage caching) -----
   const loadYourInventory = useCallback(async (userId: string) => {
     setLoading("you");
     try {
@@ -115,10 +140,29 @@ export default function Home() {
       const data = (res as { Data: PlayerData }).Data;
       setYourData(data);
       setYourOffer(EMPTY_OFFER);
+      // Cache the inventory
+      try {
+        localStorage.setItem(`cab_inventory_${userId}`, JSON.stringify(data));
+      } catch {
+        /* ignore quota */
+      }
       toast.success(
         `Loaded your inventory — ${data.PC.length} rots, ${data.Team.length} team, ${Object.keys(data.Bag).length} bag items`
       );
     } catch (e) {
+      // Try cached inventory as fallback
+      try {
+        const cached = localStorage.getItem(`cab_inventory_${userId}`);
+        if (cached) {
+          const data = JSON.parse(cached) as PlayerData;
+          setYourData(data);
+          setYourOffer(EMPTY_OFFER);
+          toast(`Loaded cached inventory (API unavailable)`);
+          return;
+        }
+      } catch {
+        /* ignore */
+      }
       toast.error(
         `No Catch a Brainrot inventory found for this Roblox account. You can still use the catalog picker.`
       );
@@ -147,27 +191,30 @@ export default function Home() {
   );
 
   // ----- On mount: check localStorage for saved profile -----
-  // If found, start onboarding at the "confirm" stage instead of "input".
-  // Uses a lazy initializer so the first render already has the saved value
-  // (avoids a flash of the "ENTER USERNAME" stage on refresh).
+  // Uses a mounted flag so SSR and client first-render both start with null,
+  // then the client updates after mount once localStorage is available.
+  // This avoids hydration mismatches (server can't read localStorage).
   const [savedProfile, setSavedProfile] = useState<{
     id: string;
     displayName: string;
     avatarUrl?: string;
-  } | null>(() => {
+  } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
     try {
       const raw = localStorage.getItem("cab_profile");
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed?.id && parsed?.displayName) {
-          return parsed;
+          setSavedProfile(parsed);
         }
       }
     } catch {
       /* ignore */
     }
-    return null;
-  });
+  }, []);
 
   // ----- Offer manipulation -----
   // For "you" side: rot must come from loaded inventory (real UID).
@@ -342,13 +389,13 @@ export default function Home() {
       {!onboarded && (
         <Onboarding
           onConfirm={handleOnboarded}
-          initialProfile={savedProfile}
+          initialProfile={mounted ? savedProfile : null}
         />
       )}
-      <SideNav active={navView} onNavigate={setNavView} />
+      <SideNav active={navView} onNavigate={setNavView} profile={youProfile} />
       <main
         suppressHydrationWarning
-        className="relative flex h-screen w-full flex-col overflow-hidden pl-16 sm:pl-20"
+        className="relative flex h-screen w-full flex-col overflow-y-auto pl-16 sm:pl-20"
         style={{
           backgroundColor: "#0099ff",
           backgroundImage: "url('/stud_texture.png')",
@@ -356,42 +403,10 @@ export default function Home() {
           backgroundRepeat: "repeat",
         }}
       >
-      {/* Your profile chip */}
-      {youProfile && navView === "trade" && (
-        <div className="relative z-10 mx-auto flex max-w-7xl items-center justify-center px-4 pt-4 sm:px-6">
-          <div
-            className="flex items-center gap-2 rounded-xl px-3 py-1.5"
-            style={{
-              background: "rgba(0,0,0,0.35)",
-              border: "2px solid rgba(255,255,255,0.18)",
-              backdropFilter: "blur(6px)",
-            }}
-          >
-            {youProfile.avatarUrl ? (
-              <img
-                src={youProfile.avatarUrl}
-                alt={youProfile.displayName}
-                className="h-6 w-6 rounded-full [image-rendering:pixelated]"
-              />
-            ) : null}
-            <span
-              className="text-outline-sm text-[10px] text-white"
-              style={{ fontFamily: "var(--font-pixel), monospace" }}
-            >
-              {youProfile.displayName}
-            </span>
-            <span className="text-[9px] text-white/50">
-              · ID {youProfile.id}
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* ===== TRADE VIEW ===== */}
       {navView === "trade" && (
-        <div className="relative z-10 min-h-0 flex-1 overflow-y-auto">
         <>
-          <section className="mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-28 sm:px-6 md:grid-cols-2">
+          <section className="relative z-10 mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
             <TradePanel
               title="YOUR OFFER"
               variant="you"
@@ -415,7 +430,6 @@ export default function Home() {
             <FairnessBadge verdict={v} />
           </section>
         </>
-        </div>
       )}
 
       {/* ===== INVENTORY VIEW ===== */}
@@ -735,79 +749,69 @@ function InventoryDrawer({
             />
           </div>
 
-          {/* List */}
+          {/* List — grid of slots like the Brainrots/Items pages */}
           <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {tab === "items" ? (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-                {filteredBag.map(([name, info]) => {
-                  const inOffer = offerItems.find((i) => i.name === name)?.qty ?? 0;
-                  return (
-                    <button
-                      key={name}
-                      type="button"
-                      onClick={() => onAddItem(name, 1)}
-                      className="flex flex-col gap-2 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15"
-                      style={{ border: "2px solid rgba(255,255,255,0.1)" }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
-                          <SmartImage
-                            src={info.Icon ? iconUrl(info.Icon) : ""}
-                            alt={name}
-                            className="h-full w-full"
-                            imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
-                            fallbackSize={24}
-                            fill={false}
-                            showCaption={false}
-                          />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-xs font-semibold text-white">
-                            {name}
-                          </div>
-                          <div className="text-[10px] text-white/60">
-                            In offer: {inOffer}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
+                {filteredBag.map(([name, info]) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => onAddItem(name, 1)}
+                    className="group relative aspect-square cursor-pointer"
+                    style={{
+                      background: "#374151",
+                      borderRadius: "1.25rem",
+                      boxShadow:
+                        "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+                    }}
+                    title={name}
+                  >
+                    <SmartImage
+                      src={info.Icon ? iconUrl(info.Icon) : ""}
+                      alt={name}
+                      imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                      fallbackSize={32}
+                    />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+                      {name}
+                    </div>
+                  </button>
+                ))}
                 {filteredBag.length === 0 && (
                   <EmptyState text="No items match your search" />
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {filteredSpecies.map(([name, sp]) => (
-                  <button
-                    key={name}
-                    type="button"
-                    onClick={() => onAddCatalogRot?.(name)}
-                    className="flex items-center gap-3 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15"
-                    style={{ border: "2px solid rgba(255,255,255,0.1)" }}
-                  >
-                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
+                {filteredSpecies.map(([name, sp]) => {
+                  const tier = rarityTier(sp.Rarity, sp.IsExclusive);
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => onAddCatalogRot?.(name)}
+                      className={`group relative aspect-square cursor-pointer ${tier.shimmer ? "shimmer-rare" : ""}`}
+                      style={{
+                        background: tier.color,
+                        borderRadius: "1.25rem",
+                        boxShadow:
+                          "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
+                      }}
+                      title={sp.FullName}
+                    >
                       <SmartImage
                         src={sp.Icon ? iconUrl(sp.Icon) : ""}
-                        alt={name}
-                        className="h-full w-full"
-                        imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
-                        fallbackSize={28}
-                        fill={false}
-                        showCaption={false}
+                        alt={sp.FullName}
+                        imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                        fallbackSize={32}
                       />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-xs font-semibold text-white">
-                        {sp.FullName}
-                      </div>
-                      <div className="truncate text-[10px] text-white/60">
+                      <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
                         {sp.ShortenedName}
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
                 {filteredSpecies.length === 0 && (
                   <EmptyState text="No rots match your search" />
                 )}
@@ -913,10 +917,10 @@ function InventoryDrawer({
           />
         </div>
 
-        {/* List */}
+        {/* List — grid of slots like the Brainrots/Items pages */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-4">
           {tab === "bag" ? (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
               {filteredBag.map(([name, qty]) => {
                 const inOffer = itemQtyInOffer(name);
                 const info = bagData[name];
@@ -927,29 +931,33 @@ function InventoryDrawer({
                     type="button"
                     disabled={remaining <= 0}
                     onClick={() => onAddItem(name, 1)}
-                    className="flex flex-col gap-2 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15 disabled:opacity-40"
-                    style={{ border: "2px solid rgba(255,255,255,0.1)" }}
+                    className="group relative aspect-square cursor-pointer disabled:opacity-40"
+                    style={{
+                      background: "#374151",
+                      borderRadius: "1.25rem",
+                      boxShadow:
+                        "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+                    }}
+                    title={`${name} ×${qty}`}
                   >
-                    <div className="flex items-center gap-2">
-                      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
-                        <SmartImage
-                          src={info?.Icon ? iconUrl(info.Icon) : ""}
-                          alt={name}
-                          className="h-full w-full"
-                          imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
-                          fallbackSize={24}
-                          fill={false}
-                          showCaption={false}
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-xs font-semibold text-white">
-                          {name}
-                        </div>
-                        <div className="text-[10px] text-white/60">
-                          Owned: {qty} · In offer: {inOffer}
-                        </div>
-                      </div>
+                    <SmartImage
+                      src={info?.Icon ? iconUrl(info.Icon) : ""}
+                      alt={name}
+                      imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                      fallbackSize={32}
+                    />
+                    {qty > 1 && (
+                      <span
+                        className="text-outline-sm absolute bottom-0.5 right-0.5 text-xs text-white"
+                        style={{
+                          fontFamily: "var(--font-pixel), monospace",
+                        }}
+                      >
+                        ×{qty}
+                      </span>
+                    )}
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+                      {name}
                     </div>
                   </button>
                 );
@@ -959,41 +967,34 @@ function InventoryDrawer({
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
               {(tab === "team" ? filteredTeam : filteredPc).map((rot) => {
                 const sp = rotsData[rot.Species];
                 const inOffer = isRotInOffer(rot.UID);
+                const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
                 return (
                   <button
                     key={rot.UID}
                     type="button"
                     disabled={inOffer}
                     onClick={() => onAddRot(rot)}
-                    className="flex items-center gap-3 rounded-xl bg-white/5 p-2 text-left transition-colors hover:bg-white/15 disabled:opacity-40"
+                    className={`group relative aspect-square cursor-pointer disabled:opacity-40 ${tier.shimmer ? "shimmer-rare" : ""}`}
                     style={{
-                      border: `2px solid ${
-                        inOffer ? accent : "rgba(255,255,255,0.1)"
-                      }`,
+                      background: tier.color,
+                      borderRadius: "1.25rem",
+                      boxShadow:
+                        "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
                     }}
+                    title={rot.Nickname || rot.Species}
                   >
-                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
-                      <SmartImage
-                        src={sp?.Icon ? iconUrl(sp.Icon) : ""}
-                        alt={rot.Species}
-                        className="h-full w-full"
-                        imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
-                        fallbackSize={28}
-                        fill={false}
-                        showCaption={false}
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-xs font-semibold text-white">
-                        {rot.Nickname || rot.Species}
-                      </div>
-                      <div className="truncate text-[10px] text-white/60">
-                        {rot.Species}
-                      </div>
+                    <SmartImage
+                      src={sp?.Icon ? iconUrl(sp.Icon) : ""}
+                      alt={rot.Species}
+                      imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                      fallbackSize={32}
+                    />
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+                      {rot.Nickname || rot.Species}
                     </div>
                   </button>
                 );
@@ -1134,6 +1135,28 @@ function BrainrotsView({
               return sections.map((section) => (
                 <div key={section.label} className="contents">
                   <SectionDivider label={section.label} color={section.color} />
+                  {section.items.map(([name, sp]) => (
+                    <BrainrotSlot key={name} name={name} sp={sp} />
+                  ))}
+                </div>
+              ));
+            }
+            // When sorted by name, group by first letter with section dividers
+            if (sortBy === "name-az" || sortBy === "name-za") {
+              const sections: { label: string; items: typeof filtered }[] = [];
+              for (const [name, sp] of filtered) {
+                const letter = (sp.FullName[0] || "#").toUpperCase();
+                const label = /[A-Z]/.test(letter) ? letter : "#";
+                let section = sections.find((s) => s.label === label);
+                if (!section) {
+                  section = { label, items: [] };
+                  sections.push(section);
+                }
+                section.items.push([name, sp]);
+              }
+              return sections.map((section) => (
+                <div key={section.label} className="contents">
+                  <SectionDivider label={section.label} />
                   {section.items.map(([name, sp]) => (
                     <BrainrotSlot key={name} name={name} sp={sp} />
                   ))}
@@ -1304,6 +1327,28 @@ function ItemsView({
                 let section = sections.find((s) => s.label === tier);
                 if (!section) {
                   section = { label: tier, items: [] };
+                  sections.push(section);
+                }
+                section.items.push(entry);
+              }
+              return sections.map((section) => (
+                <div key={section.label} className="contents">
+                  <SectionDivider label={section.label} />
+                  {section.items.map(([name, info]) => (
+                    <ItemSlot key={name} name={name} info={info} />
+                  ))}
+                </div>
+              ));
+            }
+            // When sorted by name, group by first letter with section dividers
+            if (sortBy === "name-az" || sortBy === "name-za") {
+              const sections: { label: string; items: typeof filtered }[] = [];
+              for (const entry of filtered) {
+                const letter = (entry[0][0] || "#").toUpperCase();
+                const label = /[A-Z]/.test(letter) ? letter : "#";
+                let section = sections.find((s) => s.label === label);
+                if (!section) {
+                  section = { label, items: [] };
                   sections.push(section);
                 }
                 section.items.push(entry);
@@ -1562,6 +1607,28 @@ function InventoryView({
                   </div>
                 ));
               }
+              // When sorted by name, group by first letter
+              if (sortBy === "name-az" || sortBy === "name-za") {
+                const sections: { label: string; items: typeof bagEntries }[] = [];
+                for (const entry of bagEntries) {
+                  const letter = (entry[0][0] || "#").toUpperCase();
+                  const label = /[A-Z]/.test(letter) ? letter : "#";
+                  let section = sections.find((s) => s.label === label);
+                  if (!section) {
+                    section = { label, items: [] };
+                    sections.push(section);
+                  }
+                  section.items.push(entry);
+                }
+                return sections.map((section) => (
+                  <div key={section.label} className="contents">
+                    <SectionDivider label={section.label} />
+                    {section.items.map(([name, qty]) => (
+                      <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
+                    ))}
+                  </div>
+                ));
+              }
               return bagEntries.map(([name, qty]) => (
                 <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
               ));
@@ -1589,6 +1656,29 @@ function InventoryView({
                 return sections.map((section) => (
                   <div key={section.label} className="contents">
                     <SectionDivider label={section.label} color={section.color} />
+                    {section.items.map((rot) => (
+                      <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+                    ))}
+                  </div>
+                ));
+              }
+              // When sorted by name, group by first letter
+              if (sortBy === "name-az" || sortBy === "name-za") {
+                const sections: { label: string; items: Rot[] }[] = [];
+                for (const rot of currentRots) {
+                  const name = rot.Nickname || rot.Species;
+                  const letter = (name[0] || "#").toUpperCase();
+                  const label = /[A-Z]/.test(letter) ? letter : "#";
+                  let section = sections.find((s) => s.label === label);
+                  if (!section) {
+                    section = { label, items: [] };
+                    sections.push(section);
+                  }
+                  section.items.push(rot);
+                }
+                return sections.map((section) => (
+                  <div key={section.label} className="contents">
+                    <SectionDivider label={section.label} />
                     {section.items.map((rot) => (
                       <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
                     ))}

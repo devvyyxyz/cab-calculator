@@ -31,9 +31,11 @@ const NAV_ITEMS: NavItem[] = [
 export function SideNav({
   active,
   onNavigate,
+  profile,
 }: {
   active: NavView;
   onNavigate?: (view: NavView) => void;
+  profile?: { id: string; displayName: string; avatarUrl?: string } | null;
 }) {
   const [hovered, setHovered] = useState<NavView | null>(null);
 
@@ -117,6 +119,32 @@ export function SideNav({
           );
         })}
       </nav>
+
+      {/* Profile avatar — bottom of sidebar */}
+      {profile?.avatarUrl && (
+        <div
+          className="group relative z-10 mb-1"
+          title={`${profile.displayName} · ID ${profile.id}`}
+        >
+          <img
+            src={profile.avatarUrl}
+            alt={profile.displayName}
+            className="h-11 w-11 rounded-lg object-cover [image-rendering:pixelated] sm:h-14 sm:w-14"
+          />
+          {/* Tooltip on hover */}
+          <span
+            className="pointer-events-none absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 sm:block"
+            style={{
+              background: "#0f1320",
+              border: "1px solid rgba(255,255,255,0.2)",
+              fontFamily: "var(--font-pixel), monospace",
+              zIndex: 50,
+            }}
+          >
+            {profile.displayName}
+          </span>
+        </div>
+      )}
     </aside>
   );
 }
