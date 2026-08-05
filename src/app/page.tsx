@@ -12,6 +12,7 @@ import { Onboarding } from "@/components/trade/Onboarding";
 import { SmartImage } from "@/components/trade/SmartImage";
 import { SortPill } from "@/components/trade/SortPill";
 import { PixelIcon } from "@/components/trade/PixelIcon";
+import { usePersistentState } from "@/components/trade/usePersistentState";
 import {
   getRots,
   getBag,
@@ -395,7 +396,7 @@ export default function Home() {
       <SideNav active={navView} onNavigate={setNavView} profile={youProfile} />
       <main
         suppressHydrationWarning
-        className="relative flex h-screen w-full flex-col overflow-y-auto pl-16 sm:pl-20"
+        className="relative flex h-screen w-full flex-col overflow-hidden pl-16 sm:pl-20"
         style={{
           backgroundColor: "#0099ff",
           backgroundImage: "url('/stud_texture.png')",
@@ -405,8 +406,9 @@ export default function Home() {
       >
       {/* ===== TRADE VIEW ===== */}
       {navView === "trade" && (
+        <div className="relative z-10 min-h-0 flex-1 overflow-y-auto">
         <>
-          <section className="relative z-10 mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
+          <section className="relative mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
             <TradePanel
               title="YOUR OFFER"
               variant="you"
@@ -430,6 +432,7 @@ export default function Home() {
             <FairnessBadge verdict={v} />
           </section>
         </>
+        </div>
       )}
 
       {/* ===== INVENTORY VIEW ===== */}
@@ -685,7 +688,7 @@ function InventoryDrawer({
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl sm:w-full sm:max-w-4xl sm:rounded-3xl"
+          className="flex h-[80vh] w-full flex-col overflow-hidden rounded-t-3xl sm:w-full sm:max-w-4xl sm:rounded-3xl"
           style={{
             backgroundColor: "#1a1f2e",
             backgroundImage: "url('/stud_texture.png')",
@@ -853,7 +856,7 @@ function InventoryDrawer({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-3xl sm:w-full sm:max-w-4xl sm:rounded-3xl"
+        className="flex h-[80vh] w-full flex-col overflow-hidden rounded-t-3xl sm:w-full sm:max-w-4xl sm:rounded-3xl"
         style={{
           backgroundColor: "#1a1f2e",
           backgroundImage: "url('/stud_texture.png')",
@@ -1056,7 +1059,7 @@ function BrainrotsView({
   rotsData: Record<string, Species>;
 }) {
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<"rarity-asc" | "rarity-desc" | "name-az" | "name-za">("rarity-asc");
+  const [sortBy, setSortBy] = usePersistentState<"rarity-asc" | "rarity-desc" | "name-az" | "name-za">("cab_sort_rots", "rarity-asc");
   const species = Object.entries(rotsData);
   const filtered = species
     .filter(([name, sp]) =>
@@ -1257,7 +1260,7 @@ function ItemsView({
   bagData: Record<string, BagItemInfo>;
 }) {
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<"type" | "name-az" | "name-za">("type");
+  const [sortBy, setSortBy] = usePersistentState<"type" | "name-az" | "name-za">("cab_sort_items", "type");
   const items = Object.entries(bagData);
   const filtered = items
     .filter(([name]) => name.toLowerCase().includes(search.toLowerCase()))
@@ -1415,7 +1418,7 @@ function InventoryView({
 }) {
   const [tab, setTab] = useState<"team" | "pc" | "bag">("team");
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<"rarity-asc" | "rarity-desc" | "name-az" | "name-za" | "level-asc" | "level-desc">("rarity-asc");
+  const [sortBy, setSortBy] = usePersistentState<"rarity-asc" | "rarity-desc" | "name-az" | "name-za" | "level-asc" | "level-desc">("cab_sort_inventory", "rarity-asc");
 
   if (!youProfile) {
     return (
@@ -1581,7 +1584,7 @@ function InventoryView({
       {/* Scrollable content — slots float on page bg */}
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         {tab === "bag" ? (
-          <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-5 md:grid-cols-7 sm:p-2">
+          <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
             {(() => {
               if (bagEntries.length === 0) {
                 return <EmptyState text="No bag items" />;
@@ -1635,7 +1638,7 @@ function InventoryView({
             })()}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 p-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:p-2">
+          <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
             {(() => {
               if (currentRots.length === 0) {
                 return <EmptyState text={`No ${tab === "team" ? "team" : "PC"} rots`} />;
