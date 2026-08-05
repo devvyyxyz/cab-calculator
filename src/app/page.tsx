@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { PixelButton } from "@/components/trade/PixelButton";
 import { TradeSlot, RotSlotContent, ItemSlotContent } from "@/components/trade/TradeSlot";
 import { SideNav, type NavView } from "@/components/trade/SideNav";
+import { Preloader } from "@/components/trade/Preloader";
 import {
   getRots,
   getBag,
@@ -287,6 +288,7 @@ export default function Home() {
 
   return (
     <>
+      <Preloader />
       <SideNav active={navView} onNavigate={setNavView} />
       <main
         suppressHydrationWarning
@@ -563,13 +565,13 @@ function VerdictPill({
       }}
     >
       <span
-        className="text-[9px] text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.6)] sm:text-[10px]"
+        className="text-outline-sm text-[9px] text-white sm:text-[10px]"
         style={{ fontFamily: "var(--font-pixel), monospace" }}
       >
         {label}
       </span>
       <span
-        className="text-base text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.6)] sm:text-lg"
+        className="text-outline text-base text-white sm:text-lg"
         style={{ fontFamily: "var(--font-pixel), monospace" }}
       >
         {value.toFixed(0)}
@@ -614,27 +616,14 @@ function TradePanel({
         border: `4px solid ${border}`,
       }}
     >
-      {/* Title bar */}
-      <div
-        className="mb-3 flex items-center justify-between rounded-xl px-3 py-2"
-        style={{
-          background: headerBg,
-          boxShadow: "0 3px 0 rgba(0,0,0,0.3)",
-          border: "2px solid rgba(0,0,0,0.25)",
-        }}
-      >
+      {/* Title bar — centered text with outline, no box, value inline */}
+      <div className="mb-3 flex items-center justify-center py-1">
         <h2
-          className="text-sm text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.5)] sm:text-base"
+          className="text-outline text-center text-sm text-white sm:text-base"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
         >
-          {title}
+          {title} ({total.toFixed(0)})
         </h2>
-        <span
-          className="rounded-md bg-black/30 px-2 py-1 text-[10px] text-white sm:text-xs"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
-        >
-          {total.toFixed(0)}
-        </span>
       </div>
 
       {/* Slots grid */}
@@ -771,7 +760,7 @@ function InventoryDrawer({
         >
           <div>
             <h3
-              className="text-sm text-white drop-shadow-[2px_2px_0_rgba(0,0,0,0.5)] sm:text-base"
+              className="text-outline text-sm text-white sm:text-base"
               style={{ fontFamily: "var(--font-pixel), monospace" }}
             >
               {side === "you" ? "YOUR" : "THEIR"} INVENTORY

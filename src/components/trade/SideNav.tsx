@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { PixelIcon, type PixelIconName } from "./PixelIcon";
+import { PixelIcon } from "./PixelIcon";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -16,17 +16,17 @@ export type NavView =
 interface NavItem {
   id: NavView;
   label: string;
-  icon: PixelIconName;
+  icon: string;
   color: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "trade", label: "Trade", icon: "trade", color: "#7cb3ff" },
-  { id: "inventory", label: "Inventory", icon: "inventory", color: "#7ed957" },
-  { id: "rots", label: "Brainrots", icon: "rots", color: "#fbbf24" },
-  { id: "skins", label: "Hoverboards", icon: "skins", color: "#c084fc" },
-  { id: "values", label: "Values", icon: "values", color: "#f472b6" },
-  { id: "about", label: "About", icon: "about", color: "#94a3b8" },
+  { id: "trade", label: "Trade", icon: "repeat", color: "#7cb3ff" },
+  { id: "inventory", label: "Inventory", icon: "backpack", color: "#7ed957" },
+  { id: "rots", label: "Brainrots", icon: "book-open", color: "#fbbf24" },
+  { id: "skins", label: "Hoverboards", icon: "fire", color: "#c084fc" },
+  { id: "values", label: "Values", icon: "scale", color: "#f472b6" },
+  { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
 ];
 
 export function SideNav({
@@ -46,7 +46,6 @@ export function SideNav({
         backgroundImage: "url('/stud_texture.png')",
         backgroundSize: "50px 50px",
         backgroundRepeat: "repeat",
-        // Soft dark vignette so icons stay legible but studs are still visible
         boxShadow:
           "4px 0 0 rgba(0,0,0,0.3), inset 0 0 60px 0 rgba(8,12,30,0.55)",
       }}
@@ -60,6 +59,7 @@ export function SideNav({
             "linear-gradient(180deg, rgba(15,19,32,0.35) 0%, rgba(15,19,32,0.55) 100%)",
         }}
       />
+
       {/* Logo — raw icon, no background box */}
       <a
         href="/"
@@ -83,6 +83,7 @@ export function SideNav({
       <nav className="relative z-10 flex flex-1 flex-col items-center gap-2">
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
+          const isHovered = hovered === item.id;
           return (
             <button
               key={item.id}
@@ -104,16 +105,12 @@ export function SideNav({
                 boxShadow: isActive
                   ? `0 3px 0 rgba(0,0,0,0.5), 0 0 12px ${item.color}66`
                   : "none",
+                color: isActive ? "#0f1320" : "#e2e8f0",
               }}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
             >
-              <PixelIcon
-                name={item.icon}
-                size={24}
-                color={isActive ? "#0f1320" : "#e2e8f0"}
-                className="sm:block"
-              />
+              <PixelIcon name={item.icon} size={24} color="currentColor" />
               {/* Tooltip */}
               <span
                 className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 sm:block"
@@ -140,14 +137,6 @@ export function SideNav({
           );
         })}
       </nav>
-
-      {/* Footer badge */}
-      <div
-        className="relative z-10 rounded-md px-1 py-1 text-[7px] text-white/40"
-        style={{ fontFamily: "var(--font-pixel), monospace" }}
-      >
-        v1.0
-      </div>
     </aside>
   );
 }

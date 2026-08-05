@@ -120,3 +120,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Pixel-font text outline — matches the in-game reference look.
+     Uses paint-order so the stroke is drawn behind the fill. */
+  .text-outline {
+    -webkit-text-stroke: 2px rgba(0, 0, 0, 0.85);
+    paint-order: stroke fill;
+  }
+  .text-outline-sm {
+    -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.8);
+    paint-order: stroke fill;
+  }
+}
