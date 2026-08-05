@@ -55,24 +55,19 @@ export function SortPill<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 px-4 py-2 text-[10px] uppercase transition-colors"
+        className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase"
         style={{
-          background: open ? "#7cb3ff" : "rgba(255,255,255,0.12)",
-          color: "#fff",
+          color: "#1f2937",
           fontFamily: "var(--font-pixel), monospace",
-          boxShadow: open
-            ? "0 2px 0 #1e3a5f"
-            : "0 2px 0 rgba(0,0,0,0.3)",
-          border: "2px solid rgba(255,255,255,0.2)",
-          borderRadius: "999px",
+          borderRadius: "0.875rem",
         }}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="text-white/60">{label}:</span>
-        <span className="text-white">{current.label}</span>
+        <span className="text-gray-500">{label}:</span>
+        <span className="text-gray-900">{current.label}</span>
         <span
-          className="ml-1 text-[8px] text-white/70"
+          className="ml-1 text-[8px] text-gray-600"
           style={{
             transform: open ? "rotate(180deg)" : "none",
             transition: "transform 0.15s",
@@ -86,12 +81,9 @@ export function SortPill<T extends string>({
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 z-50 mt-2 min-w-[180px] overflow-hidden"
+          className="stud-input absolute right-0 z-50 mt-2 min-w-[180px] overflow-hidden p-1"
           style={{
-            background: "#1a1f2e",
-            border: "2px solid #1e3a5f",
             borderRadius: "0.875rem",
-            boxShadow: "0 4px 0 rgba(0,0,0,0.5)",
           }}
         >
           {options.map((opt) => {
@@ -106,19 +98,19 @@ export function SortPill<T extends string>({
                   onChange(opt.value);
                   setOpen(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[10px] uppercase transition-colors hover:bg-white/10"
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[10px] uppercase transition-colors hover:bg-black/10"
                 style={{
-                  background: isActive ? "rgba(124,179,255,0.2)" : "transparent",
-                  color: isActive ? "#7cb3ff" : "#cbd5e1",
+                  color: isActive ? "#1e3a5f" : "#374151",
                   fontFamily: "var(--font-pixel), monospace",
-                  borderBottom: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "0.5rem",
+                  background: isActive ? "rgba(124,179,255,0.3)" : "transparent",
                 }}
               >
                 {isActive && (
                   <PixelIcon
                     name="info-box"
                     size={14}
-                    color="#7cb3ff"
+                    color="#1e3a5f"
                   />
                 )}
                 <span className={isActive ? "" : "ml-5"}>{opt.label}</span>

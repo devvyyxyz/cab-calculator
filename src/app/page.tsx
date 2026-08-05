@@ -1136,9 +1136,6 @@ function BrainrotsView({
         >
           BRAINROTS
         </h2>
-        <p className="text-[10px] text-white/70">
-          {species.length} species · color = rarity tier
-        </p>
       </div>
 
       {/* Search + Sort row */}
@@ -1165,38 +1162,38 @@ function BrainrotsView({
         />
       </div>
 
-      {/* Grid — no dark background container, slots float on the page bg */}
+      {/* Grid with section dividers when sorted by rarity */}
       <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
-        {filtered.map(([name, sp]) => {
-          const tier = rarityTier(sp.Rarity, sp.IsExclusive);
-          return (
-            <div
-              key={name}
-              className={`group relative aspect-square cursor-help ${tier.shimmer ? "shimmer-rare" : ""}`}
-              style={{
-                background: tier.color,
-                borderRadius: "1.25rem",
-                boxShadow:
-                  "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
-              }}
-              title={`${sp.FullName} · Rarity ${sp.Rarity.toFixed(2)}${sp.IsExclusive ? " · DEMON" : ""}${sp.SpawnLocation ? ` · W${sp.SpawnLocation.World}Z${sp.SpawnLocation.Zone}` : ""}`}
-            >
-              <SmartImage
-                src={iconUrl(sp.Icon)}
-                alt={sp.FullName}
-                imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
-                fallbackSize={32}
-              />
-              {/* Hover tooltip */}
-              <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
-                {sp.ShortenedName} · R{sp.Rarity.toFixed(1)}
+        {(() => {
+          if (filtered.length === 0) {
+            return <EmptyState text="No brainrots match your search" />;
+          }
+          // When sorted by rarity, group by tier with section dividers
+          if (sortBy === "rarity-asc" || sortBy === "rarity-desc") {
+            const sections: { label: string; color: string; items: typeof filtered }[] = [];
+            for (const [name, sp] of filtered) {
+              const tier = rarityTier(sp.Rarity, sp.IsExclusive);
+              let section = sections.find((s) => s.label === tier.label);
+              if (!section) {
+                section = { label: tier.label, color: tier.color, items: [] };
+                sections.push(section);
+              }
+              section.items.push([name, sp]);
+            }
+            return sections.map((section) => (
+              <div key={section.label} className="contents">
+                <SectionDivider label={section.label} color={section.color} />
+                {section.items.map(([name, sp]) => (
+                  <BrainrotSlot key={name} name={name} sp={sp} />
+                ))}
               </div>
-            </div>
-          );
-        })}
-        {filtered.length === 0 && (
-          <EmptyState text="No brainrots match your search" />
-        )}
+            ));
+          }
+          // Otherwise just render flat
+          return filtered.map(([name, sp]) => (
+            <BrainrotSlot key={name} name={name} sp={sp} />
+          ));
+        })()}
       </div>
 
       {/* Legend */}
@@ -1212,15 +1209,62 @@ function BrainrotsView({
   );
 }
 
-/** Rarity tier → { color, shimmer } for slot backgrounds.
+/** Single brainrot slot — extracted for reuse. */
+function BrainrotSlot({ name, sp }: { name: string; sp: Species }) {
+  const tier = rarityTier(sp.Rarity, sp.IsExclusive);
+  return (
+    <div
+      className={`group relative aspect-square cursor-help ${tier.shimmer ? "shimmer-rare" : ""}`}
+      style={{
+        background: tier.color,
+        borderRadius: "1.25rem",
+        boxShadow:
+          "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
+      }}
+      title={`${sp.FullName} · Rarity ${sp.Rarity.toFixed(2)}${sp.IsExclusive ? " · DEMON" : ""}${sp.SpawnLocation ? ` · W${sp.SpawnLocation.World}Z${sp.SpawnLocation.Zone}` : ""}`}
+    >
+      <SmartImage
+        src={iconUrl(sp.Icon)}
+        alt={sp.FullName}
+        imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+        fallbackSize={32}
+      />
+      {/* Hover tooltip */}
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+        {sp.ShortenedName} · R{sp.Rarity.toFixed(1)}
+      </div>
+    </div>
+  );
+}
+
+/** Rarity tier → { color, shimmer, label } for slot backgrounds.
  *  Only legendary (rarity >= 5) and demon get the shimmer effect. */
-function rarityTier(rarity: number, isExclusive: boolean): { color: string; shimmer: boolean } {
-  if (isExclusive) return { color: "#7f1d1d", shimmer: true }; // demon
-  if (rarity >= 5) return { color: "#fbbf24", shimmer: true }; // legendary
-  if (rarity >= 4) return { color: "#a3e635", shimmer: false }; // epic
-  if (rarity >= 3) return { color: "#e5e7eb", shimmer: false }; // rare
-  if (rarity >= 2) return { color: "#fca5a5", shimmer: false }; // uncommon
-  return { color: "#c62828", shimmer: false }; // common
+function rarityTier(rarity: number, isExclusive: boolean): { color: string; shimmer: boolean; label: string } {
+  if (isExclusive) return { color: "#7f1d1d", shimmer: true, label: "Demon" }; // demon
+  if (rarity >= 5) return { color: "#fbbf24", shimmer: true, label: "Legendary" }; // legendary
+  if (rarity >= 4) return { color: "#a3e635", shimmer: false, label: "Epic" }; // epic
+  if (rarity >= 3) return { color: "#e5e7eb", shimmer: false, label: "Rare" }; // rare
+  if (rarity >= 2) return { color: "#fca5a5", shimmer: false, label: "Uncommon" }; // uncommon
+  return { color: "#c62828", shimmer: false, label: "Common" }; // common
+}
+
+/** Section divider — a titled header that separates groups when sorted. */
+function SectionDivider({ label, color }: { label: string; color?: string }) {
+  return (
+    <div className="col-span-full flex items-center gap-3 py-2">
+      <span
+        className="h-3 w-3 shrink-0 rounded-full"
+        style={{ background: color ?? "#ffffff" }}
+      />
+      <h3
+        className="text-outline text-xs text-white sm:text-sm"
+        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      >
+        {label}
+      </h3>
+      <div className="h-0.5 flex-1 rounded-full bg-white/15" />
+    </div>
+  );
 }
 
 function LegendChip({ color, label }: { color: string; label: string }) {
@@ -1272,7 +1316,6 @@ function ItemsView({
         >
           ITEMS
         </h2>
-        <p className="text-[10px] text-white/70">{items.length} item types</p>
       </div>
 
       {/* Search + Sort row */}
@@ -1298,34 +1341,64 @@ function ItemsView({
         />
       </div>
 
-      {/* Grid — no dark background container */}
+      {/* Grid with section dividers when sorted by type */}
       <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
-        {filtered.map(([name, info]) => (
-          <div
-            key={name}
-            className="group relative aspect-square cursor-help"
-            style={{
-              background: "#374151",
-              borderRadius: "1.25rem",
-              boxShadow:
-                "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
-            }}
-            title={`${name} — ${info.Description}`}
-          >
-            <SmartImage
-              src={iconUrl(info.Icon)}
-              alt={name}
-              imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
-              fallbackSize={32}
-            />
-            <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
-              {name}
-            </div>
-          </div>
-        ))}
-        {filtered.length === 0 && (
-          <EmptyState text="No items match your search" />
-        )}
+        {(() => {
+          if (filtered.length === 0) {
+            return <EmptyState text="No items match your search" />;
+          }
+          // When sorted by type, group by tier with section dividers
+          if (sortBy === "type") {
+            const sections: { label: string; items: typeof filtered }[] = [];
+            for (const entry of filtered) {
+              const tier = classifyItem(entry[0]).tier;
+              let section = sections.find((s) => s.label === tier);
+              if (!section) {
+                section = { label: tier, items: [] };
+                sections.push(section);
+              }
+              section.items.push(entry);
+            }
+            return sections.map((section) => (
+              <div key={section.label} className="contents">
+                <SectionDivider label={section.label} />
+                {section.items.map(([name, info]) => (
+                  <ItemSlot key={name} name={name} info={info} />
+                ))}
+              </div>
+            ));
+          }
+          // Otherwise just render flat
+          return filtered.map(([name, info]) => (
+            <ItemSlot key={name} name={name} info={info} />
+          ));
+        })()}
+      </div>
+    </div>
+  );
+}
+
+/** Single item slot — extracted for reuse. */
+function ItemSlot({ name, info }: { name: string; info: BagItemInfo }) {
+  return (
+    <div
+      className="group relative aspect-square cursor-help"
+      style={{
+        background: "#374151",
+        borderRadius: "1.25rem",
+        boxShadow:
+          "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+      }}
+      title={`${name} — ${info.Description}`}
+    >
+      <SmartImage
+        src={iconUrl(info.Icon)}
+        alt={name}
+        imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+        fallbackSize={32}
+      />
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+        {name}
       </div>
     </div>
   );
@@ -1441,9 +1514,6 @@ function InventoryView({
         >
           YOUR INVENTORY
         </h2>
-        <p className="text-[10px] text-white/70">
-          {teamRots.length} team · {pcRots.length} PC · {bagEntries.length} bag types
-        </p>
       </div>
 
       {/* Search */}
@@ -1516,81 +1586,134 @@ function InventoryView({
       {/* Content — no dark background container, slots float on page bg */}
       {tab === "bag" ? (
         <div className="grid grid-cols-3 gap-2 p-1 sm:grid-cols-5 md:grid-cols-7 sm:p-2">
-          {bagEntries.map(([name, qty]) => {
-            const info = bagData[name];
-            return (
-              <div
-                key={name}
-                className="group relative aspect-square"
-                style={{
-                  background: "#374151",
-                  borderRadius: "1.25rem",
-                  boxShadow:
-                    "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
-                }}
-                title={`${name} ×${qty}`}
-              >
-                <SmartImage
-                  src={info?.Icon ? iconUrl(info.Icon) : ""}
-                  alt={name}
-                  imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
-                  fallbackSize={32}
-                />
-                {qty > 1 && (
-                  <span
-                    className="absolute bottom-0.5 right-0.5 px-1 text-[8px] text-white"
-                    style={{
-                      background: "#1f2937",
-                      fontFamily: "var(--font-pixel), monospace",
-                    }}
-                  >
-                    ×{qty}
-                  </span>
-                )}
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
-                  {name}
+          {(() => {
+            if (bagEntries.length === 0) {
+              return <EmptyState text="No bag items" />;
+            }
+            // When sorted by type (default), group by tier with section dividers
+            if (sortBy === "rarity-asc") {
+              const sections: { label: string; items: typeof bagEntries }[] = [];
+              for (const entry of bagEntries) {
+                const tier = classifyItem(entry[0]).tier;
+                let section = sections.find((s) => s.label === tier);
+                if (!section) {
+                  section = { label: tier, items: [] };
+                  sections.push(section);
+                }
+                section.items.push(entry);
+              }
+              return sections.map((section) => (
+                <div key={section.label} className="contents">
+                  <SectionDivider label={section.label} />
+                  {section.items.map(([name, qty]) => (
+                    <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
+                  ))}
                 </div>
-              </div>
-            );
-          })}
-          {bagEntries.length === 0 && (
-            <EmptyState text="No bag items" />
-          )}
+              ));
+            }
+            return bagEntries.map(([name, qty]) => (
+              <InventoryBagSlot key={name} name={name} qty={qty} info={bagData[name]} />
+            ));
+          })()}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2 p-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:p-2">
-          {currentRots.map((rot) => {
-            const sp = rotsData[rot.Species];
-            const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
-            return (
-              <div
-                key={rot.UID}
-                className={`group relative aspect-square ${tier.shimmer ? "shimmer-rare" : ""}`}
-                style={{
-                  background: tier.color,
-                  borderRadius: "1.25rem",
-                  boxShadow:
-                    "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
-                }}
-                title={`${rot.Nickname || rot.Species}`}
-              >
-                <SmartImage
-                  src={sp?.Icon ? iconUrl(sp.Icon) : ""}
-                  alt={rot.Species}
-                  imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
-                  fallbackSize={32}
-                />
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
-                  {rot.Nickname || rot.Species}
+          {(() => {
+            if (currentRots.length === 0) {
+              return <EmptyState text={`No ${tab === "team" ? "team" : "PC"} rots`} />;
+            }
+            // When sorted by rarity, group by tier with section dividers
+            if (sortBy === "rarity-asc" || sortBy === "rarity-desc") {
+              const sections: { label: string; color: string; items: Rot[] }[] = [];
+              for (const rot of currentRots) {
+                const sp = rotsData[rot.Species];
+                const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
+                let section = sections.find((s) => s.label === tier.label);
+                if (!section) {
+                  section = { label: tier.label, color: tier.color, items: [] };
+                  sections.push(section);
+                }
+                section.items.push(rot);
+              }
+              return sections.map((section) => (
+                <div key={section.label} className="contents">
+                  <SectionDivider label={section.label} color={section.color} />
+                  {section.items.map((rot) => (
+                    <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+                  ))}
                 </div>
-              </div>
-            );
-          })}
-          {currentRots.length === 0 && (
-            <EmptyState text={`No ${tab === "team" ? "team" : "PC"} rots`} />
-          )}
+              ));
+            }
+            return currentRots.map((rot) => (
+              <InventoryRotSlot key={rot.UID} rot={rot} sp={rotsData[rot.Species]} />
+            ));
+          })()}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Single inventory rot slot — extracted for reuse. */
+function InventoryRotSlot({ rot, sp }: { rot: Rot; sp?: Species }) {
+  const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
+  return (
+    <div
+      className={`group relative aspect-square ${tier.shimmer ? "shimmer-rare" : ""}`}
+      style={{
+        background: tier.color,
+        borderRadius: "1.25rem",
+        boxShadow:
+          "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
+      }}
+      title={`${rot.Nickname || rot.Species}`}
+    >
+      <SmartImage
+        src={sp?.Icon ? iconUrl(sp.Icon) : ""}
+        alt={rot.Species}
+        imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+        fallbackSize={32}
+      />
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+        {rot.Nickname || rot.Species}
+      </div>
+    </div>
+  );
+}
+
+/** Single inventory bag slot — extracted for reuse. */
+function InventoryBagSlot({ name, qty, info }: { name: string; qty: number; info?: BagItemInfo }) {
+  return (
+    <div
+      className="group relative aspect-square"
+      style={{
+        background: "#374151",
+        borderRadius: "1.25rem",
+        boxShadow:
+          "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+      }}
+      title={`${name} ×${qty}`}
+    >
+      <SmartImage
+        src={info?.Icon ? iconUrl(info.Icon) : ""}
+        alt={name}
+        imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+        fallbackSize={32}
+      />
+      {qty > 1 && (
+        <span
+          className="absolute bottom-0.5 right-0.5 px-1 text-[8px] text-white"
+          style={{
+            background: "#1f2937",
+            fontFamily: "var(--font-pixel), monospace",
+          }}
+        >
+          ×{qty}
+        </span>
+      )}
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
+        {name}
+      </div>
     </div>
   );
 }
