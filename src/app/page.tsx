@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { PixelButton } from "@/components/trade/PixelButton";
 import { TradeSlot, RotSlotContent, ItemSlotContent } from "@/components/trade/TradeSlot";
+import { SideNav, type NavView } from "@/components/trade/SideNav";
 import {
   getRots,
   getBag,
@@ -60,6 +61,7 @@ export default function Home() {
   const [loading, setLoading] = useState<"you" | "them" | "meta" | null>(null);
   const [yourReady, setYourReady] = useState(false);
   const [theirReady, setTheirReady] = useState(false);
+  const [navView, setNavView] = useState<NavView>("trade");
 
   // ----- Load meta (rots + bag) once -----
   useEffect(() => {
@@ -284,14 +286,16 @@ export default function Home() {
   };
 
   return (
-    <main
-      suppressHydrationWarning
-      className="relative min-h-screen w-full overflow-x-hidden"
-      style={{
-        background:
-          "linear-gradient(180deg, #00b3ff 0%, #0099ff 60%, #0077dd 100%)",
-      }}
-    >
+    <>
+      <SideNav active={navView} onNavigate={setNavView} />
+      <main
+        suppressHydrationWarning
+        className="relative min-h-screen w-full overflow-x-hidden pl-16 sm:pl-20"
+        style={{
+          background:
+            "linear-gradient(180deg, #00b3ff 0%, #0099ff 60%, #0077dd 100%)",
+        }}
+      >
       {/* Pixel grid overlay */}
       <div
         className="pointer-events-none absolute inset-0 opacity-25"
@@ -334,11 +338,21 @@ export default function Home() {
       <header className="relative z-10 mx-auto flex max-w-7xl flex-col gap-3 px-4 pt-5 sm:px-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div
-            className="grid h-12 w-12 place-items-center rounded-xl bg-yellow-300 text-2xl shadow-[0_4px_0_#92400e]"
-            style={{ fontFamily: "var(--font-pixel), monospace" }}
+            className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl shadow-[0_4px_0_#92400e]"
+            style={{
+              border: "3px solid #92400e",
+              background: "#fbbf24",
+            }}
             aria-hidden
           >
-            🧠
+            <Image
+              src="/cab_icon.png"
+              alt="CAB"
+              width={36}
+              height={36}
+              priority
+              className="h-full w-full object-cover [image-rendering:pixelated]"
+            />
           </div>
           <div>
             <h1
@@ -461,7 +475,7 @@ export default function Home() {
 
       {/* Bottom action bar */}
       <footer
-        className="fixed inset-x-0 bottom-0 z-30 border-t-4 border-black/40 px-4 py-3 backdrop-blur-md"
+        className="fixed bottom-0 right-0 left-16 z-30 border-t-4 border-black/40 px-4 py-3 backdrop-blur-md sm:left-20"
         style={{ background: "rgba(0,0,0,0.55)" }}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-3">
@@ -538,7 +552,8 @@ export default function Home() {
           </div>
         </div>
       )}
-    </main>
+      </main>
+    </>
   );
 }
 

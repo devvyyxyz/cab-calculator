@@ -1,0 +1,161 @@
+"use client";
+
+import Image from "next/image";
+import {
+  ArrowLeftRight,
+  Backpack,
+  BookOpen,
+  Rocket,
+  Scale,
+  Info,
+  type LucideIcon,
+} from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+
+export type NavView =
+  | "trade"
+  | "inventory"
+  | "rots"
+  | "skins"
+  | "values"
+  | "about";
+
+interface NavItem {
+  id: NavView;
+  label: string;
+  icon: LucideIcon;
+  color: string;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { id: "trade", label: "Trade", icon: ArrowLeftRight, color: "#7cb3ff" },
+  { id: "inventory", label: "Inventory", icon: Backpack, color: "#7ed957" },
+  { id: "rots", label: "Brainrots", icon: BookOpen, color: "#fbbf24" },
+  { id: "skins", label: "Hoverboards", icon: Rocket, color: "#c084fc" },
+  { id: "values", label: "Values", icon: Scale, color: "#f472b6" },
+  { id: "about", label: "About", icon: Info, color: "#94a3b8" },
+];
+
+export function SideNav({
+  active,
+  onNavigate,
+}: {
+  active: NavView;
+  onNavigate?: (view: NavView) => void;
+}) {
+  const [hovered, setHovered] = useState<NavView | null>(null);
+
+  return (
+    <aside
+      className="fixed left-0 top-0 z-40 flex h-screen w-16 flex-col items-center gap-2 border-r-4 border-black/50 py-3 sm:w-20"
+      style={{
+        background: "linear-gradient(180deg, #1a1f2e 0%, #0f1320 100%)",
+        boxShadow: "4px 0 0 rgba(0,0,0,0.3)",
+      }}
+      aria-label="Main navigation"
+    >
+      {/* Logo */}
+      <a
+        href="/"
+        className="group relative mb-2 block"
+        aria-label="CAB Trade Calc home"
+      >
+        <div
+          className="grid h-11 w-11 place-items-center overflow-hidden rounded-xl sm:h-14 sm:w-14"
+          style={{
+            background: "#fbbf24",
+            border: "3px solid #92400e",
+            boxShadow:
+              "0 4px 0 #92400e, inset 0 2px 0 rgba(255,255,255,0.4)",
+          }}
+        >
+          <Image
+            src="/cab_icon.png"
+            alt="Catch a Brainrot"
+            width={40}
+            height={40}
+            priority
+            className="h-full w-full object-cover [image-rendering:pixelated] transition-transform group-hover:scale-110"
+          />
+        </div>
+      </a>
+
+      {/* Divider */}
+      <div className="my-1 h-0.5 w-8 rounded-full bg-white/15" />
+
+      {/* Nav items */}
+      <nav className="flex flex-1 flex-col items-center gap-2">
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          const isActive = active === item.id;
+          const isHovered = hovered === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                if (item.id !== "trade") {
+                  toast.info(`${item.label} view — coming soon!`);
+                }
+                onNavigate?.(item.id);
+              }}
+              onMouseEnter={() => setHovered(item.id)}
+              onMouseLeave={() => setHovered(null)}
+              className="group relative flex h-11 w-11 items-center justify-center rounded-lg transition-all sm:h-12 sm:w-14"
+              style={{
+                background: isActive ? item.color : "rgba(255,255,255,0.06)",
+                border: `2px solid ${
+                  isActive ? item.color : "rgba(255,255,255,0.12)"
+                }`,
+                boxShadow: isActive
+                  ? `0 3px 0 rgba(0,0,0,0.5), 0 0 12px ${item.color}66`
+                  : "none",
+              }}
+              aria-label={item.label}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <Icon
+                className="h-5 w-5 sm:h-6 sm:w-6"
+                style={{
+                  color: isActive ? "#0f1320" : "#cbd5e1",
+                  strokeWidth: 2.5,
+                }}
+              />
+              {/* Tooltip */}
+              <span
+                className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 sm:block"
+                style={{
+                  background: "#0f1320",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  fontFamily: "var(--font-pixel), monospace",
+                  zIndex: 50,
+                }}
+              >
+                {item.label}
+              </span>
+              {/* Active indicator dot */}
+              {isActive && (
+                <span
+                  className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full"
+                  style={{
+                    background: "#fff",
+                    boxShadow: "0 0 6px #fff",
+                  }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Footer badge */}
+      <div
+        className="rounded-md px-1 py-1 text-[7px] text-white/40"
+        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      >
+        v1.0
+      </div>
+    </aside>
+  );
+}
