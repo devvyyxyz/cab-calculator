@@ -285,6 +285,7 @@ export default function Home() {
 
   return (
     <main
+      suppressHydrationWarning
       className="relative min-h-screen w-full overflow-x-hidden"
       style={{
         background:
