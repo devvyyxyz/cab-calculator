@@ -105,21 +105,22 @@ export function ItemDetailModal({
             </div>
           </div>
 
-          {/* Icon display — centered */}
-          <div className="grid h-32 place-items-center sm:h-40">
+          {/* Icon display — centered, fixed size */}
+          <div className="grid h-28 place-items-center sm:h-32">
             {icon ? (
               <SmartImage
                 src={iconUrl(icon)}
                 alt={name}
-                imgClassName="h-full w-full object-contain p-2 [image-rendering:pixelated]"
-                fallbackSize={80}
+                fill={false}
+                fallbackSize={96}
+                imgClassName="object-contain [image-rendering:pixelated]"
               />
             ) : (
               <Image
                 src="/cab_icon.png"
                 alt={name}
-                width={80}
-                height={80}
+                width={96}
+                height={96}
                 className="opacity-30 [image-rendering:pixelated]"
               />
             )}
