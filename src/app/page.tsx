@@ -462,6 +462,22 @@ export default function Home() {
         <ValuesView rotsData={rotsData} bagData={bagData} />
       )}
 
+      {/* ===== SETTINGS VIEW ===== */}
+      {navView === "settings" && (
+        <SettingsView
+          profile={youProfile}
+          onLogout={() => {
+            try {
+              localStorage.removeItem("cab_profile");
+              localStorage.removeItem("cab_inventory_" + youProfile?.id);
+            } catch {
+              /* ignore */
+            }
+            window.location.reload();
+          }}
+        />
+      )}
+
       {/* ===== ABOUT VIEW ===== */}
       {navView === "about" && (
         <AboutView />
@@ -2174,6 +2190,191 @@ function ValuesView({
             )}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Settings page — account + preferences, some greyed out as "coming soon". */
+function SettingsView({
+  profile,
+  onLogout,
+}: {
+  profile: { id: string; displayName: string; avatarUrl?: string } | null;
+  onLogout: () => void;
+}) {
+  const [cacheCleared, setCacheCleared] = useState(false);
+
+  const clearCache = () => {
+    try {
+      const keys = Object.keys(localStorage).filter((k) =>
+        k.startsWith("cab_")
+      );
+      keys.forEach((k) => {
+        if (k !== "cab_profile") localStorage.removeItem(k);
+      });
+      setCacheCleared(true);
+      setTimeout(() => setCacheCleared(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  return (
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-md flex-col px-4 pt-4 sm:px-6">
+      {/* Header — fixed */}
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          SETTINGS
+        </h2>
+      </div>
+
+      {/* Scrollable content */}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {/* Account section */}
+        <div className="mb-4">
+          <h3
+            className="text-outline mb-2 text-sm text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            ACCOUNT
+          </h3>
+          <div
+            className="flex items-center gap-3 rounded-xl p-3"
+            style={{
+              background: "rgba(0,0,0,0.25)",
+              border: "2px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            {profile?.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.displayName}
+                className="h-12 w-12 rounded-lg object-cover [image-rendering:pixelated]"
+              />
+            ) : (
+              <div className="grid h-12 w-12 place-items-center rounded-lg bg-white/10">
+                <PixelIcon name="info-box" size={24} color="#94a3b8" />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xs font-semibold text-white">
+                {profile?.displayName ?? "Not logged in"}
+              </div>
+              <div className="truncate text-[10px] text-white/60">
+                {profile ? `ID: ${profile.id}` : ""}
+              </div>
+            </div>
+            {profile && (
+              <button
+                onClick={onLogout}
+                className="rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white transition-transform active:translate-y-0.5"
+                style={{
+                  fontFamily: "var(--font-pixel), monospace",
+                  boxShadow: "0 2px 0 #7f1d1d",
+                }}
+              >
+                LOGOUT
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Preferences section */}
+        <div className="mb-4">
+          <h3
+            className="text-outline mb-2 text-sm text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            PREFERENCES
+          </h3>
+
+          {/* Working setting: Clear cache */}
+          <button
+            onClick={clearCache}
+            className="mb-2 flex w-full items-center justify-between rounded-xl p-3 transition-colors hover:bg-white/5"
+            style={{
+              background: "rgba(0,0,0,0.25)",
+              border: "2px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <span
+              className="text-xs text-white"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              {cacheCleared ? "CACHE CLEARED!" : "CLEAR CACHE"}
+            </span>
+            <PixelIcon name="info-box" size={16} color="#94a3b8" />
+          </button>
+
+          {/* Coming soon settings */}
+          <ComingSoonSetting label="THEME" />
+          <ComingSoonSetting label="NOTIFICATIONS" />
+          <ComingSoonSetting label="TRADE ALERTS" />
+          <ComingSoonSetting label="DEFAULT SORT" />
+          <ComingSoonSetting label="LANGUAGE" />
+        </div>
+
+        {/* About section */}
+        <div className="mb-4">
+          <h3
+            className="text-outline mb-2 text-sm text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            ABOUT
+          </h3>
+          <div
+            className="rounded-xl p-3"
+            style={{
+              background: "rgba(0,0,0,0.25)",
+              border: "2px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <p
+              className="text-[10px] leading-relaxed text-white/60"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              CAB TRADE CALC v1.0
+            </p>
+            <p className="mt-2 text-[10px] text-white/40">
+              Not affiliated with Roblox or the Catch a Brainrot game.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** A settings row that's greyed out with "COMING SOON" overlay. */
+function ComingSoonSetting({ label }: { label: string }) {
+  return (
+    <div
+      className="relative mb-2 flex items-center justify-between overflow-hidden rounded-xl p-3"
+      style={{
+        background: "rgba(0,0,0,0.15)",
+        border: "2px solid rgba(255,255,255,0.05)",
+        opacity: 0.6,
+      }}
+    >
+      <span
+        className="text-xs text-white/50"
+        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      >
+        {label}
+      </span>
+      <PixelIcon name="info-box" size={16} color="#6b7280" />
+      {/* Coming soon overlay */}
+      <div className="pointer-events-none absolute inset-0 grid place-items-center">
+        <span
+          className="rounded-md bg-black/60 px-2 py-0.5 text-[8px] uppercase text-white/80"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          COMING SOON
+        </span>
       </div>
     </div>
   );
