@@ -480,7 +480,7 @@ export default function Home() {
 
       {/* ===== ABOUT VIEW ===== */}
       {navView === "about" && (
-        <AboutView />
+        <AboutView rotsData={rotsData} bagData={bagData} yourData={yourData} />
       )}
 
       {/* Inventory / Catalog drawer */}
@@ -2205,6 +2205,17 @@ function SettingsView({
 }) {
   const [cacheCleared, setCacheCleared] = useState(false);
 
+  // Transparent container with stud texture — matches site style
+  const containerStyle: React.CSSProperties = {
+    backgroundColor: "rgba(0,0,0,0.15)",
+    backgroundImage: "url('/stud_texture.png')",
+    backgroundSize: "30px 30px",
+    backgroundRepeat: "repeat",
+    backgroundBlendMode: "overlay",
+    border: "2px solid rgba(255,255,255,0.12)",
+    borderRadius: "0.875rem",
+  };
+
   const clearCache = () => {
     try {
       const keys = Object.keys(localStorage).filter((k) =>
@@ -2242,13 +2253,7 @@ function SettingsView({
           >
             ACCOUNT
           </h3>
-          <div
-            className="flex items-center gap-3 rounded-xl p-3"
-            style={{
-              background: "rgba(0,0,0,0.25)",
-              border: "2px solid rgba(255,255,255,0.1)",
-            }}
-          >
+          <div className="flex items-center gap-3 p-3" style={containerStyle}>
             {profile?.avatarUrl ? (
               <img
                 src={profile.avatarUrl}
@@ -2295,11 +2300,8 @@ function SettingsView({
           {/* Working setting: Clear cache */}
           <button
             onClick={clearCache}
-            className="mb-2 flex w-full items-center justify-between rounded-xl p-3 transition-colors hover:bg-white/5"
-            style={{
-              background: "rgba(0,0,0,0.25)",
-              border: "2px solid rgba(255,255,255,0.1)",
-            }}
+            className="mb-2 flex w-full items-center justify-between p-3 transition-colors hover:bg-white/5"
+            style={containerStyle}
           >
             <span
               className="text-xs text-white"
@@ -2307,15 +2309,15 @@ function SettingsView({
             >
               {cacheCleared ? "CACHE CLEARED!" : "CLEAR CACHE"}
             </span>
-            <PixelIcon name="info-box" size={16} color="#94a3b8" />
+            <PixelIcon name="switch" size={16} color="#94a3b8" />
           </button>
 
           {/* Coming soon settings */}
-          <ComingSoonSetting label="THEME" />
-          <ComingSoonSetting label="NOTIFICATIONS" />
-          <ComingSoonSetting label="TRADE ALERTS" />
-          <ComingSoonSetting label="DEFAULT SORT" />
-          <ComingSoonSetting label="LANGUAGE" />
+          <ComingSoonSetting label="THEME" containerStyle={containerStyle} />
+          <ComingSoonSetting label="NOTIFICATIONS" containerStyle={containerStyle} />
+          <ComingSoonSetting label="TRADE ALERTS" containerStyle={containerStyle} />
+          <ComingSoonSetting label="DEFAULT SORT" containerStyle={containerStyle} />
+          <ComingSoonSetting label="LANGUAGE" containerStyle={containerStyle} />
         </div>
 
         {/* About section */}
@@ -2326,13 +2328,7 @@ function SettingsView({
           >
             ABOUT
           </h3>
-          <div
-            className="rounded-xl p-3"
-            style={{
-              background: "rgba(0,0,0,0.25)",
-              border: "2px solid rgba(255,255,255,0.1)",
-            }}
-          >
+          <div className="p-3" style={containerStyle}>
             <p
               className="text-[10px] leading-relaxed text-white/60"
               style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2350,14 +2346,20 @@ function SettingsView({
 }
 
 /** A settings row that's greyed out with "COMING SOON" overlay. */
-function ComingSoonSetting({ label }: { label: string }) {
+function ComingSoonSetting({
+  label,
+  containerStyle,
+}: {
+  label: string;
+  containerStyle: React.CSSProperties;
+}) {
   return (
     <div
-      className="relative mb-2 flex items-center justify-between overflow-hidden rounded-xl p-3"
+      className="relative mb-2 flex items-center justify-between overflow-hidden p-3"
       style={{
-        background: "rgba(0,0,0,0.15)",
-        border: "2px solid rgba(255,255,255,0.05)",
+        ...containerStyle,
         opacity: 0.6,
+        border: "2px solid rgba(255,255,255,0.05)",
       }}
     >
       <span
@@ -2366,7 +2368,7 @@ function ComingSoonSetting({ label }: { label: string }) {
       >
         {label}
       </span>
-      <PixelIcon name="info-box" size={16} color="#6b7280" />
+      <PixelIcon name="switch" size={16} color="#6b7280" />
       {/* Coming soon overlay */}
       <div className="pointer-events-none absolute inset-0 grid place-items-center">
         <span
@@ -2380,62 +2382,367 @@ function ComingSoonSetting({ label }: { label: string }) {
   );
 }
 
-/** About / Info page — simple and minimal. */
-function AboutView() {
+/** About / Info page — simple, with stats visualizations. */
+function AboutView({
+  rotsData,
+  bagData,
+  yourData,
+}: {
+  rotsData: Record<string, Species>;
+  bagData: Record<string, BagItemInfo>;
+  yourData: PlayerData | null;
+}) {
+  const totalSpecies = Object.keys(rotsData).length;
+  const ownedSpecies = yourData
+    ? new Set([...yourData.Team, ...yourData.PC].map((r) => r.Species)).size
+    : 0;
+  const totalRots = yourData ? yourData.Team.length + yourData.PC.length : 0;
+  const bagTypes = yourData
+    ? Object.values(yourData.Bag).filter((q) => q > 0).length
+    : 0;
+  const totalBagItems = yourData
+    ? Object.values(yourData.Bag).reduce((s, q) => s + q, 0)
+    : 0;
+
+  // Rarity distribution for pie/bar chart
+  const rarityDist = Object.values(rotsData).reduce(
+    (acc, sp) => {
+      const tier = rarityTier(sp.Rarity, sp.IsExclusive).label;
+      acc[tier] = (acc[tier] ?? 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+  const rarityEntries = Object.entries(rarityDist).sort((a, b) => b[1] - a[1]);
+  const maxRarityCount = Math.max(...rarityEntries.map(([, c]) => c), 1);
+
+  // Owned rarity distribution
+  const ownedRarity = yourData
+    ? [...yourData.Team, ...yourData.PC].reduce(
+        (acc, rot) => {
+          const sp = rotsData[rot.Species];
+          if (sp) {
+            const tier = rarityTier(sp.Rarity, sp.IsExclusive).label;
+            acc[tier] = (acc[tier] ?? 0) + 1;
+          }
+          return acc;
+        },
+        {} as Record<string, number>
+      )
+    : {};
+
+  const rarityColors: Record<string, string> = {
+    Common: "#c62828",
+    Uncommon: "#fca5a5",
+    Rare: "#e5e7eb",
+    Epic: "#a3e635",
+    Legendary: "#fbbf24",
+    Demon: "#7f1d1d",
+  };
+
+  // Item type distribution for bar chart
+  const itemTypes = Object.entries(
+    Object.keys(bagData).reduce(
+      (acc, name) => {
+        const tier = classifyItem(name).tier;
+        acc[tier] = (acc[tier] ?? 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    )
+  ).sort((a, b) => b[1] - a[1]);
+  const maxItemTypeCount = Math.max(...itemTypes.map(([, c]) => c), 1);
+
+  // Collection completion percentage
+  const completionPct = totalSpecies > 0 ? (ownedSpecies / totalSpecies) * 100 : 0;
+
   return (
-    <div className="relative z-10 mx-auto flex h-full w-full max-w-md flex-col items-center justify-center px-4 text-center sm:px-6">
-      {/* Logo */}
-      <Image
-        src="/cab_icon.png"
-        alt="CAB"
-        width={80}
-        height={80}
-        priority
-        className="mb-6 h-20 w-20 rounded-2xl object-cover [image-rendering:pixelated]"
-      />
-
-      <h2
-        className="text-outline mb-4 text-xl text-white"
-        style={{ fontFamily: "var(--font-pixel), monospace" }}
-      >
-        CAB TRADE CALC
-      </h2>
-
-      <p
-        className="mb-6 text-[10px] leading-relaxed text-white/70"
-        style={{ fontFamily: "var(--font-pixel), monospace" }}
-      >
-        A trade calculator for Catch a Brainrot. Load your inventory, build offers, and compare trade values.
-      </p>
-
-      {/* Links */}
-      <div className="flex flex-col gap-2">
-        <a
-          href="https://indieun.com/cab/rots"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="stud-input rounded-cab-sm px-4 py-2 text-[10px] uppercase text-gray-900 no-underline transition-colors hover:bg-blue-100"
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-2xl flex-col px-4 pt-4 sm:px-6">
+      {/* Header — fixed */}
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <Image
+          src="/cab_icon.png"
+          alt="CAB"
+          width={64}
+          height={64}
+          priority
+          className="mb-2 h-16 w-16 rounded-2xl object-cover [image-rendering:pixelated]"
+        />
+        <h2
+          className="text-outline text-center text-xl text-white sm:text-2xl"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
         >
-          API DOCS
-        </a>
-        <a
-          href="https://www.roblox.com/games/Catch-a-Brainrot"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="stud-input rounded-cab-sm px-4 py-2 text-[10px] uppercase text-gray-900 no-underline transition-colors hover:bg-blue-100"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
-        >
-          PLAY ON ROBLOX
-        </a>
+          CAB TRADE CALC
+        </h2>
       </div>
 
-      <p
-        className="mt-8 text-[8px] text-white/40"
-        style={{ fontFamily: "var(--font-pixel), monospace" }}
-      >
-        NOT AFFILIATED WITH ROBLOX
-      </p>
+      {/* Scrollable content */}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {/* Collection progress bar */}
+        <div className="mb-6">
+          <div className="mb-2 flex items-center justify-between">
+            <span
+              className="text-outline-sm text-[10px] text-white"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              COLLECTION
+            </span>
+            <span
+              className="text-outline-sm text-[10px] text-white"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              {ownedSpecies}/{totalSpecies}
+            </span>
+          </div>
+          <div className="h-6 overflow-hidden rounded-lg bg-black/40">
+            <div
+              className="grid h-full place-items-center rounded-lg"
+              style={{
+                width: `${Math.max(completionPct, 2)}%`,
+                background: "linear-gradient(180deg, #4ade80, #16a34a)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
+                transition: "width 0.3s",
+              }}
+            >
+              <span
+                className="text-[8px] text-black"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                {completionPct.toFixed(0)}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick stats — list style */}
+        <div className="mb-6">
+          <h3
+            className="text-outline mb-2 text-sm text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            YOUR STATS
+          </h3>
+          <div className="flex flex-col gap-1">
+            {[
+              { label: "Rots Owned", value: totalRots },
+              { label: "Unique Species", value: ownedSpecies },
+              { label: "Bag Types", value: bagTypes },
+              { label: "Total Bag Items", value: totalBagItems },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="flex items-center justify-between py-1"
+              >
+                <span
+                  className="text-[10px] text-white/70"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  {stat.label}
+                </span>
+                <span
+                  className="text-outline-sm text-sm text-white"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  {stat.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Rarity distribution — bar chart */}
+        <div className="mb-6">
+          <h3
+            className="text-outline mb-2 text-sm text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            RARITY DISTRIBUTION
+          </h3>
+          <div className="flex flex-col gap-1.5">
+            {rarityEntries.map(([tier, count]) => (
+              <div key={tier} className="flex items-center gap-2">
+                <span
+                  className="w-16 shrink-0 text-[8px] text-white"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  {tier.toUpperCase()}
+                </span>
+                <div className="h-4 flex-1 overflow-hidden rounded bg-black/30">
+                  <div
+                    className="h-full rounded"
+                    style={{
+                      width: `${(count / maxRarityCount) * 100}%`,
+                      background: rarityColors[tier] ?? "#6b7280",
+                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.3)",
+                    }}
+                  />
+                </div>
+                <span
+                  className="w-6 shrink-0 text-right text-[8px] text-white/60"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  {count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Owned vs total — pie-style (donut) */}
+        {yourData && (
+          <div className="mb-6">
+            <h3
+              className="text-outline mb-2 text-sm text-white"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              OWNED BY RARITY
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {rarityEntries.map(([tier, _]) => {
+                const owned = ownedRarity[tier] ?? 0;
+                const total = rarityDist[tier] ?? 0;
+                const pct = total > 0 ? (owned / total) * 100 : 0;
+                return (
+                  <div
+                    key={tier}
+                    className="flex items-center gap-1.5 rounded-lg px-2 py-1"
+                    style={{
+                      background: "rgba(0,0,0,0.2)",
+                      border: `1px solid ${rarityColors[tier]}40`,
+                    }}
+                  >
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ background: rarityColors[tier] }}
+                    />
+                    <span
+                      className="text-[8px] text-white"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {tier.toUpperCase().slice(0, 4)}
+                    </span>
+                    <span
+                      className="text-[8px] text-white/60"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {owned}/{total}
+                    </span>
+                    <span
+                      className="text-[8px] text-white/40"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      ({pct.toFixed(0)}%)
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Item types — horizontal bar list */}
+        <div className="mb-6">
+          <h3
+            className="text-outline mb-2 text-sm text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            ITEM TYPES
+          </h3>
+          <div className="flex flex-col gap-1">
+            {itemTypes.map(([tier, count]) => (
+              <div key={tier} className="flex items-center gap-2">
+                <span
+                  className="w-20 shrink-0 text-[8px] text-white"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  {tier.toUpperCase()}
+                </span>
+                <div className="h-3 flex-1 overflow-hidden rounded bg-black/30">
+                  <div
+                    className="h-full rounded bg-blue-400"
+                    style={{
+                      width: `${(count / maxItemTypeCount) * 100}%`,
+                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.3)",
+                    }}
+                  />
+                </div>
+                <span
+                  className="w-6 shrink-0 text-right text-[8px] text-white/60"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  {count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Game totals — stat grid */}
+        <div className="mb-6">
+          <h3
+            className="text-outline mb-2 text-sm text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            GAME TOTALS
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div
+              className="rounded-lg p-3 text-center"
+              style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <div
+                className="text-outline text-xl text-white"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                {totalSpecies}
+              </div>
+              <div
+                className="mt-1 text-[8px] text-white/50"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                SPECIES
+              </div>
+            </div>
+            <div
+              className="rounded-lg p-3 text-center"
+              style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <div
+                className="text-outline text-xl text-white"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                {Object.keys(bagData).length}
+              </div>
+              <div
+                className="mt-1 text-[8px] text-white/50"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                ITEMS
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Links */}
+        <div className="flex flex-col gap-2">
+          <a
+            href="https://indieun.com/cab/rots"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="stud-input rounded-cab-sm px-4 py-2 text-center text-[10px] uppercase text-gray-900 no-underline transition-colors hover:bg-blue-100"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            API DOCS
+          </a>
+        </div>
+
+        <p
+          className="mt-6 text-center text-[8px] text-white/40"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          NOT AFFILIATED WITH ROBLOX
+        </p>
+      </div>
     </div>
   );
 }

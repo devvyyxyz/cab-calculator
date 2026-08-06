@@ -26,7 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "rots", label: "Brainrots", icon: "book-open", color: "#fbbf24" },
   { id: "skins", label: "Items", icon: "fire", color: "#c084fc" },
   { id: "values", label: "Values", icon: "scale", color: "#f472b6" },
-  { id: "settings", label: "Settings", icon: "info-box", color: "#60a5fa" },
+  { id: "settings", label: "Settings", icon: "switch", color: "#60a5fa" },
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
 ];
 
