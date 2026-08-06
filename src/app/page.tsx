@@ -420,6 +420,11 @@ export default function Home() {
               {renderOfferSlots("you")}
             </TradePanel>
 
+            {/* Fairness badge — sits between panels on mobile, overlays center gap on desktop */}
+            <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 md:left-[50%]">
+              <FairnessBadge verdict={v} />
+            </div>
+
             <TradePanel
               title="THEIR OFFER"
               variant="them"
@@ -429,8 +434,6 @@ export default function Home() {
             >
               {renderOfferSlots("them")}
             </TradePanel>
-
-            <FairnessBadge verdict={v} />
           </section>
         </>
         </div>
@@ -523,10 +526,7 @@ function FairnessBadge({ verdict }: { verdict: TradeVerdict }) {
   const textColor = verdict.winner === "fair" ? "#1f2937" : "#ffffff";
 
   return (
-    <div
-      className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"
-      style={{ pointerEvents: "auto" }}
-    >
+    <div style={{ pointerEvents: "auto" }}>
       <div
         className="relative grid h-14 w-14 place-items-center rounded-full sm:h-16 sm:w-16"
         style={{
@@ -576,6 +576,7 @@ function TradePanel({
 }) {
   const bg = variant === "you" ? "#7cb3ff" : "#7ed957";
   const border = variant === "you" ? "#1e3a5f" : "#2e5a1f";
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   return (
     <div
@@ -614,35 +615,55 @@ function TradePanel({
         {children}
       </div>
 
-      {/* Value breakdown */}
+      {/* Value breakdown — collapsible, collapsed by default */}
       {(valuedRots.length > 0 || items.length > 0) && (
-        <div className="mt-3 max-h-44 overflow-y-auto rounded-xl bg-black/25 p-2 text-[10px] text-white/90">
-          {valuedRots.map((r, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between gap-2 border-b border-white/10 py-1"
+        <div className="mt-3">
+          <button
+            onClick={() => setDetailsOpen((o) => !o)}
+            className="flex w-full items-center justify-between rounded-xl bg-black/25 px-3 py-2 text-[10px] uppercase text-white"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            <span>DETAILS</span>
+            <span
+              style={{
+                transform: detailsOpen ? "rotate(180deg)" : "none",
+                transition: "transform 0.15s",
+                display: "inline-block",
+              }}
             >
-              <span className="truncate">
-                {r.rot.Nickname || r.rot.Species}
-                <span className="ml-1 text-white/60">
-                  L{r.rot.Level} · IV {(r.rot.IV * 100).toFixed(0)}%
-                </span>
-              </span>
-              <span className="font-bold">{r.value.toFixed(1)}</span>
+              ▼
+            </span>
+          </button>
+          {detailsOpen && (
+            <div className="mt-1 max-h-44 overflow-y-auto rounded-xl bg-black/25 p-2 text-[10px] text-white/90">
+              {valuedRots.map((r, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-2 border-b border-white/10 py-1"
+                >
+                  <span className="truncate">
+                    {r.rot.Nickname || r.rot.Species}
+                    <span className="ml-1 text-white/60">
+                      L{r.rot.Level} · IV {(r.rot.IV * 100).toFixed(0)}%
+                    </span>
+                  </span>
+                  <span className="font-bold">{r.value.toFixed(1)}</span>
+                </div>
+              ))}
+              {items.map((it, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-2 border-b border-white/10 py-1"
+                >
+                  <span className="truncate">
+                    {it.name}
+                    <span className="ml-1 text-white/60">×{it.qty} ({it.tier})</span>
+                  </span>
+                  <span className="font-bold">{it.total.toFixed(0)}</span>
+                </div>
+              ))}
             </div>
-          ))}
-          {items.map((it, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between gap-2 border-b border-white/10 py-1"
-            >
-              <span className="truncate">
-                {it.name}
-                <span className="ml-1 text-white/60">×{it.qty} ({it.tier})</span>
-              </span>
-              <span className="font-bold">{it.total.toFixed(0)}</span>
-            </div>
-          ))}
+          )}
         </div>
       )}
     </div>
@@ -685,6 +706,13 @@ function InventoryDrawer({
   const [sortBy, setSortBy] = usePersistentState<
     "rarity-desc" | "rarity-asc" | "name-az" | "name-za"
   >("cab_sort_modal", "rarity-desc");
+  const [tick, setTick] = useState(false);
+
+  const triggerTick = () => {
+    setTick(false);
+    requestAnimationFrame(() => setTick(true));
+    setTimeout(() => setTick(false), 600);
+  };
 
   const accent = side === "you" ? "#7cb3ff" : "#7ed957";
   const accentBorder = side === "you" ? "#1e3a5f" : "#2e5a1f";
@@ -909,7 +937,7 @@ function InventoryDrawer({
                           <button
                             key={name}
                             type="button"
-                            onClick={() => onAddItem(name, 1)}
+                            onClick={() => { onAddItem(name, 1); triggerTick(); }}
                             className="group relative aspect-square cursor-pointer"
                             style={{
                               background: "#374151",
@@ -958,7 +986,7 @@ function InventoryDrawer({
                         <div key={section.label} className="contents">
                           <SectionDivider label={section.label} />
                           {section.items.map(([name, sp]) => (
-                            <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} />
+                            <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} onTick={triggerTick} />
                           ))}
                         </div>
                       ));
@@ -978,7 +1006,7 @@ function InventoryDrawer({
                       <div key={section.label} className="contents">
                         <SectionDivider label={section.label} color={section.color} />
                         {section.items.map(([name, sp]) => (
-                          <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} />
+                          <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} onTick={triggerTick} />
                         ))}
                       </div>
                     ));
@@ -987,6 +1015,18 @@ function InventoryDrawer({
               </div>
             )}
           </div>
+
+          {/* Tick animation overlay */}
+          {tick && (
+            <div className="pointer-events-none absolute inset-0 z-50 grid place-items-center">
+              <div
+                className="tick-anim grid h-16 w-16 place-items-center rounded-full bg-green-500"
+                style={{ boxShadow: "0 4px 0 #14532d" }}
+              >
+                <PixelIcon name="close" size={32} color="#ffffff" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -1185,7 +1225,7 @@ function InventoryDrawer({
                           key={rot.UID}
                           type="button"
                           disabled={inOffer}
-                          onClick={() => onAddRot(rot)}
+                          onClick={() => { onAddRot(rot); triggerTick(); }}
                           className={`group relative aspect-square cursor-pointer disabled:opacity-40 ${tier.shimmer ? "shimmer-rare" : ""}`}
                           style={{
                             background: tier.color,
@@ -1212,6 +1252,18 @@ function InventoryDrawer({
               )}
             </div>
           )}
+
+          {/* Tick animation overlay */}
+          {tick && (
+            <div className="pointer-events-none absolute inset-0 z-50 grid place-items-center">
+              <div
+                className="tick-anim grid h-16 w-16 place-items-center rounded-full bg-green-500"
+                style={{ boxShadow: "0 4px 0 #14532d" }}
+              >
+                <PixelIcon name="close" size={32} color="#ffffff" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1223,16 +1275,18 @@ function CatalogRotSlot({
   name,
   sp,
   onAdd,
+  onTick,
 }: {
   name: string;
   sp: Species;
   onAdd?: (speciesName: string) => void;
+  onTick?: () => void;
 }) {
   const tier = rarityTier(sp.Rarity, sp.IsExclusive);
   return (
     <button
       type="button"
-      onClick={() => onAdd?.(name)}
+      onClick={() => { onAdd?.(name); onTick?.(); }}
       className={`group relative aspect-square cursor-pointer ${tier.shimmer ? "shimmer-rare" : ""}`}
       style={{
         background: tier.color,
@@ -1731,7 +1785,7 @@ function InventoryView({
           className="text-outline text-center text-2xl text-white sm:text-3xl"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
         >
-          YOUR INVENTORY
+          INVENTORY
         </h2>
       </div>
 
