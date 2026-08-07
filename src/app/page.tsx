@@ -2184,8 +2184,12 @@ function ValuesView({
                   key={name}
                   className="flex items-center gap-3 rounded-xl p-2"
                   style={{
-                    background: "rgba(0,0,0,0.25)",
-                    border: `2px solid ${tier.color}40`,
+                    background: "rgba(255,255,255,0.92)",
+                    backgroundImage: "url('/stud_texture.png')",
+                    backgroundSize: "30px 30px",
+                    backgroundRepeat: "repeat",
+                    backgroundBlendMode: "multiply",
+                    border: `2px solid ${tier.color}60`,
                   }}
                 >
                   <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
@@ -2223,8 +2227,15 @@ function ValuesView({
               itemValues.map(({ name, info, value, tier }) => (
                 <div
                   key={name}
-                  className="flex items-center gap-3 rounded-xl bg-black/25 p-2"
-                  style={{ border: "2px solid rgba(255,255,255,0.1)" }}
+                  className="flex items-center gap-3 rounded-xl p-2"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    backgroundImage: "url('/stud_texture.png')",
+                    backgroundSize: "30px 30px",
+                    backgroundRepeat: "repeat",
+                    backgroundBlendMode: "multiply",
+                    border: "2px solid rgba(0,0,0,0.1)",
+                  }}
                 >
                   <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
                     <SmartImage
@@ -2269,14 +2280,14 @@ function SettingsView({
 }) {
   const [cacheCleared, setCacheCleared] = useState(false);
 
-  // Transparent container with stud texture — matches site style
+  // White/off-white container with stud texture — matches site style
   const containerStyle: React.CSSProperties = {
-    backgroundColor: "rgba(0,0,0,0.15)",
+    backgroundColor: "rgba(255,255,255,0.92)",
     backgroundImage: "url('/stud_texture.png')",
     backgroundSize: "30px 30px",
     backgroundRepeat: "repeat",
-    backgroundBlendMode: "overlay",
-    border: "2px solid rgba(255,255,255,0.12)",
+    backgroundBlendMode: "multiply",
+    border: "2px solid rgba(0,0,0,0.15)",
     borderRadius: "0.875rem",
   };
 
@@ -2423,7 +2434,7 @@ function ComingSoonSetting({
       style={{
         ...containerStyle,
         opacity: 0.6,
-        border: "2px solid rgba(255,255,255,0.05)",
+        border: "2px solid rgba(0,0,0,0.08)",
       }}
     >
       <span
@@ -2671,7 +2682,11 @@ function AboutView({
                     key={tier}
                     className="flex items-center gap-1.5 rounded-lg px-2 py-1"
                     style={{
-                      background: "rgba(0,0,0,0.2)",
+                      background: "rgba(255,255,255,0.92)",
+                    backgroundImage: "url('/stud_texture.png')",
+                    backgroundSize: "30px 30px",
+                    backgroundRepeat: "repeat",
+                    backgroundBlendMode: "multiply",
                       border: `1px solid ${rarityColors[tier]}40`,
                     }}
                   >
@@ -2752,7 +2767,7 @@ function AboutView({
           <div className="grid grid-cols-2 gap-2">
             <div
               className="rounded-lg p-3 text-center"
-              style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }}
+              style={{ background: "rgba(255,255,255,0.92)", backgroundImage: "url('/stud_texture.png')", backgroundSize: "30px 30px", backgroundRepeat: "repeat", backgroundBlendMode: "multiply", border: "1px solid rgba(0,0,0,0.1)" }}
             >
               <div
                 className="text-outline text-xl text-white"
@@ -2769,7 +2784,7 @@ function AboutView({
             </div>
             <div
               className="rounded-lg p-3 text-center"
-              style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }}
+              style={{ background: "rgba(255,255,255,0.92)", backgroundImage: "url('/stud_texture.png')", backgroundSize: "30px 30px", backgroundRepeat: "repeat", backgroundBlendMode: "multiply", border: "1px solid rgba(0,0,0,0.1)" }}
             >
               <div
                 className="text-outline text-xl text-white"
