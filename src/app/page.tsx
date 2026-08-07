@@ -2553,6 +2553,111 @@ function AboutView({
 
       {/* Scrollable content */}
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {/* Announcement Banner */}
+        <div className="mb-6 rounded-xl border border-white/10 bg-[#313338] p-4 shadow-lg">
+          {/* Author header */}
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600">
+              <span className="text-lg">📢</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-white">Official Announcement</span>
+              <span className="text-xs text-gray-400">Posted in #announcements</span>
+            </div>
+          </div>
+
+          {/* Message content */}
+          <div className="space-y-3 text-sm text-gray-200">
+            {/* Main heading */}
+            <h3
+              className="text-lg font-bold text-white"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              Trading calculator, values list, inventory viewer & more
+            </h3>
+
+            {/* Intro paragraph */}
+            <p className="text-gray-300">
+              Hey everyone, I have developed a server official{" "}
+              <a
+                href="https://cab.devvyy.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 underline hover:text-blue-300"
+              >
+                catch a brainrot calculator site
+              </a>
+              . You can find the site here:{" "}
+              <a
+                href="https://cab.devvyy.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 underline hover:text-blue-300"
+              >
+                https://cab.devvyy.xyz/
+              </a>
+            </p>
+
+            {/* Features section */}
+            <div>
+              <h4
+                className="mb-2 text-base font-semibold text-white"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                Features
+              </h4>
+              <ul className="ml-4 list-disc space-y-1 text-gray-300">
+                <li>Trade calculator</li>
+                <li>Inventory viewer</li>
+                <li>
+                  Rot, item, and egg database overview viewer of all in-game
+                  (including unreleased)
+                </li>
+                <li>Values list</li>
+                <li className="italic text-gray-400">much more to be added soon</li>
+              </ul>
+            </div>
+
+            {/* To be added section */}
+            <div>
+              <h4
+                className="mb-2 text-base font-semibold text-white"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                To be added
+              </h4>
+              <ul className="ml-4 list-disc space-y-1 text-gray-300">
+                <li>Roblox login</li>
+                <li>Trade sharing (for W/L sharing)</li>
+                <li>
+                  Updated values to be more accurate with in-game trades and
+                  demand
+                </li>
+                <li>Demand indicators</li>
+                <li>Recent trades page</li>
+                <li>Brainrot IV comparison</li>
+                <li>Team building</li>
+                <li>
+                  Player info page (for viewing other players stats and
+                  inventories)
+                </li>
+                <li>Notifications</li>
+                <li>Damage calculator</li>
+                <li>Tier list creator/sharing</li>
+              </ul>
+            </div>
+
+            {/* Footer note */}
+            <div className="border-t border-white/10 pt-3">
+              <p className="text-xs text-gray-500 italic">
+                The site has just been released, trading values and stats will
+                be updated the more use it gets and when in-game trading database
+                connection is possible.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Collection progress bar */}
         <div className="mb-6">
           <div className="mb-2 flex items-center justify-between">
