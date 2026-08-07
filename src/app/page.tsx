@@ -521,13 +521,13 @@ export default function Home() {
 // ============================================================
 
 function FairnessBadge({ verdict }: { verdict: TradeVerdict }) {
-  // Determine symbol, color, and background based on who's winning
-  // +  = you're winning (green)
-  // -  = you're losing (red)
-  // =  = fair trade (amber)
-  const symbol = verdict.winner === "you" ? "+" : verdict.winner === "them" ? "−" : "=";
-  const color = verdict.winner === "you" ? "#22c55e" : verdict.winner === "them" ? "#ef4444" : "#fbbf24";
-  const borderColor = verdict.winner === "you" ? "#14532d" : verdict.winner === "them" ? "#7f1d1d" : "#92400e";
+  // If YOUR offer is worth MORE than theirs, you're overpaying = bad (red −)
+  // If THEIR offer is worth MORE than yours, you're getting a deal = good (green +)
+  // If equal = fair (amber =)
+  const youWin = verdict.winner === "them"; // they're giving more = you win
+  const symbol = youWin ? "+" : verdict.winner === "you" ? "−" : "=";
+  const color = youWin ? "#22c55e" : verdict.winner === "you" ? "#ef4444" : "#fbbf24";
+  const borderColor = youWin ? "#14532d" : verdict.winner === "you" ? "#7f1d1d" : "#92400e";
   const textColor = verdict.winner === "fair" ? "#1f2937" : "#ffffff";
 
   return (
