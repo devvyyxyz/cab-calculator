@@ -706,12 +706,12 @@ function InventoryDrawer({
   const [sortBy, setSortBy] = usePersistentState<
     "rarity-desc" | "rarity-asc" | "name-az" | "name-za"
   >("cab_sort_modal", "rarity-desc");
-  const [tick, setTick] = useState(false);
+  const [tick, setTick] = useState<string | null>(null);
 
-  const triggerTick = () => {
-    setTick(false);
-    requestAnimationFrame(() => setTick(true));
-    setTimeout(() => setTick(false), 600);
+  const triggerTick = (id: string) => {
+    setTick(null);
+    requestAnimationFrame(() => setTick(id));
+    setTimeout(() => setTick(null), 600);
   };
 
   const accent = side === "you" ? "#7cb3ff" : "#7ed957";
@@ -933,11 +933,12 @@ function InventoryDrawer({
                       <SectionDivider label={section.label} />
                       {section.items.map(([name, _qty]) => {
                         const info = bagData[name];
+                        const tickId = "item-" + name;
                         return (
                           <button
                             key={name}
                             type="button"
-                            onClick={() => { onAddItem(name, 1); triggerTick(); }}
+                            onClick={() => { onAddItem(name, 1); triggerTick(tickId); }}
                             className="group relative aspect-square cursor-pointer"
                             style={{
                               background: "#374151",
@@ -956,6 +957,12 @@ function InventoryDrawer({
                             <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
                               {name}
                             </div>
+                            {/* Tick overlay on this slot */}
+                            {tick === tickId && (
+                              <span className="tick-anim pointer-events-none absolute inset-0 z-40 grid place-items-center rounded-[1.25rem] bg-green-500/80">
+                                <PixelIcon name="check" size={32} color="#ffffff" />
+                              </span>
+                            )}
                           </button>
                         );
                       })}
@@ -986,7 +993,7 @@ function InventoryDrawer({
                         <div key={section.label} className="contents">
                           <SectionDivider label={section.label} />
                           {section.items.map(([name, sp]) => (
-                            <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} onTick={triggerTick} />
+                            <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} onTick={triggerTick} isTicking={tick === "catalog-" + name} />
                           ))}
                         </div>
                       ));
@@ -1006,7 +1013,7 @@ function InventoryDrawer({
                       <div key={section.label} className="contents">
                         <SectionDivider label={section.label} color={section.color} />
                         {section.items.map(([name, sp]) => (
-                          <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} onTick={triggerTick} />
+                          <CatalogRotSlot key={name} name={name} sp={sp} onAdd={onAddCatalogRot} onTick={triggerTick} isTicking={tick === "catalog-" + name} />
                         ))}
                       </div>
                     ));
@@ -1015,18 +1022,6 @@ function InventoryDrawer({
               </div>
             )}
           </div>
-
-          {/* Tick animation overlay */}
-          {tick && (
-            <div className="pointer-events-none absolute inset-0 z-50 grid place-items-center">
-              <div
-                className="tick-anim grid h-16 w-16 place-items-center rounded-full bg-green-500"
-                style={{ boxShadow: "0 4px 0 #14532d" }}
-              >
-                <PixelIcon name="close" size={32} color="#ffffff" />
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -1167,12 +1162,13 @@ function InventoryDrawer({
                       const inOffer = itemQtyInOffer(name);
                       const info = bagData[name];
                       const remaining = qty - inOffer;
+                      const tickId = "invitem-" + name;
                       return (
                         <button
                           key={name}
                           type="button"
                           disabled={remaining <= 0}
-                          onClick={() => onAddItem(name, 1)}
+                          onClick={() => { onAddItem(name, 1); triggerTick(tickId); }}
                           className="group relative aspect-square cursor-pointer disabled:opacity-40"
                           style={{
                             background: "#374151",
@@ -1201,6 +1197,12 @@ function InventoryDrawer({
                           <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
                             {name}
                           </div>
+                          {/* Tick overlay on this slot */}
+                          {tick === tickId && (
+                            <span className="tick-anim pointer-events-none absolute inset-0 z-40 grid place-items-center rounded-[1.25rem] bg-green-500/80">
+                              <PixelIcon name="check" size={32} color="#ffffff" />
+                            </span>
+                          )}
                         </button>
                       );
                     })}
@@ -1220,12 +1222,13 @@ function InventoryDrawer({
                       const sp = rotsData[rot.Species];
                       const inOffer = isRotInOffer(rot.UID);
                       const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
+                      const tickId = "rot-" + rot.UID;
                       return (
                         <button
                           key={rot.UID}
                           type="button"
                           disabled={inOffer}
-                          onClick={() => { onAddRot(rot); triggerTick(); }}
+                          onClick={() => { onAddRot(rot); triggerTick(tickId); }}
                           className={`group relative aspect-square cursor-pointer disabled:opacity-40 ${tier.shimmer ? "shimmer-rare" : ""}`}
                           style={{
                             background: tier.color,
@@ -1244,24 +1247,18 @@ function InventoryDrawer({
                           <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
                             {rot.Nickname || rot.Species}
                           </div>
+                          {/* Tick overlay on this slot */}
+                          {tick === tickId && (
+                            <span className="tick-anim pointer-events-none absolute inset-0 z-40 grid place-items-center rounded-[1.25rem] bg-green-500/80">
+                              <PixelIcon name="check" size={32} color="#ffffff" />
+                            </span>
+                          )}
                         </button>
                       );
                     })}
                   </div>
                 ))
               )}
-            </div>
-          )}
-
-          {/* Tick animation overlay */}
-          {tick && (
-            <div className="pointer-events-none absolute inset-0 z-50 grid place-items-center">
-              <div
-                className="tick-anim grid h-16 w-16 place-items-center rounded-full bg-green-500"
-                style={{ boxShadow: "0 4px 0 #14532d" }}
-              >
-                <PixelIcon name="close" size={32} color="#ffffff" />
-              </div>
             </div>
           )}
         </div>
@@ -1276,17 +1273,19 @@ function CatalogRotSlot({
   sp,
   onAdd,
   onTick,
+  isTicking,
 }: {
   name: string;
   sp: Species;
   onAdd?: (speciesName: string) => void;
-  onTick?: () => void;
+  onTick?: (id: string) => void;
+  isTicking?: boolean;
 }) {
   const tier = rarityTier(sp.Rarity, sp.IsExclusive);
   return (
     <button
       type="button"
-      onClick={() => { onAdd?.(name); onTick?.(); }}
+      onClick={() => { onAdd?.(name); onTick?.("catalog-" + name); }}
       className={`group relative aspect-square cursor-pointer ${tier.shimmer ? "shimmer-rare" : ""}`}
       style={{
         background: tier.color,
@@ -1305,6 +1304,12 @@ function CatalogRotSlot({
       <div className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[9px] text-white group-hover:block">
         {sp.ShortenedName}
       </div>
+      {/* Tick overlay on this slot */}
+      {isTicking && (
+        <span className="tick-anim pointer-events-none absolute inset-0 z-40 grid place-items-center rounded-[1.25rem] bg-green-500/80">
+          <PixelIcon name="check" size={32} color="#ffffff" />
+        </span>
+      )}
     </button>
   );
 }

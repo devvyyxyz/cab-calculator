@@ -43,6 +43,9 @@ const ICON_PATHS: Record<string, IconPaths> = {
   switch: [
     { d: "M5 21H3v-2h2v2Zm16 0h-6v-2h2v-2h2v-2h2v6ZM7 19H5v-2h2v2Zm2-2H7v-2h2v2Zm8 0h-2v-2h2v2Zm-2-2h-2v-2h2v2Zm-2-2h-2v-2h2v2Zm-2-2H9V9h2v2Zm4 0h-2V9h2v2ZM9 9H7V7h2v2Zm8 0h-2V7h2v2Zm4-6v6h-2V7h-2V5h-2V3h6ZM7 7H5V5h2v2ZM5 5H3V3h2v2Z" },
   ],
+  check: [
+    { d: "M10 18H8v-2h2v2Zm-2-2H6v-2h2v2Zm4-2v2h-2v-2h2Zm-6 0H4v-2h2v2Zm8 0h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2V8h2v2Zm2-2h-2V6h2v2Z" },
+  ],
 };
 
 export function PixelIcon({
