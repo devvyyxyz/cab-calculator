@@ -48,6 +48,20 @@ export function Onboarding({
   );
   const [error, setError] = useState("");
 
+  // Update stage when initialProfile loads (from localStorage after mount)
+  useEffect(() => {
+    if (initialProfile && !selected) {
+      setStage("confirm");
+      setSelected({
+        id: Number(initialProfile.id) || 0,
+        name: initialProfile.displayName,
+        displayName: initialProfile.displayName,
+        hasVerifiedBadge: false,
+        avatarUrl: initialProfile.avatarUrl,
+      });
+    }
+  }, [initialProfile, selected]);
+
   // Allow user to start fresh (clears saved profile choice in-memory)
   const resetToInput = () => {
     setSelected(null);
