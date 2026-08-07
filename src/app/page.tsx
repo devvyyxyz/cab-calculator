@@ -2202,15 +2202,15 @@ function ValuesView({
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-semibold text-white">
+                    <div className="truncate text-xs font-semibold text-gray-900">
                       {sp.FullName}
                     </div>
-                    <div className="truncate text-[10px] text-white/60">
+                    <div className="truncate text-[10px] text-gray-600">
                       {tier.label} · R{sp.Rarity.toFixed(2)}
                     </div>
                   </div>
                   <span
-                    className="text-outline-sm text-sm text-white"
+                    className="text-outline-sm text-sm font-bold text-gray-900"
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
                   >
                     {value.toFixed(0)}
@@ -2247,15 +2247,15 @@ function ValuesView({
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-semibold text-white">
+                    <div className="truncate text-xs font-semibold text-gray-900">
                       {name}
                     </div>
-                    <div className="truncate text-[10px] text-white/60">
+                    <div className="truncate text-[10px] text-gray-600">
                       {tier}
                     </div>
                   </div>
                   <span
-                    className="text-outline-sm text-sm text-white"
+                    className="text-outline-sm text-sm font-bold text-gray-900"
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
                   >
                     {value.toFixed(0)}
@@ -2307,28 +2307,31 @@ function SettingsView({
   };
 
   return (
-    <div className="relative z-10 mx-auto flex h-full w-full max-w-md flex-col px-4 pt-4 sm:px-6">
+    <div className="relative z-10 flex h-full w-full flex-col">
       {/* Header — fixed */}
-      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
-        <h2
-          className="text-outline text-center text-2xl text-white sm:text-3xl"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
-        >
-          SETTINGS
-        </h2>
+      <div className="shrink-0 px-4 pt-4 sm:px-6">
+        <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
+          <h2
+            className="text-outline text-center text-2xl text-white sm:text-3xl"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            SETTINGS
+          </h2>
+        </div>
       </div>
 
       {/* Scrollable content */}
-      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
+        <div className="mx-auto max-w-7xl">
         {/* Account section */}
-        <div className="mb-4">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
           <h3
-            className="text-outline mb-2 text-sm text-white"
+            className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             ACCOUNT
           </h3>
-          <div className="flex items-center gap-3 p-3" style={containerStyle}>
+          <div className="flex items-center gap-3">
             {profile?.avatarUrl ? (
               <img
                 src={profile.avatarUrl}
@@ -2336,15 +2339,15 @@ function SettingsView({
                 className="h-12 w-12 rounded-lg object-cover [image-rendering:pixelated]"
               />
             ) : (
-              <div className="grid h-12 w-12 place-items-center rounded-lg bg-white/10">
-                <PixelIcon name="info-box" size={24} color="#94a3b8" />
+              <div className="grid h-12 w-12 place-items-center rounded-lg bg-gray-200">
+                <PixelIcon name="info-box" size={24} color="#6b7280" />
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <div className="truncate text-xs font-semibold text-white">
+              <div className="truncate text-sm font-semibold text-gray-900">
                 {profile?.displayName ?? "Not logged in"}
               </div>
-              <div className="truncate text-[10px] text-white/60">
+              <div className="truncate text-xs text-gray-600">
                 {profile ? `ID: ${profile.id}` : ""}
               </div>
             </div>
@@ -2364,9 +2367,9 @@ function SettingsView({
         </div>
 
         {/* Preferences section */}
-        <div className="mb-4">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
           <h3
-            className="text-outline mb-2 text-sm text-white"
+            className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             PREFERENCES
@@ -2375,45 +2378,24 @@ function SettingsView({
           {/* Working setting: Clear cache */}
           <button
             onClick={clearCache}
-            className="mb-2 flex w-full items-center justify-between p-3 transition-colors hover:bg-white/5"
-            style={containerStyle}
+            className="mb-2 flex w-full items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-3 transition-all hover:border-blue-300 hover:bg-blue-50"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             <span
-              className="text-xs text-white"
-              style={{ fontFamily: "var(--font-pixel), monospace" }}
+              className="text-sm font-semibold text-gray-900"
             >
-              {cacheCleared ? "CACHE CLEARED!" : "CLEAR CACHE"}
+              {cacheCleared ? "✓ CACHE CLEARED!" : "CLEAR CACHE"}
             </span>
-            <PixelIcon name="switch" size={16} color="#94a3b8" />
+            <PixelIcon name="switch" size={18} color="#6b7280" />
           </button>
 
           {/* Coming soon settings */}
-          <ComingSoonSetting label="THEME" containerStyle={containerStyle} />
-          <ComingSoonSetting label="NOTIFICATIONS" containerStyle={containerStyle} />
-          <ComingSoonSetting label="TRADE ALERTS" containerStyle={containerStyle} />
-          <ComingSoonSetting label="DEFAULT SORT" containerStyle={containerStyle} />
-          <ComingSoonSetting label="LANGUAGE" containerStyle={containerStyle} />
+          <ComingSoonSetting label="THEME" />
+          <ComingSoonSetting label="NOTIFICATIONS" />
+          <ComingSoonSetting label="TRADE ALERTS" />
+          <ComingSoonSetting label="DEFAULT SORT" />
+          <ComingSoonSetting label="LANGUAGE" />
         </div>
-
-        {/* About section */}
-        <div className="mb-4">
-          <h3
-            className="text-outline mb-2 text-sm text-white"
-            style={{ fontFamily: "var(--font-pixel), monospace" }}
-          >
-            ABOUT
-          </h3>
-          <div className="p-3" style={containerStyle}>
-            <p
-              className="text-[10px] leading-relaxed text-white/60"
-              style={{ fontFamily: "var(--font-pixel), monospace" }}
-            >
-              CAB TRADE CALC v1.0
-            </p>
-            <p className="mt-2 text-[10px] text-white/40">
-              Not affiliated with Roblox or the Catch a Brainrot game.
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -2423,31 +2405,24 @@ function SettingsView({
 /** A settings row that's greyed out with "COMING SOON" overlay. */
 function ComingSoonSetting({
   label,
-  containerStyle,
 }: {
   label: string;
-  containerStyle: React.CSSProperties;
 }) {
   return (
     <div
-      className="relative mb-2 flex items-center justify-between overflow-hidden p-3"
-      style={{
-        ...containerStyle,
-        opacity: 0.6,
-        border: "2px solid rgba(0,0,0,0.08)",
-      }}
+      className="relative mb-2 flex items-center justify-between overflow-hidden rounded-lg border-2 border-gray-200 bg-gray-100 p-3"
     >
       <span
-        className="text-xs text-white/50"
+        className="text-sm font-semibold text-gray-500"
         style={{ fontFamily: "var(--font-pixel), monospace" }}
       >
         {label}
       </span>
-      <PixelIcon name="switch" size={16} color="#6b7280" />
+      <PixelIcon name="switch" size={18} color="#9ca3af" />
       {/* Coming soon overlay */}
-      <div className="pointer-events-none absolute inset-0 grid place-items-center">
+      <div className="pointer-events-none absolute inset-0 grid place-items-center bg-gray-100/80">
         <span
-          className="rounded-md bg-black/60 px-2 py-0.5 text-[8px] uppercase text-white/80"
+          className="rounded-md bg-gray-300 px-2 py-0.5 text-[8px] uppercase text-gray-600"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
         >
           COMING SOON
@@ -2532,27 +2507,30 @@ function AboutView({
   const completionPct = totalSpecies > 0 ? (ownedSpecies / totalSpecies) * 100 : 0;
 
   return (
-    <div className="relative z-10 mx-auto flex h-full w-full max-w-2xl flex-col px-4 pt-4 sm:px-6">
+    <div className="relative z-10 flex h-full w-full flex-col">
       {/* Header — fixed */}
-      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
-        <Image
-          src="/cab_icon.png"
-          alt="CAB"
-          width={64}
-          height={64}
-          priority
-          className="mb-2 h-16 w-16 rounded-2xl object-cover [image-rendering:pixelated]"
-        />
-        <h2
-          className="text-outline text-center text-xl text-white sm:text-2xl"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
-        >
-          CAB TRADE CALC
-        </h2>
+      <div className="shrink-0 px-4 pt-4 sm:px-6">
+        <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
+          <Image
+            src="/cab_icon.png"
+            alt="CAB"
+            width={64}
+            height={64}
+            priority
+            className="h-16 w-16 rounded-2xl object-cover [image-rendering:pixelated]"
+          />
+          <h2
+            className="text-outline text-center text-xl text-white sm:text-2xl"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            CAB TRADE CALC
+          </h2>
+        </div>
       </div>
 
       {/* Scrollable content */}
-      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
+        <div className="mx-auto max-w-7xl">
         {/* Announcement Banner */}
         <div className="mb-6 rounded-xl border border-white/10 bg-[#313338] p-4 shadow-lg">
           {/* Author header */}
@@ -2657,24 +2635,31 @@ function AboutView({
             </div>
           </div>
         </div>
+        </div>
 
         {/* Collection progress bar */}
-        <div className="mb-6">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+          <h3
+            className="text-outline mb-3 text-sm text-gray-900"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            COLLECTION PROGRESS
+          </h3>
           <div className="mb-2 flex items-center justify-between">
             <span
-              className="text-outline-sm text-[10px] text-white"
+              className="text-outline-sm text-[10px] text-gray-700"
               style={{ fontFamily: "var(--font-pixel), monospace" }}
             >
-              COLLECTION
+              {ownedSpecies}/{totalSpecies} SPECIES
             </span>
             <span
-              className="text-outline-sm text-[10px] text-white"
+              className="text-outline-sm text-[10px] font-bold text-gray-900"
               style={{ fontFamily: "var(--font-pixel), monospace" }}
             >
-              {ownedSpecies}/{totalSpecies}
+              {completionPct.toFixed(0)}%
             </span>
           </div>
-          <div className="h-6 overflow-hidden rounded-lg bg-black/40">
+          <div className="h-6 overflow-hidden rounded-lg bg-gray-200">
             <div
               className="grid h-full place-items-center rounded-lg"
               style={{
@@ -2685,7 +2670,7 @@ function AboutView({
               }}
             >
               <span
-                className="text-[8px] text-black"
+                className="text-[8px] font-bold text-white"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 {completionPct.toFixed(0)}%
@@ -2695,14 +2680,14 @@ function AboutView({
         </div>
 
         {/* Quick stats — list style */}
-        <div className="mb-6">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
           <h3
-            className="text-outline mb-2 text-sm text-white"
+            className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             YOUR STATS
           </h3>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             {[
               { label: "Rots Owned", value: totalRots },
               { label: "Unique Species", value: ownedSpecies },
@@ -2711,16 +2696,16 @@ function AboutView({
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="flex items-center justify-between py-1"
+                className="flex items-center justify-between border-b border-gray-200 py-2 last:border-0"
               >
                 <span
-                  className="text-[10px] text-white/70"
+                  className="text-xs text-gray-700"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {stat.label}
                 </span>
                 <span
-                  className="text-outline-sm text-sm text-white"
+                  className="text-outline-sm text-sm font-bold text-gray-900"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {stat.value}
@@ -2731,23 +2716,23 @@ function AboutView({
         </div>
 
         {/* Rarity distribution — bar chart */}
-        <div className="mb-6">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
           <h3
-            className="text-outline mb-2 text-sm text-white"
+            className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             RARITY DISTRIBUTION
           </h3>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {rarityEntries.map(([tier, count]) => (
               <div key={tier} className="flex items-center gap-2">
                 <span
-                  className="w-16 shrink-0 text-[8px] text-white"
+                  className="w-16 shrink-0 text-[8px] font-semibold text-gray-700"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {tier.toUpperCase()}
                 </span>
-                <div className="h-4 flex-1 overflow-hidden rounded bg-black/30">
+                <div className="h-4 flex-1 overflow-hidden rounded bg-gray-200">
                   <div
                     className="h-full rounded"
                     style={{
@@ -2758,7 +2743,7 @@ function AboutView({
                   />
                 </div>
                 <span
-                  className="w-6 shrink-0 text-right text-[8px] text-white/60"
+                  className="w-6 shrink-0 text-right text-[8px] font-bold text-gray-900"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {count}
@@ -2770,9 +2755,9 @@ function AboutView({
 
         {/* Owned vs total — pie-style (donut) */}
         {yourData && (
-          <div className="mb-6">
+          <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
             <h3
-              className="text-outline mb-2 text-sm text-white"
+              className="text-outline mb-3 text-sm text-gray-900"
               style={{ fontFamily: "var(--font-pixel), monospace" }}
             >
               OWNED BY RARITY
@@ -2785,34 +2770,27 @@ function AboutView({
                 return (
                   <div
                     key={tier}
-                    className="flex items-center gap-1.5 rounded-lg px-2 py-1"
-                    style={{
-                      background: "rgba(255,255,255,0.92)",
-                    backgroundImage: "url('/stud_texture.png')",
-                    backgroundSize: "30px 30px",
-                    backgroundRepeat: "repeat",
-                    backgroundBlendMode: "multiply",
-                      border: `1px solid ${rarityColors[tier]}40`,
-                    }}
+                    className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-2 py-1.5"
+                    style={{ border: `1px solid ${rarityColors[tier]}40` }}
                   >
                     <span
                       className="h-2 w-2 rounded-full"
                       style={{ background: rarityColors[tier] }}
                     />
                     <span
-                      className="text-[8px] text-white"
+                      className="text-[8px] font-semibold text-gray-900"
                       style={{ fontFamily: "var(--font-pixel), monospace" }}
                     >
                       {tier.toUpperCase().slice(0, 4)}
                     </span>
                     <span
-                      className="text-[8px] text-white/60"
+                      className="text-[8px] text-gray-600"
                       style={{ fontFamily: "var(--font-pixel), monospace" }}
                     >
                       {owned}/{total}
                     </span>
                     <span
-                      className="text-[8px] text-white/40"
+                      className="text-[8px] text-gray-500"
                       style={{ fontFamily: "var(--font-pixel), monospace" }}
                     >
                       ({pct.toFixed(0)}%)
@@ -2825,25 +2803,25 @@ function AboutView({
         )}
 
         {/* Item types — horizontal bar list */}
-        <div className="mb-6">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
           <h3
-            className="text-outline mb-2 text-sm text-white"
+            className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             ITEM TYPES
           </h3>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             {itemTypes.map(([tier, count]) => (
               <div key={tier} className="flex items-center gap-2">
                 <span
-                  className="w-20 shrink-0 text-[8px] text-white"
+                  className="w-20 shrink-0 text-[8px] font-semibold text-gray-700"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {tier.toUpperCase()}
                 </span>
-                <div className="h-3 flex-1 overflow-hidden rounded bg-black/30">
+                <div className="h-3 flex-1 overflow-hidden rounded bg-gray-200">
                   <div
-                    className="h-full rounded bg-blue-400"
+                    className="h-full rounded bg-blue-500"
                     style={{
                       width: `${(count / maxItemTypeCount) * 100}%`,
                       boxShadow: "inset 0 1px 0 rgba(255,255,255,0.3)",
@@ -2851,7 +2829,7 @@ function AboutView({
                   />
                 </div>
                 <span
-                  className="w-6 shrink-0 text-right text-[8px] text-white/60"
+                  className="w-6 shrink-0 text-right text-[8px] font-bold text-gray-900"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {count}
@@ -2862,43 +2840,43 @@ function AboutView({
         </div>
 
         {/* Game totals — stat grid */}
-        <div className="mb-6">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
           <h3
-            className="text-outline mb-2 text-sm text-white"
+            className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             GAME TOTALS
           </h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <div
-              className="rounded-lg p-3 text-center"
-              style={{ background: "rgba(255,255,255,0.92)", backgroundImage: "url('/stud_texture.png')", backgroundSize: "30px 30px", backgroundRepeat: "repeat", backgroundBlendMode: "multiply", border: "1px solid rgba(0,0,0,0.1)" }}
+              className="rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 p-4 text-center"
+              style={{ border: "2px solid #3b82f6" }}
             >
               <div
-                className="text-outline text-xl text-white"
+                className="text-outline text-2xl font-bold text-gray-900"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 {totalSpecies}
               </div>
               <div
-                className="mt-1 text-[8px] text-white/50"
+                className="mt-1 text-[8px] font-semibold text-gray-700"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 SPECIES
               </div>
             </div>
             <div
-              className="rounded-lg p-3 text-center"
-              style={{ background: "rgba(255,255,255,0.92)", backgroundImage: "url('/stud_texture.png')", backgroundSize: "30px 30px", backgroundRepeat: "repeat", backgroundBlendMode: "multiply", border: "1px solid rgba(0,0,0,0.1)" }}
+              className="rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 p-4 text-center"
+              style={{ border: "2px solid #a855f7" }}
             >
               <div
-                className="text-outline text-xl text-white"
+                className="text-outline text-2xl font-bold text-gray-900"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 {Object.keys(bagData).length}
               </div>
               <div
-                className="mt-1 text-[8px] text-white/50"
+                className="mt-1 text-[8px] font-semibold text-gray-700"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 ITEMS
@@ -2908,20 +2886,20 @@ function AboutView({
         </div>
 
         {/* Links */}
-        <div className="flex flex-col gap-2">
+        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
           <a
             href="https://indieun.com/cab/rots"
             target="_blank"
             rel="noopener noreferrer"
-            className="stud-input rounded-cab-sm px-4 py-2 text-center text-[10px] uppercase text-gray-900 no-underline transition-colors hover:bg-blue-100"
+            className="stud-input block rounded-cab-sm px-4 py-3 text-center text-[10px] font-bold uppercase text-gray-900 no-underline transition-all hover:bg-blue-50"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
-            API DOCS
+            📊 VIEW API DOCS
           </a>
         </div>
 
         <p
-          className="mt-6 text-center text-[8px] text-white/40"
+          className="text-center text-[8px] text-white/60"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
         >
           NOT AFFILIATED WITH ROBLOX
