@@ -37,6 +37,12 @@ import {
   type ValuedItem,
   type TradeVerdict,
 } from "@/lib/trade-values";
+import {
+  encodeTrade,
+  type ShareRot,
+  type ShareItem,
+  type ShareTrade,
+} from "@/lib/share-trade";
 
 const SLOTS_PER_PANEL = 12; // 4 cols x 3 rows
 
@@ -76,6 +82,9 @@ export default function Home() {
 
   // Account switch modal
   const [showAccountModal, setShowAccountModal] = useState(false);
+
+  // Trade share modal
+  const [shareOpen, setShareOpen] = useState(false);
 
   // ----- ESC key closes any open modal/drawer -----
   useEffect(() => {
@@ -352,6 +361,66 @@ export default function Home() {
 
   const v = useMemo(() => verdict(yourTotal, theirTotal), [yourTotal, theirTotal]);
 
+  // ----- Sharing - build a stateless share payload that updates with the trade -----
+  const sharePayload: ShareTrade | null = useMemo(() => {
+    const hasAnything =
+      yourOffer.rots.length ||
+      yourOffer.items.length ||
+      theirOffer.rots.length ||
+      theirOffer.items.length;
+    if (!hasAnything) return null;
+
+    const toRot = (rv: ValuedRot): ShareRot => ({
+      i: rv.species?.Icon ?? "",
+      s: rv.species?.ShortenedName ?? rv.rot.Species,
+      n: rv.rot.Nickname || rv.rot.Species,
+      l: rv.rot.Level,
+      v: rv.rot.IV,
+      val: rv.value,
+    });
+    const toItem = (iv: ValuedItem): ShareItem => ({
+      i: iv.icon,
+      n: iv.name,
+      q: iv.qty,
+      val: iv.total,
+    });
+
+    return {
+      you: {
+        rots: yourValued.map(toRot),
+        items: yourItems.map(toItem),
+        total: yourTotal,
+      },
+      them: {
+        rots: theirValued.map(toRot),
+        items: theirItems.map(toItem),
+        total: theirTotal,
+      },
+    };
+  }, [
+    yourOffer,
+    theirOffer,
+    yourValued,
+    theirValued,
+    yourItems,
+    theirItems,
+    yourTotal,
+    theirTotal,
+  ]);
+
+  const shareId = useMemo(
+    () => (sharePayload ? encodeTrade(sharePayload) : ""),
+    [sharePayload]
+  );
+  const shareLink = useMemo(() => {
+    if (!shareId) return "";
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://cab.devvyy.xyz";
+    return `${origin}/share/${shareId}`;
+  }, [shareId]);
+
   // ----- Render helpers -----
   const renderOfferSlots = (side: "you" | "them") => {
     const offer = side === "you" ? yourOffer : theirOffer;
@@ -456,13 +525,23 @@ export default function Home() {
             </TradePanel>
 
             {/* Mobile: fairness badge as a normal grid item between the two panels */}
-            <div className="flex justify-center md:hidden">
+            <div className="flex items-center justify-center gap-3 md:hidden">
               <FairnessBadge verdict={v} />
+              <ShareButton
+                onClick={() => setShareOpen(true)}
+                disabled={!shareId}
+              />
             </div>
 
-            {/* Desktop: fairness badge absolutely centered over the gap */}
-            <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 md:block">
+            {/* Desktop: fairness badge absolutely centered over the gap, share below */}
+            <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 md:flex">
               <FairnessBadge verdict={v} />
+              <div className="pointer-events-auto">
+                <ShareButton
+                  onClick={() => setShareOpen(true)}
+                  disabled={!shareId}
+                />
+              </div>
             </div>
 
             <TradePanel
@@ -557,8 +636,202 @@ export default function Home() {
         profile={youProfile}
       />
 
+      {/* Share Trade Modal */}
+      <ShareTradeModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        link={shareLink}
+        id={shareId}
+      />
+
       </main>
     </>
+  );
+}
+
+/** Small SHARE button - shown next to (mobile) / below (desktop) the fairness badge. */
+function ShareButton({
+  onClick,
+  disabled,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold text-white transition-all enabled:hover:scale-105 enabled:active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+      style={{
+        fontFamily: "var(--font-pixel), monospace",
+        background: "linear-gradient(180deg, #3a4358, #1c2230)",
+        border: "3px solid #0b0f1a",
+        boxShadow: "0 3px 0 0 #0b0f1a",
+      }}
+      title={
+        disabled ? "Add something to the trade first" : "Share this trade"
+      }
+    >
+      <PixelIcon name="repeat" size={16} color="#7cb3ff" outline="#0b0f1a" outlineWidth={1} />
+      SHARE
+    </button>
+  );
+}
+
+/** Modal shown when the user clicks SHARE - copy link + download image. */
+function ShareTradeModal({
+  open,
+  onClose,
+  link,
+  id,
+}: {
+  open: boolean;
+  onClose: () => void;
+  link: string;
+  id: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  if (!open) return null;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast.success("Link copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Could not copy link");
+    }
+  };
+
+  const download = async () => {
+    if (!id) return;
+    try {
+      const res = await fetch(`/api/share/${id}/image`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "cab-trade.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("Image downloaded");
+    } catch {
+      toast.error("Could not download image");
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
+        style={{
+          backgroundImage: "url('/stud_texture.png')",
+          backgroundSize: "30px 30px",
+          backgroundRepeat: "repeat",
+          backgroundBlendMode: "multiply",
+        }}
+      >
+        {/* Header */}
+        <div className="mb-4 flex items-center gap-3">
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg"
+            style={{
+              background: "linear-gradient(135deg, #7cb3ff, #60a5fa)",
+              border: "3px solid #1e3a5f",
+              boxShadow: "0 3px 0 0 #1e3a5f",
+            }}
+          >
+            <PixelIcon name="repeat" size={22} color="#fff" outline="#1e3a5f" outlineWidth={1} />
+          </div>
+          <div className="flex flex-col">
+            <h3
+              className="text-outline-white text-lg font-bold text-gray-900"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              SHARE TRADE
+            </h3>
+            <p className="text-xs text-gray-600">
+              Copy the link or download the image
+            </p>
+          </div>
+        </div>
+
+        {/* Live preview */}
+        {id && link && (
+          <div className="mb-4">
+            <p
+              className="mb-1 text-[9px] font-bold uppercase text-gray-500"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              Preview (appears on Discord)
+            </p>
+            <img
+              src={`/api/share/${id}/image`}
+              alt="Trade preview"
+              className="w-full rounded-lg border-2 border-gray-300 [image-rendering:pixelated]"
+            />
+          </div>
+        )}
+
+        {/* Link + copy */}
+        <div className="mb-3 flex gap-2">
+          <Input
+            readOnly
+            value={link}
+            onFocus={(e) => e.currentTarget.select()}
+            className="h-11 min-w-0 flex-1 text-xs"
+          />
+          <button
+            type="button"
+            onClick={copy}
+            className="shrink-0 rounded-lg bg-blue-500 px-4 text-xs font-bold text-white transition-all hover:bg-blue-600"
+            style={{
+              fontFamily: "var(--font-pixel), monospace",
+              border: "2px solid #1e3a5f",
+              boxShadow: "0 3px 0 0 #1e3a5f",
+            }}
+          >
+            {copied ? "✓ COPIED" : "COPY"}
+          </button>
+        </div>
+
+        {/* Download */}
+        <button
+          type="button"
+          onClick={download}
+          disabled={!id}
+          className="w-full rounded-lg bg-green-500 px-4 py-3 text-sm font-bold text-white transition-all enabled:hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-40"
+          style={{
+            fontFamily: "var(--font-pixel), monospace",
+            border: "2px solid #14532d",
+            boxShadow: "0 3px 0 0 #14532d",
+          }}
+        >
+          ⬇ DOWNLOAD IMAGE
+        </button>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-2 w-full rounded-lg bg-gray-200 px-4 py-2.5 text-xs font-bold text-gray-700 transition-all hover:bg-gray-300"
+          style={{
+            fontFamily: "var(--font-pixel), monospace",
+            border: "2px solid #9ca3af",
+            boxShadow: "0 3px 0 0 #6b7280",
+          }}
+        >
+          CLOSE
+        </button>
+      </div>
+    </div>
   );
 }
 
