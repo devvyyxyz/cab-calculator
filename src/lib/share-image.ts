@@ -41,15 +41,15 @@ function renderSlots(
   const gap = 12;
   const pad = 22;
   const slotW = (520 - pad * 2 - gap * (cols - 1)) / cols;
-  const slots = [...side.rots, ...side.items];
+  const slots = side.slots;
   const cells: string[] = [];
 
   for (let idx = 0; idx < 12; idx++) {
     const row = Math.floor(idx / cols);
     const col = idx % cols;
     const x = panelX + pad + col * (slotW + gap);
-    const y = panelY + 86 + row * (slotW + gap);
-    const item = slots[idx];
+    const y = panelY + 66 + row * (slotW + gap);
+    const slot = slots[idx];
 
     cells.push(
       `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${slotW.toFixed(1)}" height="${slotW.toFixed(
@@ -57,16 +57,9 @@ function renderSlots(
       )}" rx="20" fill="${innerBg}" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>`
     );
 
-    if (!item) {
-      cells.push(
-        `<text x="${(x + slotW / 2).toFixed(1)}" y="${(y + slotW / 2 + 16).toFixed(
-          1
-        )}" text-anchor="middle" font-family="${FONT}" font-size="40" fill="rgba(30,58,95,0.35)" font-weight="bold">+</text>`
-      );
-      continue;
-    }
+    if (!slot) continue;
 
-    const dataUri = item.i ? icons[item.i] : "";
+    const dataUri = slot.i ? icons[slot.i] : "";
     if (dataUri) {
       const s = slotW - 24;
       cells.push(
@@ -76,25 +69,20 @@ function renderSlots(
           1
         )}" preserveAspectRatio="xMidYMid meet" image-rendering="pixelated"/>`
       );
-    } else {
-      cells.push(
-        `<text x="${(x + slotW / 2).toFixed(1)}" y="${(y + slotW / 2 + 16).toFixed(
-          1
-        )}" text-anchor="middle" font-family="${FONT}" font-size="34" fill="#1e3a5f">?</text>`
-      );
     }
 
     // quantity badge for items with qty > 1
-    if ("q" in item && item.q > 1) {
+    if (slot.q && slot.q > 1) {
       cells.push(
         `<text x="${(x + slotW - 6).toFixed(1)}" y="${(y + slotW - 6).toFixed(
           1
-        )}" text-anchor="end" font-family="${FONT}" font-size="22" font-weight="bold" fill="#fff" style="paint-order:stroke fill;" stroke="#1e3a5f" stroke-width="4">×${item.q}</text>`
+        )}" text-anchor="end" font-family="${FONT}" font-size="22" font-weight="bold" fill="#fff" style="paint-order:stroke fill;" stroke="#1e3a5f" stroke-width="4">×${slot.q}</text>`
       );
     }
   }
   return cells.join("");
 }
+
 
 function renderPanel(
   title: string,
@@ -109,16 +97,10 @@ function renderPanel(
   return `
     <g>
       <rect x="${panelX}" y="${panelY}" width="520" height="500" rx="24" fill="${panelBg}" stroke="${panelBorder}" stroke-width="5"/>
-      <text x="${(panelX + 260).toFixed(1)}" y="${panelY + 34}" text-anchor="middle" font-family="${FONT}" font-size="30" font-weight="bold" fill="#fff" style="paint-order:stroke fill;" stroke="${panelBorder}" stroke-width="5">${esc(
+      <text x="${(panelX + 260).toFixed(1)}" y="${panelY + 30}" text-anchor="middle" font-family="${FONT}" font-size="28" font-weight="bold" fill="#fff" style="paint-order:stroke fill;" stroke="${panelBorder}" stroke-width="5">${esc(
     title
   )}</text>
-      <text x="${(panelX + 260).toFixed(1)}" y="${panelY + 66}" text-anchor="middle" font-family="${FONT}" font-size="20" font-weight="bold" fill="#fff">VALUE ${side.total.toFixed(
-    1
-  )}</text>
       ${renderSlots(side, panelX, panelY, innerBg, icons)}
-      <text x="${(panelX + 260).toFixed(1)}" y="${panelY + 482}" text-anchor="middle" font-family="${FONT}" font-size="20" font-weight="bold" fill="#fff" style="paint-order:stroke fill;" stroke="${panelBorder}" stroke-width="4">TOTAL ${side.total.toFixed(
-    1
-  )}</text>
     </g>`;
 }
 
@@ -127,22 +109,10 @@ export function buildTradeSvg(
   icons: Record<string, string>
 ): string {
   const v = computeVerdict(t.you.total, t.them.total);
-  const panelY = 120;
+  const panelY = 110;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#0099ff"/>
-  <!-- stud texture -->
-  <g fill="rgba(255,255,255,0.06)">
-    ${Array.from({ length: 40 })
-      .map((_, i) => {
-        const x = 40 + (i % 20) * 60;
-        const y = 40 + Math.floor(i / 20) * 60;
-        return `<rect x="${x}" y="${y}" width="22" height="22" rx="4"/>`;
-      })
-      .join("")}
-  </g>
-
-  <text x="600" y="72" text-anchor="middle" font-family="${FONT}" font-size="40" font-weight="bold" fill="#fff" style="paint-order:stroke fill;" stroke="#0b2a4a" stroke-width="6">CAB TRADE CALCULATOR</text>
 
   ${renderPanel(
     "YOUR OFFER",
@@ -174,8 +144,6 @@ export function buildTradeSvg(
     v.border
   }" stroke-width="5">${v.symbol}</text>
   </g>
-
-  <text x="600" y="618" text-anchor="middle" font-family="${FONT}" font-size="16" fill="#fff" style="paint-order:stroke fill;" stroke="#0b2a4a" stroke-width="3">Catch a Brainrot · cab.devvyy.xyz</text>
 </svg>`;
 }
 

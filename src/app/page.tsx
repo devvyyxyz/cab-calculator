@@ -39,8 +39,6 @@ import {
 } from "@/lib/trade-values";
 import {
   encodeTrade,
-  type ShareRot,
-  type ShareItem,
   type ShareTrade,
 } from "@/lib/share-trade";
 
@@ -361,7 +359,7 @@ export default function Home() {
 
   const v = useMemo(() => verdict(yourTotal, theirTotal), [yourTotal, theirTotal]);
 
-  // ----- Sharing - build a stateless share payload that updates with the trade -----
+  // ----- Sharing - build a compact share payload that updates with the trade -----
   const sharePayload: ShareTrade | null = useMemo(() => {
     const hasAnything =
       yourOffer.rots.length ||
@@ -370,30 +368,19 @@ export default function Home() {
       theirOffer.items.length;
     if (!hasAnything) return null;
 
-    const toRot = (rv: ValuedRot): ShareRot => ({
-      i: rv.species?.Icon ?? "",
-      s: rv.species?.ShortenedName ?? rv.rot.Species,
-      n: rv.rot.Nickname || rv.rot.Species,
-      l: rv.rot.Level,
-      v: rv.rot.IV,
-      val: rv.value,
-    });
-    const toItem = (iv: ValuedItem): ShareItem => ({
-      i: iv.icon,
-      n: iv.name,
-      q: iv.qty,
-      val: iv.total,
-    });
-
     return {
       you: {
-        rots: yourValued.map(toRot),
-        items: yourItems.map(toItem),
+        slots: [
+          ...yourValued.map((rv) => ({ i: rv.species?.Icon ?? "" })),
+          ...yourItems.map((iv) => ({ i: iv.icon, q: iv.qty })),
+        ],
         total: yourTotal,
       },
       them: {
-        rots: theirValued.map(toRot),
-        items: theirItems.map(toItem),
+        slots: [
+          ...theirValued.map((rv) => ({ i: rv.species?.Icon ?? "" })),
+          ...theirItems.map((iv) => ({ i: iv.icon, q: iv.qty })),
+        ],
         total: theirTotal,
       },
     };
@@ -408,18 +395,43 @@ export default function Home() {
     theirTotal,
   ]);
 
-  const shareId = useMemo(
+  // Encoded fallback ID (self-contained, works even without the short store)
+  const encodedId = useMemo(
     () => (sharePayload ? encodeTrade(sharePayload) : ""),
     [sharePayload]
   );
-  const shareLink = useMemo(() => {
-    if (!shareId) return "";
-    const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : "https://cab.devvyy.xyz";
-    return `${origin}/share/${shareId}`;
-  }, [shareId]);
+
+  // Short ID (from server store) - set when the share modal is opened.
+  const [shareId, setShareId] = useState("");
+
+  const origin =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : "https://cab.devvyy.xyz";
+
+  const openShare = useCallback(() => {
+    if (!sharePayload) return;
+    // Show a valid link immediately (fallback), then swap to a short one.
+    setShareId(encodedId);
+    setShareOpen(true);
+    (async () => {
+      try {
+        const res = await fetch("/api/share", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(sharePayload),
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { id?: string };
+          if (data.id) setShareId(data.id);
+        }
+      } catch {
+        /* keep fallback link */
+      }
+    })();
+  }, [sharePayload, encodedId]);
+
+  const shareLink = shareId ? `${origin}/share/${shareId}` : "";
 
   // ----- Render helpers -----
   const renderOfferSlots = (side: "you" | "them") => {
@@ -528,8 +540,8 @@ export default function Home() {
             <div className="flex items-center justify-center gap-3 md:hidden">
               <FairnessBadge verdict={v} />
               <ShareButton
-                onClick={() => setShareOpen(true)}
-                disabled={!shareId}
+                onClick={openShare}
+                disabled={!sharePayload}
               />
             </div>
 
@@ -538,8 +550,8 @@ export default function Home() {
               <FairnessBadge verdict={v} />
               <div className="pointer-events-auto">
                 <ShareButton
-                  onClick={() => setShareOpen(true)}
-                  disabled={!shareId}
+                  onClick={openShare}
+                  disabled={!sharePayload}
                 />
               </div>
             </div>

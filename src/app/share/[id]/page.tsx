@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { decodeTrade } from "@/lib/share-trade";
+import { getShare } from "@/lib/share-store";
 
 const FALLBACK_HOST = "cab.devvyy.xyz";
 
 type PageProps = { params: Promise<{ id: string }> };
 
+async function resolveTrade(id: string) {
+  return decodeTrade(id) ?? getShare(id);
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const trade = decodeTrade(id);
+  const trade = await resolveTrade(id);
 
   let base = `https://${FALLBACK_HOST}`;
   try {
@@ -50,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function SharePage({ params }: PageProps) {
   const { id } = await params;
-  const trade = decodeTrade(id);
+  const trade = await resolveTrade(id);
 
   if (!trade) {
     return (

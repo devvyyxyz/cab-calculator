@@ -1,27 +1,15 @@
-// ===== Trade sharing - stateless ID encoding =====
-// A trade is serialized to a compact JSON object and base64url-encoded into a
-// short ID. The ID is fully self-contained (no server storage), so a share
-// link works from any host and the embedded image can be rebuilt on demand.
+// ===== Trade sharing - compact payload + stateless ID encoding =====
+// A trade is reduced to just what the embedded image needs (icons + quantity +
+// totals) and encoded to a base64url ID. The ID is self-contained (fallback),
+// while a companion short-ID server store produces much shorter share links.
 
-export interface ShareRot {
-  i: string; // species icon filename (e.g. "73.png")
-  s: string; // species shortened name
-  n: string; // nickname
-  l: number; // level
-  v: number; // IV 0..1
-  val: number; // computed value
-}
-
-export interface ShareItem {
-  i: string; // bag item icon filename
-  n: string; // name
-  q: number; // quantity
-  val: number; // computed total value
+export interface ShareSlot {
+  i: string; // icon filename (e.g. "73.png")
+  q?: number; // quantity (items only)
 }
 
 export interface ShareSide {
-  rots: ShareRot[];
-  items: ShareItem[];
+  slots: ShareSlot[];
   total: number;
 }
 
@@ -53,3 +41,4 @@ export function decodeTrade(id: string): ShareTrade | null {
     return null;
   }
 }
+

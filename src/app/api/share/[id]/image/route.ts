@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
 import { decodeTrade, type ShareTrade } from "@/lib/share-trade";
+import { getShare } from "@/lib/share-store";
 import { buildTradeSvg } from "@/lib/share-image";
 
 const ICON_BASE = "https://indieun.com/cab/icons/";
@@ -8,8 +9,7 @@ const ICON_BASE = "https://indieun.com/cab/icons/";
 async function resolveIcons(t: ShareTrade): Promise<Record<string, string>> {
   const files = new Set<string>();
   [t.you, t.them].forEach((side) => {
-    side.rots.forEach((r) => r.i && files.add(r.i));
-    side.items.forEach((i) => i.i && files.add(i.i));
+    side.slots.forEach((s) => s.i && files.add(s.i));
   });
   const map: Record<string, string> = {};
   await Promise.all(
@@ -34,7 +34,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const trade = decodeTrade(id);
+  const trade = decodeTrade(id) ?? getShare(id);
   if (!trade) {
     return new NextResponse("Invalid trade", { status: 400 });
   }
@@ -65,3 +65,4 @@ export async function GET(
     });
   }
 }
+
