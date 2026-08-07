@@ -407,9 +407,22 @@ export default function Home() {
       >
       {/* ===== TRADE VIEW ===== */}
       {navView === "trade" && (
-        <div className="relative z-10 min-h-0 flex-1 overflow-y-auto">
-        <>
-          <section className="relative mx-auto mt-4 grid max-w-7xl grid-cols-1 gap-4 px-4 pb-44 sm:px-6 md:grid-cols-2 md:pb-28">
+        <div className="relative z-10 flex h-full w-full flex-col">
+          {/* Header — fixed */}
+          <div className="shrink-0 px-4 pt-4 sm:px-6">
+            <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
+              <h2
+                className="text-outline text-center text-2xl text-white sm:text-3xl"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                TRADE CALCULATOR
+              </h2>
+            </div>
+          </div>
+
+          {/* Trade content */}
+          <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 pb-44 sm:px-6 sm:pb-28">
+            <section className="relative mx-auto grid max-w-7xl grid-cols-1 gap-4 md:grid-cols-2">
             <TradePanel
               title="YOUR OFFER"
               variant="you"
@@ -440,7 +453,7 @@ export default function Home() {
               {renderOfferSlots("them")}
             </TradePanel>
           </section>
-        </>
+          </div>
         </div>
       )}
 
@@ -469,6 +482,9 @@ export default function Home() {
       {navView === "values" && (
         <ValuesView rotsData={rotsData} bagData={bagData} />
       )}
+
+      {/* ===== NEWS VIEW ===== */}
+      {navView === "news" && <NewsView />}
 
       {/* ===== SETTINGS VIEW ===== */}
       {navView === "settings" && (
@@ -2202,10 +2218,16 @@ function ValuesView({
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-semibold text-gray-900">
+                    <div
+                      className="truncate text-xs font-semibold text-gray-900"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
                       {sp.FullName}
                     </div>
-                    <div className="truncate text-[10px] text-gray-600">
+                    <div
+                      className="truncate text-[10px] text-gray-600"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
                       {tier.label} · R{sp.Rarity.toFixed(2)}
                     </div>
                   </div>
@@ -2247,10 +2269,16 @@ function ValuesView({
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-semibold text-gray-900">
+                    <div
+                      className="truncate text-xs font-semibold text-gray-900"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
                       {name}
                     </div>
-                    <div className="truncate text-[10px] text-gray-600">
+                    <div
+                      className="truncate text-[10px] text-gray-600"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
                       {tier}
                     </div>
                   </div>
@@ -2324,7 +2352,15 @@ function SettingsView({
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
         <div className="mx-auto max-w-7xl">
         {/* Account section */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <h3
             className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2367,7 +2403,15 @@ function SettingsView({
         </div>
 
         {/* Preferences section */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <h3
             className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2427,6 +2471,131 @@ function ComingSoonSetting({
         >
           COMING SOON
         </span>
+      </div>
+    </div>
+  );
+}
+
+/** News / Announcement page — displays official announcements */
+function NewsView() {
+  return (
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-4xl flex-col px-4 pt-4 sm:px-6">
+      {/* Header — fixed */}
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          📢 NEWS & ANNOUNCEMENTS
+        </h2>
+      </div>
+
+      {/* Scrollable content */}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {/* Announcement Banner */}
+        <div className="mb-6 rounded-xl border border-white/10 bg-[#313338] p-4 shadow-lg">
+          {/* Author header */}
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600">
+              <span className="text-lg">📢</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-white">Official Announcement</span>
+              <span className="text-xs text-gray-400">Posted in #announcements</span>
+            </div>
+          </div>
+
+          {/* Message content */}
+          <div className="space-y-3 text-sm text-gray-200">
+            {/* Main heading */}
+            <h3
+              className="text-lg font-bold text-white"
+              style={{ fontFamily: "var(--font-pixel), monospace" }}
+            >
+              Trading calculator, values list, inventory viewer & more
+            </h3>
+
+            {/* Intro paragraph */}
+            <p className="text-gray-300">
+              Hey everyone, I have developed a server official{" "}
+              <a
+                href="https://cab.devvyy.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 underline hover:text-blue-300"
+              >
+                catch a brainrot calculator site
+              </a>
+              . You can find the site here:{" "}
+              <a
+                href="https://cab.devvyy.xyz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 underline hover:text-blue-300"
+              >
+                https://cab.devvyy.xyz/
+              </a>
+            </p>
+
+            {/* Features section */}
+            <div>
+              <h4
+                className="mb-2 text-base font-semibold text-white"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                Features
+              </h4>
+              <ul className="ml-4 list-disc space-y-1 text-gray-300">
+                <li>Trade calculator</li>
+                <li>Inventory viewer</li>
+                <li>
+                  Rot, item, and egg database overview viewer of all in-game
+                  (including unreleased)
+                </li>
+                <li>Values list</li>
+                <li className="italic text-gray-400">much more to be added soon</li>
+              </ul>
+            </div>
+
+            {/* To be added section */}
+            <div>
+              <h4
+                className="mb-2 text-base font-semibold text-white"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                To be added
+              </h4>
+              <ul className="ml-4 list-disc space-y-1 text-gray-300">
+                <li>Roblox login</li>
+                <li>Trade sharing (for W/L sharing)</li>
+                <li>
+                  Updated values to be more accurate with in-game trades and
+                  demand
+                </li>
+                <li>Demand indicators</li>
+                <li>Recent trades page</li>
+                <li>Brainrot IV comparison</li>
+                <li>Team building</li>
+                <li>
+                  Player info page (for viewing other players stats and
+                  inventories)
+                </li>
+                <li>Notifications</li>
+                <li>Damage calculator</li>
+                <li>Tier list creator/sharing</li>
+              </ul>
+            </div>
+
+            {/* Footer note */}
+            <div className="border-t border-white/10 pt-3">
+              <p className="text-xs text-gray-500 italic">
+                The site has just been released, trading values and stats will
+                be updated the more use it gets and when in-game trading database
+                connection is possible.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -2638,7 +2807,15 @@ function AboutView({
         </div>
 
         {/* Collection progress bar */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <h3
             className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2680,7 +2857,15 @@ function AboutView({
         </div>
 
         {/* Quick stats — list style */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <h3
             className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2716,7 +2901,15 @@ function AboutView({
         </div>
 
         {/* Rarity distribution — bar chart */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <h3
             className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2755,7 +2948,15 @@ function AboutView({
 
         {/* Owned vs total — pie-style (donut) */}
         {yourData && (
-          <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+          <div
+            className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+            style={{
+              backgroundImage: "url('/stud_texture.png')",
+              backgroundSize: "30px 30px",
+              backgroundRepeat: "repeat",
+              backgroundBlendMode: "multiply",
+            }}
+          >
             <h3
               className="text-outline mb-3 text-sm text-gray-900"
               style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2803,7 +3004,15 @@ function AboutView({
         )}
 
         {/* Item types — horizontal bar list */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <h3
             className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2840,7 +3049,15 @@ function AboutView({
         </div>
 
         {/* Game totals — stat grid */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <h3
             className="text-outline mb-3 text-sm text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -2886,7 +3103,15 @@ function AboutView({
         </div>
 
         {/* Links */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm">
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
           <a
             href="https://indieun.com/cab/rots"
             target="_blank"
