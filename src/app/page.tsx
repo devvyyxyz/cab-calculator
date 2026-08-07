@@ -420,8 +420,13 @@ export default function Home() {
               {renderOfferSlots("you")}
             </TradePanel>
 
-            {/* Fairness badge — sits between panels on mobile, overlays center gap on desktop */}
-            <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 md:left-[50%]">
+            {/* Mobile: fairness badge as a normal grid item between the two panels */}
+            <div className="flex justify-center md:hidden">
+              <FairnessBadge verdict={v} />
+            </div>
+
+            {/* Desktop: fairness badge absolutely centered over the gap */}
+            <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 md:block">
               <FairnessBadge verdict={v} />
             </div>
 
