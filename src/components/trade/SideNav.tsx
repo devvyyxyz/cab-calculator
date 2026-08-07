@@ -36,10 +36,12 @@ export function SideNav({
   active,
   onNavigate,
   profile,
+  onProfileClick,
 }: {
   active: NavView;
   onNavigate?: (view: NavView) => void;
   profile?: { id: string; displayName: string; avatarUrl?: string } | null;
+  onProfileClick?: () => void;
 }) {
   const [hovered, setHovered] = useState<NavView | null>(null);
 
@@ -126,14 +128,16 @@ export function SideNav({
 
       {/* Profile avatar - bottom of sidebar */}
       {profile?.avatarUrl && (
-        <div
+        <button
+          type="button"
+          onClick={onProfileClick}
           className="group relative z-10 mb-1"
-          title={`${profile.displayName} · ID ${profile.id}`}
+          title={`${profile.displayName} · ID ${profile.id} - Click to switch account`}
         >
           <img
             src={profile.avatarUrl}
             alt={profile.displayName}
-            className="h-11 w-11 rounded-lg object-cover [image-rendering:pixelated] sm:h-14 sm:w-14"
+            className="h-11 w-11 rounded-lg object-cover [image-rendering:pixelated] transition-transform hover:scale-110 sm:h-14 sm:w-14"
           />
           {/* Tooltip on hover - appears to the side like nav buttons */}
           <span
@@ -147,7 +151,7 @@ export function SideNav({
           >
             {profile.displayName}
           </span>
-        </div>
+        </button>
       )}
     </aside>
   );
