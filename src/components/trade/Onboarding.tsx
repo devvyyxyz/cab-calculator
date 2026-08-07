@@ -16,7 +16,7 @@ interface RobloxUser {
 type Stage = "input" | "searching" | "confirm" | "multiple" | "loading-inv" | "error";
 
 /**
- * Onboarding page — full-screen takeover with the site blue background and a
+ * Onboarding page - full-screen takeover with the site blue background and a
  * side-scrolling stud texture. Runs on first load until the user confirms
  * their Roblox account.
  */

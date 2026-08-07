@@ -5,10 +5,10 @@ import type { Rot, Species, BagItemInfo } from "./cab-types";
  *
  * Value model (community-style heuristic):
  *   - Brainrot base = species.Rarity (1..6, fractional).
- *   - IV multiplier — IV 0 → 0.6x, IV 1 → 1.4x (linear).
- *   - Level multiplier — every 10 levels adds +25% value.
- *   - Exclusive bonus — demon rots get ×1.5.
- *   - Box bonus — better capture boxes add small premium (Rot Box → Crystal Box).
+ *   - IV multiplier - IV 0 → 0.6x, IV 1 → 1.4x (linear).
+ *   - Level multiplier - every 10 levels adds +25% value.
+ *   - Exclusive bonus - demon rots get ×1.5.
+ *   - Box bonus - better capture boxes add small premium (Rot Box → Crystal Box).
  *
  *   - Bag items: tiered by name keywords (Egg, Box, Currency, Upgrade, Special).
  *     Currency (Coins/Ice Coins) valued at 1 unit each.
@@ -17,7 +17,7 @@ import type { Rot, Species, BagItemInfo } from "./cab-types";
  *   - Hoverboards: valued by Speed stat (faster = more valuable).
  *
  * All values are returned in arbitrary "value units" used only for relative
- * comparison — not an official currency. The estimator is intentionally
+ * comparison - not an official currency. The estimator is intentionally
  * transparent so users can see how each number is built.
  */
 
@@ -80,7 +80,7 @@ export function valueRot(rot: Rot, species?: Species): ValuedRot {
   const breakdown: { label: string; amount: number }[] = [];
 
   if (!species) {
-    // Unknown species — small flat value based on level
+    // Unknown species - small flat value based on level
     const v = Math.max(1, rot.Level * 0.5);
     breakdown.push({ label: "Unknown species (level-only)", amount: v });
     return { rot, species, value: v, breakdown };

@@ -40,7 +40,7 @@ import {
 
 const SLOTS_PER_PANEL = 12; // 4 cols x 3 rows
 
-const DEMO_YOU_ID = "1559610713"; // fallback only — real flow uses onboarding
+const DEMO_YOU_ID = "1559610713"; // fallback only - real flow uses onboarding
 
 interface Offer {
   rots: Rot[]; // selected rots (max ~6 by game rules, but allow up to SLOTS_PER_PANEL)
@@ -50,7 +50,7 @@ interface Offer {
 const EMPTY_OFFER: Offer = { rots: [], items: [] };
 
 export default function Home() {
-  // Onboarding — runs until the user confirms their Roblox account
+  // Onboarding - runs until the user confirms their Roblox account
   const [onboarded, setOnboarded] = useState(false);
   const [youProfile, setYouProfile] = useState<{
     id: string;
@@ -149,7 +149,7 @@ export default function Home() {
         /* ignore quota */
       }
       toast.success(
-        `Loaded your inventory — ${data.PC.length} rots, ${data.Team.length} team, ${Object.keys(data.Bag).length} bag items`
+        `Loaded your inventory - ${data.PC.length} rots, ${data.Team.length} team, ${Object.keys(data.Bag).length} bag items`
       );
     } catch (e) {
       // Try cached inventory as fallback
@@ -173,7 +173,7 @@ export default function Home() {
     }
   }, []);
 
-  // ----- Onboarding complete — fetch inventory, dismiss modal, save to localStorage -----
+  // ----- Onboarding complete - fetch inventory, dismiss modal, save to localStorage -----
   const handleOnboarded = useCallback(
     (userId: string, displayName: string, avatarUrl?: string) => {
       setYouProfile({ id: userId, displayName, avatarUrl });
@@ -220,7 +220,7 @@ export default function Home() {
 
   // ----- Offer manipulation -----
   // For "you" side: rot must come from loaded inventory (real UID).
-  // For "them" side: any rot can be added — we generate a synthetic UID.
+  // For "them" side: any rot can be added - we generate a synthetic UID.
   const addRot = useCallback((side: "you" | "them", rot: Rot) => {
     const set = side === "you" ? setYourOffer : setTheirOffer;
     set((prev) => {
@@ -237,7 +237,7 @@ export default function Home() {
     });
   }, []);
 
-  // Add a rot from the game catalog (species) to the "them" side — used when
+  // Add a rot from the game catalog (species) to the "them" side - used when
   // there's no inventory to pull from. Generates a synthetic UID.
   const addCatalogRot = useCallback((speciesName: string) => {
     const sp = rotsData[speciesName];
@@ -386,7 +386,7 @@ export default function Home() {
   return (
     <>
       <Preloader />
-      {/* Game data preloader — stays until rots + bag are loaded */}
+      {/* Game data preloader - stays until rots + bag are loaded */}
       <Preloader visible={!metaLoaded} message="LOADING GAME DATA" />
       {!onboarded && (
         <Onboarding
@@ -408,7 +408,7 @@ export default function Home() {
       {/* ===== TRADE VIEW ===== */}
       {navView === "trade" && (
         <div className="relative z-10 flex h-full w-full flex-col">
-          {/* Header — fixed */}
+          {/* Header - fixed */}
           <div className="shrink-0 px-4 pt-4 sm:px-6">
             <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
               <h2
@@ -608,7 +608,7 @@ function TradePanel({
         border: `4px solid ${border}`,
       }}
     >
-      {/* Title bar — centered, large, outlined with a darker shade of the panel color */}
+      {/* Title bar - centered, large, outlined with a darker shade of the panel color */}
       <div className="mb-4 flex items-center justify-center py-1">
         <h2
           className="text-center text-lg sm:text-2xl"
@@ -624,7 +624,7 @@ function TradePanel({
         </h2>
       </div>
 
-      {/* Slots grid — shared dark recessed background surrounding all slots */}
+      {/* Slots grid - shared dark recessed background surrounding all slots */}
       <div
         className="grid grid-cols-4 gap-2 rounded-xl p-2 sm:gap-3 sm:p-3"
         style={{
@@ -636,7 +636,7 @@ function TradePanel({
         {children}
       </div>
 
-      {/* Value breakdown — collapsible, collapsed by default */}
+      {/* Value breakdown - collapsible, collapsed by default */}
       {(valuedRots.length > 0 || items.length > 0) && (
         <div className="mt-3">
           <button
@@ -776,7 +776,7 @@ function InventoryDrawer({
       }
       return sections;
     }
-    // rarity sort — group by tier
+    // rarity sort - group by tier
     const sections: { label: string; color: string; items: T[] }[] = [];
     for (const rot of rots) {
       const sp = rotsData[rot.Species];
@@ -807,7 +807,7 @@ function InventoryDrawer({
       }
       return sections;
     }
-    // type sort — group by tier
+    // type sort - group by tier
     const sections: { label: string; items: T[] }[] = [];
     for (const entry of entries) {
       const tier = classifyItem(entry[0]).tier;
@@ -879,7 +879,7 @@ function InventoryDrawer({
                 className="text-outline text-sm text-white sm:text-base"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
-                THEIR ITEMS — CATALOG
+                THEIR ITEMS - CATALOG
               </h3>
             </div>
             <button
@@ -891,7 +891,7 @@ function InventoryDrawer({
             </button>
           </div>
 
-          {/* Search + Sort row — fixed */}
+          {/* Search + Sort row - fixed */}
           <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 border-b border-white/10 px-4 py-2">
             <Input
               value={search}
@@ -912,7 +912,7 @@ function InventoryDrawer({
             />
           </div>
 
-          {/* Tab pills — fixed, styled like search bar */}
+          {/* Tab pills - fixed, styled like search bar */}
           <div className="flex shrink-0 flex-wrap justify-center gap-2 border-b border-white/10 px-4 py-2">
             {([
               { id: "rots", icon: "book-open", label: `ROTS (${allSpecies.length})` },
@@ -942,7 +942,7 @@ function InventoryDrawer({
             })}
           </div>
 
-          {/* List — grid of slots with section dividers */}
+          {/* List - grid of slots with section dividers */}
           <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
             {tab === "items" ? (
               <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
@@ -1117,7 +1117,7 @@ function InventoryDrawer({
           </button>
         </div>
 
-        {/* Search + Sort row — fixed */}
+        {/* Search + Sort row - fixed */}
         <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 border-b border-white/10 px-4 py-2">
           <Input
             value={search}
@@ -1138,7 +1138,7 @@ function InventoryDrawer({
           />
         </div>
 
-        {/* Tab pills — fixed, styled like search bar */}
+        {/* Tab pills - fixed, styled like search bar */}
         <div className="flex shrink-0 flex-wrap justify-center gap-2 border-b border-white/10 px-4 py-2">
           {([
             { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
@@ -1169,7 +1169,7 @@ function InventoryDrawer({
           })}
         </div>
 
-        {/* List — grid of slots with section dividers */}
+        {/* List - grid of slots with section dividers */}
         <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
           {tab === "bag" ? (
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8">
@@ -1288,7 +1288,7 @@ function InventoryDrawer({
   );
 }
 
-/** Single catalog rot slot — used in catalog mode. */
+/** Single catalog rot slot - used in catalog mode. */
 function CatalogRotSlot({
   name,
   sp,
@@ -1336,7 +1336,7 @@ function CatalogRotSlot({
 }
 
 
-/** Brainrots page — grid of all species, color-coded by rarity tier, with shimmer for rare+. */
+/** Brainrots page - grid of all species, color-coded by rarity tier, with shimmer for rare+. */
 function BrainrotsView({
   rotsData,
 }: {
@@ -1366,7 +1366,7 @@ function BrainrotsView({
 
   return (
     <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
-      {/* Header — fixed */}
+      {/* Header - fixed */}
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
@@ -1376,7 +1376,7 @@ function BrainrotsView({
         </h2>
       </div>
 
-      {/* Search + Sort row — fixed */}
+      {/* Search + Sort row - fixed */}
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
@@ -1400,7 +1400,7 @@ function BrainrotsView({
         />
       </div>
 
-      {/* Scrollable content — grid + legend */}
+      {/* Scrollable content - grid + legend */}
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
           {(() => {
@@ -1471,7 +1471,7 @@ function BrainrotsView({
   );
 }
 
-/** Single brainrot slot — extracted for reuse. */
+/** Single brainrot slot - extracted for reuse. */
 function BrainrotSlot({ name, sp }: { name: string; sp: Species }) {
   const tier = rarityTier(sp.Rarity, sp.IsExclusive);
   return (
@@ -1516,7 +1516,7 @@ function rarityTierColor(rarity: number, isExclusive: boolean): string {
   return rarityTier(rarity, isExclusive).color;
 }
 
-/** Section divider — a large titled header that separates groups when sorted. */
+/** Section divider - a large titled header that separates groups when sorted. */
 function SectionDivider({ label }: { label: string; color?: string }) {
   return (
     <div className="col-span-full flex items-center gap-3 py-3">
@@ -1552,7 +1552,7 @@ function EmptyState({ text }: { text: string }) {
   );
 }
 
-/** Items page — grid of all bag items. */
+/** Items page - grid of all bag items. */
 function ItemsView({
   bagData,
 }: {
@@ -1581,7 +1581,7 @@ function ItemsView({
 
   return (
     <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
-      {/* Header — fixed */}
+      {/* Header - fixed */}
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
@@ -1591,7 +1591,7 @@ function ItemsView({
         </h2>
       </div>
 
-      {/* Search + Sort row — fixed */}
+      {/* Search + Sort row - fixed */}
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
@@ -1614,7 +1614,7 @@ function ItemsView({
         />
       </div>
 
-      {/* Scrollable content — grid */}
+      {/* Scrollable content - grid */}
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
           {(() => {
@@ -1675,7 +1675,7 @@ function ItemsView({
   );
 }
 
-/** Single item slot — extracted for reuse. */
+/** Single item slot - extracted for reuse. */
 function ItemSlot({ name, info }: { name: string; info: BagItemInfo }) {
   return (
     <div
@@ -1686,7 +1686,7 @@ function ItemSlot({ name, info }: { name: string; info: BagItemInfo }) {
         boxShadow:
           "inset 0 2px 2px 0 rgba(255,255,255,0.15), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
       }}
-      title={`${name} — ${info.Description}`}
+      title={`${name} - ${info.Description}`}
     >
       <SmartImage
         src={iconUrl(info.Icon)}
@@ -1701,7 +1701,7 @@ function ItemSlot({ name, info }: { name: string; info: BagItemInfo }) {
   );
 }
 
-/** Inventory page — shows the player's loaded inventory (team, PC, bag). */
+/** Inventory page - shows the player's loaded inventory (team, PC, bag). */
 function InventoryView({
   youProfile,
   yourData,
@@ -1805,7 +1805,7 @@ function InventoryView({
 
   return (
     <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
-      {/* Header — fixed */}
+      {/* Header - fixed */}
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
@@ -1815,7 +1815,7 @@ function InventoryView({
         </h2>
       </div>
 
-      {/* Search — fixed */}
+      {/* Search - fixed */}
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
@@ -1849,7 +1849,7 @@ function InventoryView({
         />
       </div>
 
-      {/* Tab pills — fixed */}
+      {/* Tab pills - fixed */}
       <div className="mb-4 flex shrink-0 flex-wrap justify-center gap-2">
         {([
           { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
@@ -1882,7 +1882,7 @@ function InventoryView({
         })}
       </div>
 
-      {/* Scrollable content — slots float on page bg */}
+      {/* Scrollable content - slots float on page bg */}
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         {tab === "bag" ? (
           <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
@@ -2013,7 +2013,7 @@ function InventoryView({
   );
 }
 
-/** Single inventory rot slot — extracted for reuse. */
+/** Single inventory rot slot - extracted for reuse. */
 function InventoryRotSlot({
   rot,
   sp,
@@ -2050,7 +2050,7 @@ function InventoryRotSlot({
   );
 }
 
-/** Single inventory bag slot — extracted for reuse. */
+/** Single inventory bag slot - extracted for reuse. */
 function InventoryBagSlot({
   name,
   qty,
@@ -2099,7 +2099,7 @@ function InventoryBagSlot({
 }
 
 /** Placeholder view for not-yet-built pages. */
-/** Values page — shows value tiers for all brainrots and items. */
+/** Values page - shows value tiers for all brainrots and items. */
 function ValuesView({
   rotsData,
   bagData,
@@ -2134,7 +2134,7 @@ function ValuesView({
 
   return (
     <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
-      {/* Header — fixed */}
+      {/* Header - fixed */}
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
@@ -2144,7 +2144,7 @@ function ValuesView({
         </h2>
       </div>
 
-      {/* Search — fixed */}
+      {/* Search - fixed */}
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
@@ -2158,7 +2158,7 @@ function ValuesView({
         />
       </div>
 
-      {/* Tab pills — fixed */}
+      {/* Tab pills - fixed */}
       <div className="mb-4 flex shrink-0 flex-wrap justify-center gap-2">
         {([
           { id: "rots", icon: "book-open", label: `ROTS (${rotValues.length})` },
@@ -2232,7 +2232,7 @@ function ValuesView({
                     </div>
                   </div>
                   <span
-                    className="text-outline-sm text-sm font-bold text-gray-900"
+                    className="text-outline-sm-white text-sm font-bold text-gray-900"
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
                   >
                     {value.toFixed(0)}
@@ -2283,7 +2283,7 @@ function ValuesView({
                     </div>
                   </div>
                   <span
-                    className="text-outline-sm text-sm font-bold text-gray-900"
+                    className="text-outline-sm-white text-sm font-bold text-gray-900"
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
                   >
                     {value.toFixed(0)}
@@ -2298,7 +2298,7 @@ function ValuesView({
   );
 }
 
-/** Settings page — account + preferences, some greyed out as "coming soon". */
+/** Settings page - account + preferences, some greyed out as "coming soon". */
 function SettingsView({
   profile,
   onLogout,
@@ -2308,7 +2308,7 @@ function SettingsView({
 }) {
   const [cacheCleared, setCacheCleared] = useState(false);
 
-  // White/off-white container with stud texture — matches site style
+  // White/off-white container with stud texture - matches site style
   const containerStyle: React.CSSProperties = {
     backgroundColor: "rgba(255,255,255,0.92)",
     backgroundImage: "url('/stud_texture.png')",
@@ -2336,7 +2336,7 @@ function SettingsView({
 
   return (
     <div className="relative z-10 flex h-full w-full flex-col">
-      {/* Header — fixed */}
+      {/* Header - fixed */}
       <div className="shrink-0 px-4 pt-4 sm:px-6">
         <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
           <h2
@@ -2476,53 +2476,78 @@ function ComingSoonSetting({
   );
 }
 
-/** News / Announcement page — displays official announcements */
+/** News / Announcement page - displays official announcements */
 function NewsView() {
   return (
-    <div className="relative z-10 mx-auto flex h-full w-full max-w-4xl flex-col px-4 pt-4 sm:px-6">
-      {/* Header — fixed */}
-      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
-        <h2
-          className="text-outline text-center text-2xl text-white sm:text-3xl"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
-        >
-          📢 NEWS & ANNOUNCEMENTS
-        </h2>
+    <div className="relative z-10 flex h-full w-full flex-col">
+      {/* Header - fixed */}
+      <div className="shrink-0 px-4 pt-4 sm:px-6">
+        <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
+          <h2
+            className="text-outline text-center text-2xl text-white sm:text-3xl"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            NEWS & ANNOUNCEMENTS
+          </h2>
+        </div>
       </div>
 
       {/* Scrollable content */}
-      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-        {/* Announcement Banner */}
-        <div className="mb-6 rounded-xl border border-white/10 bg-[#313338] p-4 shadow-lg">
-          {/* Author header */}
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600">
-              <span className="text-lg">📢</span>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+        {/* Announcement Banner - styled to match the site */}
+        <div
+          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-6 shadow-lg"
+          style={{
+            backgroundImage: "url('/stud_texture.png')",
+            backgroundSize: "30px 30px",
+            backgroundRepeat: "repeat",
+            backgroundBlendMode: "multiply",
+          }}
+        >
+          {/* Announcement header */}
+          <div className="mb-4 flex items-center gap-3">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg"
+              style={{
+                background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+                border: "3px solid #1e3a5f",
+                boxShadow: "0 3px 0 0 #1e3a5f",
+              }}
+            >
+              <span className="text-2xl">📢</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-white">Official Announcement</span>
-              <span className="text-xs text-gray-400">Posted in #announcements</span>
+              <span
+                className="text-base font-bold text-gray-900"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                OFFICIAL ANNOUNCEMENT
+              </span>
+              <span className="text-xs text-gray-600">
+                Posted in #announcements
+              </span>
             </div>
           </div>
 
           {/* Message content */}
-          <div className="space-y-3 text-sm text-gray-200">
+          <div className="space-y-4">
             {/* Main heading */}
             <h3
-              className="text-lg font-bold text-white"
+              className="text-xl font-bold text-gray-900"
               style={{ fontFamily: "var(--font-pixel), monospace" }}
             >
               Trading calculator, values list, inventory viewer & more
             </h3>
 
             {/* Intro paragraph */}
-            <p className="text-gray-300">
+            <p className="text-sm text-gray-700">
               Hey everyone, I have developed a server official{" "}
               <a
                 href="https://cab.devvyy.xyz/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 underline hover:text-blue-300"
+                className="font-semibold text-blue-600 underline hover:text-blue-700"
               >
                 catch a brainrot calculator site
               </a>
@@ -2531,7 +2556,7 @@ function NewsView() {
                 href="https://cab.devvyy.xyz/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 underline hover:text-blue-300"
+                className="font-semibold text-blue-600 underline hover:text-blue-700"
               >
                 https://cab.devvyy.xyz/
               </a>
@@ -2540,12 +2565,12 @@ function NewsView() {
             {/* Features section */}
             <div>
               <h4
-                className="mb-2 text-base font-semibold text-white"
+                className="mb-2 text-base font-bold text-gray-900"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 Features
               </h4>
-              <ul className="ml-4 list-disc space-y-1 text-gray-300">
+              <ul className="ml-6 list-disc space-y-1 text-sm text-gray-700">
                 <li>Trade calculator</li>
                 <li>Inventory viewer</li>
                 <li>
@@ -2553,19 +2578,19 @@ function NewsView() {
                   (including unreleased)
                 </li>
                 <li>Values list</li>
-                <li className="italic text-gray-400">much more to be added soon</li>
+                <li className="italic text-gray-500">much more to be added soon</li>
               </ul>
             </div>
 
             {/* To be added section */}
             <div>
               <h4
-                className="mb-2 text-base font-semibold text-white"
+                className="mb-2 text-base font-bold text-gray-900"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 To be added
               </h4>
-              <ul className="ml-4 list-disc space-y-1 text-gray-300">
+              <ul className="ml-6 list-disc space-y-1 text-sm text-gray-700">
                 <li>Roblox login</li>
                 <li>Trade sharing (for W/L sharing)</li>
                 <li>
@@ -2587,8 +2612,8 @@ function NewsView() {
             </div>
 
             {/* Footer note */}
-            <div className="border-t border-white/10 pt-3">
-              <p className="text-xs text-gray-500 italic">
+            <div className="border-t-2 border-gray-300 pt-3">
+              <p className="text-xs text-gray-600 italic">
                 The site has just been released, trading values and stats will
                 be updated the more use it gets and when in-game trading database
                 connection is possible.
@@ -2596,12 +2621,13 @@ function NewsView() {
             </div>
           </div>
         </div>
+        </div>
       </div>
     </div>
   );
 }
 
-/** About / Info page — simple, with stats visualizations. */
+/** About / Info page - simple, with stats visualizations. */
 function AboutView({
   rotsData,
   bagData,
@@ -2677,7 +2703,7 @@ function AboutView({
 
   return (
     <div className="relative z-10 flex h-full w-full flex-col">
-      {/* Header — fixed */}
+      {/* Header - fixed */}
       <div className="shrink-0 px-4 pt-4 sm:px-6">
         <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
           <Image
@@ -2856,7 +2882,7 @@ function AboutView({
           </div>
         </div>
 
-        {/* Quick stats — list style */}
+        {/* Quick stats - list style */}
         <div
           className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
           style={{
@@ -2890,7 +2916,7 @@ function AboutView({
                   {stat.label}
                 </span>
                 <span
-                  className="text-outline-sm text-sm font-bold text-gray-900"
+                  className="text-outline-sm-white text-sm font-bold text-gray-900"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {stat.value}
@@ -2900,7 +2926,7 @@ function AboutView({
           </div>
         </div>
 
-        {/* Rarity distribution — bar chart */}
+        {/* Rarity distribution - bar chart */}
         <div
           className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
           style={{
@@ -2946,7 +2972,7 @@ function AboutView({
           </div>
         </div>
 
-        {/* Owned vs total — pie-style (donut) */}
+        {/* Owned vs total - pie-style (donut) */}
         {yourData && (
           <div
             className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
@@ -3003,7 +3029,7 @@ function AboutView({
           </div>
         )}
 
-        {/* Item types — horizontal bar list */}
+        {/* Item types - horizontal bar list */}
         <div
           className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
           style={{
@@ -3048,7 +3074,7 @@ function AboutView({
           </div>
         </div>
 
-        {/* Game totals — stat grid */}
+        {/* Game totals - stat grid */}
         <div
           className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
           style={{

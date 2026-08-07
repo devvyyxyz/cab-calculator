@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 
 /**
- * Preloader — full-screen black overlay with optional message.
+ * Preloader - full-screen black overlay with optional message.
  * Currently shows on initial page load. Can also be triggered manually
  * via the `visible` prop to wrap game data loading.
  *
- * A .GIF animation will be dropped in later — pass as `children`.
+ * A .GIF animation will be dropped in later - pass as `children`.
  */
 export function Preloader({
   /** How long to stay fully visible before fading. */
@@ -16,7 +16,7 @@ export function Preloader({
   fadeMs = 400,
   /** Override the default black screen with custom children (e.g. a GIF). */
   children,
-  /** Manual message — replaces the default "LOADING" text. */
+  /** Manual message - replaces the default "LOADING" text. */
   message = "LOADING",
   /** If true, stays visible until manually set to false (controlled mode). */
   visible,
@@ -25,7 +25,7 @@ export function Preloader({
   fadeMs?: number;
   children?: React.ReactNode;
   message?: string;
-  /** Controlled mode — when provided, ignores the auto-dismiss logic. */
+  /** Controlled mode - when provided, ignores the auto-dismiss logic. */
   visible?: boolean;
 }) {
   const [autoVisible, setAutoVisible] = useState(true);

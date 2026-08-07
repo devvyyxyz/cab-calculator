@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Proxy to Roblox avatar headshot API.
  * GET /api/roblox/avatar?userId=<id>
  *
- * Returns { imageUrl } — a direct CDN URL to the user's avatar headshot PNG.
+ * Returns { imageUrl } - a direct CDN URL to the user's avatar headshot PNG.
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

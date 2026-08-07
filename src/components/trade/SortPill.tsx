@@ -9,7 +9,7 @@ export interface SortOption<T> {
 }
 
 /**
- * Sort pill — a dropdown styled like a retro pill button.
+ * Sort pill - a dropdown styled like a retro pill button.
  * Shows the current sort, opens a dropdown with all options when clicked.
  *
  * Uses the pixelarticons "sort" feel via the backpack/info-box icons rotated

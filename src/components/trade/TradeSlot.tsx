@@ -6,7 +6,7 @@ import { iconUrl } from "@/lib/cab-client";
 import { SmartImage } from "./SmartImage";
 import { PixelIcon } from "./PixelIcon";
 
-/** A single squircle trade slot — empty or filled with a brainrot/item.
+/** A single squircle trade slot - empty or filled with a brainrot/item.
  *  The shared dark background is provided by the parent panel grid; each slot
  *  is just the pale recessed "floor" surface where items sit. */
 export function TradeSlot({
@@ -58,7 +58,7 @@ export function TradeSlot({
           />
         </span>
       )}
-      {/* Hover overlay with remove button — only shows on hover.
+      {/* Hover overlay with remove button - only shows on hover.
           Just darkness + large pixel icon, no red container. */}
       {!empty && onRemove && (
         <span
@@ -93,7 +93,7 @@ export function TradeSlot({
   );
 }
 
-/** Renders a brainrot icon inside a slot — no tags/badges, just the icon. */
+/** Renders a brainrot icon inside a slot - no tags/badges, just the icon. */
 export function RotSlotContent({
   rot,
   species,

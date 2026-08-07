@@ -1,4 +1,4 @@
-// ===== Catch a Brainrot — Data Types =====
+// ===== Catch a Brainrot - Data Types =====
 // Mirrors the indieun.com/cab API contract.
 
 export interface SpawnLocation {

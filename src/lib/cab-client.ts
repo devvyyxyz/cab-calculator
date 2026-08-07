@@ -26,7 +26,7 @@ export function getInventory(userId: string | number) {
   return getJson<{ Data: PlayerData }>(`inventory/${userId}`);
 }
 
-/** Proxied icon URL — avoids CORS issues by routing through our /api/cab proxy. */
+/** Proxied icon URL - avoids CORS issues by routing through our /api/cab proxy. */
 export function iconUrl(iconFile: string): string {
   // iconFile is like "73.png"
   return `${API}/icons/${iconFile}`;

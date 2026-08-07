@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 /**
- * SmartImage — wraps next/image with a graceful fallback.
+ * SmartImage - wraps next/image with a graceful fallback.
  * If the image fails to load OR the src is empty, we show a muted
  * version of the CAB logo plus a "no icon :(" caption below.
  *

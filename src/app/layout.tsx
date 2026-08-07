@@ -3,7 +3,7 @@ import { Silkscreen, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-// All UI text is bold — load Silkscreen at 700 weight only
+// All UI text is bold - load Silkscreen at 700 weight only
 const pixel = Silkscreen({
   weight: "700",
   variable: "--font-pixel",
@@ -19,6 +19,7 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://cab.devvyy.xyz"),
   title: {
     default: "CAB Trade Calculator - Catch a Brainrot | Trade Calculator, Values List & Inventory Viewer",
     template: "%s | CAB Trade Calculator"

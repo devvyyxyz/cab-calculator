@@ -65,7 +65,7 @@ export function SideNav({
         }}
       />
 
-      {/* Logo — raw icon, no background box */}
+      {/* Logo - raw icon, no background box */}
       <a
         href="/"
         className="group relative z-10 mb-2 block"
@@ -95,7 +95,7 @@ export function SideNav({
               onClick={() => onNavigate?.(item.id)}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
-              /* No container box — just the icon with an outline */
+              /* No container box - just the icon with an outline */
               className="group relative flex h-11 w-11 items-center justify-center transition-transform hover:scale-110 sm:h-12 sm:w-14"
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
@@ -124,7 +124,7 @@ export function SideNav({
         })}
       </nav>
 
-      {/* Profile avatar — bottom of sidebar */}
+      {/* Profile avatar - bottom of sidebar */}
       {profile?.avatarUrl && (
         <div
           className="group relative z-10 mb-1"
@@ -135,7 +135,7 @@ export function SideNav({
             alt={profile.displayName}
             className="h-11 w-11 rounded-lg object-cover [image-rendering:pixelated] sm:h-14 sm:w-14"
           />
-          {/* Tooltip on hover — appears to the side like nav buttons */}
+          {/* Tooltip on hover - appears to the side like nav buttons */}
           <span
             className="pointer-events-none absolute left-full top-1/2 ml-2 hidden -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 sm:block"
             style={{

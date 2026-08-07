@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 /**
- * usePersistentState — like useState, but persists the value to localStorage.
+ * usePersistentState - like useState, but persists the value to localStorage.
  * On first client render, returns the stored value (or the initial value if none).
  * SSR-safe: returns the initial value on the server, then updates on mount.
  */
@@ -16,7 +16,7 @@ export function usePersistentState<T>(
   const [hydrated, setHydrated] = useState(false);
 
   // After mount, read from localStorage once. This is a legitimate one-time
-  // hydration from an external store — the setState-in-effect rule doesn't
+  // hydration from an external store - the setState-in-effect rule doesn't
   // apply here because we're syncing, not deriving.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {

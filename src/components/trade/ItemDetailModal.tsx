@@ -7,7 +7,7 @@ import { SmartImage } from "./SmartImage";
 import { PixelIcon } from "./PixelIcon";
 
 /**
- * Item detail modal — shows when clicking a rot or item in the inventory.
+ * Item detail modal - shows when clicking a rot or item in the inventory.
  * Matches the in-game detail view layout: icon on right, stats + moves on left.
  */
 export function ItemDetailModal({
@@ -84,7 +84,7 @@ export function ItemDetailModal({
         </button>
 
         <div className="flex flex-col gap-3 p-5">
-          {/* Header — name + subtitle */}
+          {/* Header - name + subtitle */}
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               <h3
@@ -105,7 +105,7 @@ export function ItemDetailModal({
             </div>
           </div>
 
-          {/* Icon display — centered, fixed size */}
+          {/* Icon display - centered, fixed size */}
           <div className="grid h-28 place-items-center sm:h-32">
             {icon ? (
               <SmartImage
@@ -129,7 +129,7 @@ export function ItemDetailModal({
           {/* Divider */}
           <div className="h-1 rounded-full bg-white" />
 
-          {/* Stats section — only for rots */}
+          {/* Stats section - only for rots */}
           {isRot && (
             <div className="flex flex-col gap-3">
               {/* Rarity badge */}
@@ -253,7 +253,7 @@ export function ItemDetailModal({
             </div>
           )}
 
-          {/* Bag item info — only for bag items */}
+          {/* Bag item info - only for bag items */}
           {!isRot && bagItem && (
             <div className="flex flex-col gap-2">
               <p
@@ -269,7 +269,7 @@ export function ItemDetailModal({
           {/* Divider */}
           <div className="h-1 rounded-full bg-white" />
 
-          {/* Moveset — only for rots */}
+          {/* Moveset - only for rots */}
           {isRot && moveset.length > 0 && (
             <div className="grid grid-cols-2 gap-2">
               {moveset.slice(0, 4).map((move, i) => {

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * pixelarticons loader — renders the pixelarticons.com SVG icons inline so we
+ * pixelarticons loader - renders the pixelarticons.com SVG icons inline so we
  * can tint them via `currentColor` (the source SVGs use fill="currentColor").
  * Source: https://pixelarticons.com/ (MIT license, by halfmage)
  *
@@ -59,7 +59,7 @@ export function PixelIcon({
   name: string;
   size?: number;
   color?: string;
-  /** Optional outline (stroke) color — mimics the text-outline effect. */
+  /** Optional outline (stroke) color - mimics the text-outline effect. */
   outline?: string;
   outlineWidth?: number;
   className?: string;
@@ -74,7 +74,7 @@ export function PixelIcon({
       shapeRendering="crispEdges"
       style={{
         imageRendering: "pixelated",
-        // Draw stroke first, then fill — same effect as text-outline
+        // Draw stroke first, then fill - same effect as text-outline
         paintOrder: outline ? "stroke fill" : "normal",
       }}
       aria-hidden
