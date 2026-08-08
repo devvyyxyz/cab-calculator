@@ -599,7 +599,7 @@ export default function Home() {
       {navView === "team-builder" && <BattleView title="TEAM BUILDER" />}
       {navView === "battle-simulator" && <BattleView title="BATTLE SIMULATOR" />}
       {navView === "damage-calculator" && <BattleView title="DAMAGE CALCULATOR" />}
-      {navView === "compare" && <BattleView title="COMPARE" />}
+      {navView === "compare" && <CompareView rotsData={rotsData} />}
 
       {/* ===== VALUES VIEW ===== */}
       {navView === "values" && (
@@ -2014,18 +2014,264 @@ function BattleView({ title = "BATTLE" }: { title?: string }) {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-4">
-        <div className="mx-auto flex max-w-2xl flex-col gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-4 text-sm text-slate-200 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
+        <div className="mx-auto flex max-w-2xl flex-col gap-3 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 text-sm text-slate-800 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
           <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
             Battle tools
           </p>
           <p className="leading-relaxed text-slate-300">
             This battle module is ready for team composition, combat simulation, damage math, and comparison tools.
           </p>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+          <div className="rounded-2xl border border-black/20 bg-white/80 p-3 text-[11px] uppercase tracking-[0.2em] text-slate-600">
             Placeholder view for the next battle feature set
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [weights, setWeights] = useState({ attack: 1.2, health: 1, speed: 1.1 });
+
+  useEffect(() => {
+    if (selected.length || Object.keys(rotsData).length === 0) return;
+    setSelected(Object.keys(rotsData).slice(0, 2));
+  }, [rotsData, selected.length]);
+
+  const options = useMemo(() => {
+    return Object.entries(rotsData)
+      .map(([name, species]) => ({ name, species }))
+      .filter(({ name, species }) => {
+        const haystack = `${name} ${species.FullName} ${species.ShortenedName}`.toLowerCase();
+        return haystack.includes(search.toLowerCase());
+      })
+      .sort((a, b) => a.species.FullName.localeCompare(b.species.FullName));
+  }, [rotsData, search]);
+
+  const selectedEntries = useMemo(() => {
+    return selected
+      .map((name) => {
+        const species = rotsData[name];
+        return species ? { name, species } : null;
+      })
+      .filter(Boolean) as Array<{ name: string; species: Species }>;
+  }, [rotsData, selected]);
+
+  const maxValues = useMemo(() => {
+    if (selectedEntries.length === 0) return { attack: 1, health: 1, speed: 1, rarity: 1 };
+    return selectedEntries.reduce(
+      (acc, { species }) => ({
+        attack: Math.max(acc.attack, species.Attack),
+        health: Math.max(acc.health, species.Health),
+        speed: Math.max(acc.speed, species.Speed),
+        rarity: Math.max(acc.rarity, species.Rarity),
+      }),
+      { attack: 0, health: 0, speed: 0, rarity: 0 }
+    );
+  }, [selectedEntries]);
+
+  const overallScores = useMemo(() => {
+    return selectedEntries.map(({ name, species }) => {
+      const attack = species.Attack / Math.max(maxValues.attack, 1);
+      const health = species.Health / Math.max(maxValues.health, 1);
+      const speed = species.Speed / Math.max(maxValues.speed, 1);
+      const rarity = species.Rarity / Math.max(maxValues.rarity, 1);
+      const score = attack * weights.attack + health * weights.health + speed * weights.speed + rarity * 0.7;
+      return { name, species, score };
+    });
+  }, [maxValues, selectedEntries, weights]);
+
+  const toggleSelection = (name: string) => {
+    setSelected((prev) => {
+      if (prev.includes(name)) {
+        return prev.filter((item) => item !== name);
+      }
+      if (prev.length >= 4) {
+        return prev;
+      }
+      return [...prev, name];
+    });
+  };
+
+  return (
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          COMPARE
+        </h2>
+        <p className="max-w-2xl text-center text-[11px] uppercase tracking-[0.25em] text-slate-600">
+          Choose 2-4 brainrots to compare live stats, rarity, and weighted scores side by side.
+        </p>
+      </div>
+
+      <div className="grid flex-1 gap-4 overflow-y-auto pb-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm uppercase tracking-[0.3em] text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+              1. CHOOSE BRAINROTS
+            </h3>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-slate-600">
+              {selected.length}/4 selected
+            </span>
+          </div>
+
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="search brainrots..."
+            className="stud-input mb-3 h-9 text-sm text-gray-900"
+            style={{ borderRadius: "0.875rem", fontFamily: "var(--font-pixel), monospace" }}
+          />
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {options.map(({ name, species }) => {
+              const isSelected = selected.includes(name);
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => toggleSelection(name)}
+                  className={`flex items-center gap-3 rounded-[1rem] border px-3 py-3 text-left transition-all ${
+                    isSelected
+                      ? "border-yellow-500/70 bg-yellow-100"
+                      : "border-black/20 bg-white/80 hover:bg-white"
+                  }`}
+                >
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-2xl bg-white/80 p-1 sm:h-11 sm:w-11">
+                    <SmartImage
+                      src={iconUrl(species.Icon)}
+                      alt={species.FullName}
+                      imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
+                      fallbackSize={24}
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold uppercase tracking-wide text-white">
+                      {species.FullName}
+                    </div>
+                    <div className="mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
+                      {species.ShortenedName} • R{species.Rarity.toFixed(1)}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
+          <div className="mb-3">
+            <h3 className="text-sm uppercase tracking-[0.3em] text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+              2. WHAT MATTERS MOST?
+            </h3>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
+              Move the sliders to weight your overall score.
+            </p>
+          </div>
+
+          {(["attack", "health", "speed"] as const).map((key) => (
+            <label key={key} className="mb-3 block rounded-[1rem] border border-black/20 bg-white/80 p-3">
+              <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.25em] text-slate-600">
+                <span>{key.toUpperCase()}</span>
+                <span className="text-white">{weights[key].toFixed(1)}×</span>
+              </div>
+              <input
+                type="range"
+                min="0.5"
+                max="3"
+                step="0.1"
+                value={weights[key]}
+                onChange={(e) =>
+                  setWeights((prev) => ({ ...prev, [key]: Number(e.target.value) }))
+                }
+                className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-yellow-400"
+              />
+            </label>
+          ))}
+
+          <div className="rounded-[1rem] border border-black/20 bg-white/80 p-3">
+            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-600">
+              OVERALL SCORE
+            </div>
+            {overallScores.length === 0 ? (
+              <p className="text-sm text-slate-300">Select at least two brainrots to start.</p>
+            ) : (
+              <div className="space-y-2">
+                {overallScores.map(({ name, species, score }) => (
+                  <div key={name} className="flex items-center justify-between rounded-xl bg-white/80 px-3 py-2">
+                    <div>
+                      <div className="text-sm font-semibold uppercase tracking-wide text-white">
+                        {species.FullName}
+                      </div>
+                      <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">
+                        {species.ShortenedName}
+                      </div>
+                    </div>
+                    <div className="text-lg font-semibold text-yellow-300">
+                      {score.toFixed(2)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <section className="mt-2 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm uppercase tracking-[0.3em] text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+            COMPARISON
+          </h3>
+          <span className="text-[10px] uppercase tracking-[0.25em] text-slate-400">
+            {selectedEntries.length >= 2 ? "Live comparison" : "Select 2+ brainrots"}
+          </span>
+        </div>
+
+        {selectedEntries.length >= 2 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-separate border-spacing-y-2 text-left text-sm text-slate-200">
+              <thead>
+                <tr>
+                  <th className="px-3 py-2 text-[10px] uppercase tracking-[0.25em] text-slate-600">Stat</th>
+                  {selectedEntries.map(({ name, species }) => (
+                    <th key={name} className="px-3 py-2">
+                      <div className="text-sm font-semibold uppercase tracking-wide text-white">{species.FullName}</div>
+                      <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">{species.ShortenedName}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { label: "Attack", getValue: (species: Species) => species.Attack.toFixed(1) },
+                  { label: "Health", getValue: (species: Species) => species.Health.toFixed(1) },
+                  { label: "Speed", getValue: (species: Species) => species.Speed.toFixed(1) },
+                  { label: "Rarity", getValue: (species: Species) => species.Rarity.toFixed(1) },
+                ].map((row) => (
+                  <tr key={row.label} className="rounded-xl bg-white/70">
+                    <td className="rounded-l-xl px-3 py-3 text-[10px] uppercase tracking-[0.25em] text-slate-600">{row.label}</td>
+                    {selectedEntries.map(({ name, species }) => (
+                      <td key={name + row.label} className="px-3 py-3 text-sm text-white">
+                        {row.getValue(species)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="rounded-[1rem] border border-dashed border-black/20 bg-white/80 p-6 text-center text-sm text-slate-600">
+            Search above and select at least two brainrots to start comparing them.
+          </div>
+        )}
+      </section>
     </div>
   );
 }
@@ -2114,7 +2360,7 @@ function SkillsView() {
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {filtered.length === 0 ? (
-            <div className="col-span-full rounded-[1.25rem] border border-white/10 bg-black/20 p-6 text-center text-sm text-slate-300">
+            <div className="col-span-full rounded-[1.25rem] border border-black/20 bg-[#f8f6ef] p-6 text-center text-sm text-slate-700" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
               No skills match your search.
             </div>
           ) : (
@@ -2123,15 +2369,15 @@ function SkillsView() {
               return (
                 <div
                   key={name}
-                  className="rounded-[1.25rem] border border-white/10 bg-black/20 p-3 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]"
+                  className="rounded-[1.25rem] border border-black/20 bg-[#f8f6ef] p-3 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-white/10 p-1">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-white/80 p-1 sm:h-13 sm:w-13">
                       <SmartImage
                         src={iconUrl(species.Icon)}
                         alt={species.FullName}
                         imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
-                        fallbackSize={32}
+                        fallbackSize={24}
                       />
                     </div>
                     <div className="min-w-0 flex-1">
