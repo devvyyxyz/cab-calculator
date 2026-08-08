@@ -9,6 +9,7 @@ export type NavView =
   | "inventory"
   | "rots"
   | "skins"
+  | "skills"
   | "values"
   | "news"
   | "settings"
@@ -31,9 +32,10 @@ const NAV_ITEMS: NavItem[] = [
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
 ];
 
-const DATABASE_ITEMS: Array<{ id: Extract<NavView, "rots" | "skins">; label: string; icon: string; color: string }> = [
+const DATABASE_ITEMS: Array<{ id: Extract<NavView, "rots" | "skins" | "skills">; label: string; icon: string; color: string }> = [
   { id: "rots", label: "Brainrots", icon: "book-open", color: "#fbbf24" },
   { id: "skins", label: "Items", icon: "fire", color: "#c084fc" },
+  { id: "skills", label: "Skill", icon: "scale", color: "#60a5fa" },
 ];
 
 export function SideNav({
@@ -101,7 +103,7 @@ export function SideNav({
       <nav className={`relative z-10 flex flex-1 flex-col gap-3 ${expanded ? "w-full items-stretch px-2" : "items-center"}`}>
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
-          const isDatabaseActive = active === "rots" || active === "skins";
+          const isDatabaseActive = active === "rots" || active === "skins" || active === "skills";
 
           if (item.id === "database") {
             return (
@@ -159,7 +161,7 @@ export function SideNav({
                           type="button"
                           onClick={() => {
                             onNavigate?.(child.id);
-                            setDatabaseOpen(false);
+                            setDatabaseOpen(true);
                           }}
                           className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors ${
                             childActive ? "bg-white/15 text-white" : "text-slate-200 hover:bg-white/10"

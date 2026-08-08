@@ -591,6 +591,9 @@ export default function Home() {
         <ItemsView bagData={bagData} />
       )}
 
+      {/* ===== SKILLS VIEW ===== */}
+      {navView === "skills" && <SkillsView />}
+
       {/* ===== VALUES VIEW ===== */}
       {navView === "values" && (
         <ValuesView rotsData={rotsData} bagData={bagData} />
@@ -1991,6 +1994,38 @@ function ItemsView({
 }
 
 /** Single item slot - extracted for reuse. */
+function SkillsView() {
+  return (
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          SKILLS
+        </h2>
+      </div>
+
+      <div className="flex-1 overflow-y-auto pb-4">
+        <div className="mx-auto flex max-w-2xl flex-col gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-4 text-sm text-slate-200 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
+            Database update
+          </p>
+          <h3 className="text-xl text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+            Skill data coming soon
+          </h3>
+          <p className="leading-relaxed text-slate-300">
+            This section is ready for skill progression, passive bonuses, and training information once the data is wired in.
+          </p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+            Placeholder view for future skill database content
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ItemSlot({ name, info }: { name: string; info: BagItemInfo }) {
   return (
     <div
