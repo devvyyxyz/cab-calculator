@@ -594,6 +594,13 @@ export default function Home() {
       {/* ===== SKILLS VIEW ===== */}
       {navView === "skills" && <SkillsView />}
 
+      {/* ===== BATTLE VIEWS ===== */}
+      {navView === "battle" && <BattleView />}
+      {navView === "team-builder" && <BattleView title="TEAM BUILDER" />}
+      {navView === "battle-simulator" && <BattleView title="BATTLE SIMULATOR" />}
+      {navView === "damage-calculator" && <BattleView title="DAMAGE CALCULATOR" />}
+      {navView === "compare" && <BattleView title="COMPARE" />}
+
       {/* ===== VALUES VIEW ===== */}
       {navView === "values" && (
         <ValuesView rotsData={rotsData} bagData={bagData} />
@@ -1994,6 +2001,35 @@ function ItemsView({
 }
 
 /** Single item slot - extracted for reuse. */
+function BattleView({ title = "BATTLE" }: { title?: string }) {
+  return (
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          {title}
+        </h2>
+      </div>
+
+      <div className="flex-1 overflow-y-auto pb-4">
+        <div className="mx-auto flex max-w-2xl flex-col gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-4 text-sm text-slate-200 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
+            Battle tools
+          </p>
+          <p className="leading-relaxed text-slate-300">
+            This battle module is ready for team composition, combat simulation, damage math, and comparison tools.
+          </p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+            Placeholder view for the next battle feature set
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SkillsView() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = usePersistentState<"name-az" | "name-za" | "rarity" | "power">("cab_sort_skills", "power");

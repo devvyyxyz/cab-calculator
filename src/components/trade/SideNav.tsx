@@ -10,6 +10,11 @@ export type NavView =
   | "rots"
   | "skins"
   | "skills"
+  | "battle"
+  | "team-builder"
+  | "battle-simulator"
+  | "damage-calculator"
+  | "compare"
   | "values"
   | "news"
   | "settings"
@@ -26,6 +31,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "trade", label: "Trade", icon: "repeat", color: "#7cb3ff" },
   { id: "inventory", label: "Inventory", icon: "backpack", color: "#7ed957" },
   { id: "database", label: "Database", icon: "book-open", color: "#fbbf24" },
+  { id: "battle", label: "Battle", icon: "fire", color: "#fb923c" },
   { id: "values", label: "Values", icon: "scale", color: "#f472b6" },
   { id: "news", label: "News", icon: "book-open", color: "#f59e0b" },
   { id: "settings", label: "Settings", icon: "switch", color: "#60a5fa" },
@@ -36,6 +42,13 @@ const DATABASE_ITEMS: Array<{ id: Extract<NavView, "rots" | "skins" | "skills">;
   { id: "rots", label: "Brainrots", icon: "book-open", color: "#fbbf24" },
   { id: "skins", label: "Items", icon: "fire", color: "#c084fc" },
   { id: "skills", label: "Skill", icon: "scale", color: "#60a5fa" },
+];
+
+const BATTLE_ITEMS: Array<{ id: Extract<NavView, "team-builder" | "battle-simulator" | "damage-calculator" | "compare">; label: string; icon: string; color: string }> = [
+  { id: "team-builder", label: "Team Builder", icon: "backpack", color: "#7ed957" },
+  { id: "battle-simulator", label: "Battle Simulator", icon: "repeat", color: "#fbbf24" },
+  { id: "damage-calculator", label: "Damage Calculator", icon: "scale", color: "#60a5fa" },
+  { id: "compare", label: "Compare", icon: "info-box", color: "#c084fc" },
 ];
 
 export function SideNav({
@@ -49,8 +62,9 @@ export function SideNav({
   profile?: { id: string; displayName: string; avatarUrl?: string } | null;
   onProfileClick?: () => void;
 }) {
-  const [hovered, setHovered] = useState<NavView | "database" | null>(null);
+  const [hovered, setHovered] = useState<NavView | "database" | "battle" | null>(null);
   const [databaseOpen, setDatabaseOpen] = useState(false);
+  const [battleOpen, setBattleOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -104,6 +118,7 @@ export function SideNav({
         {NAV_ITEMS.map((item) => {
           const isActive = active === item.id;
           const isDatabaseActive = active === "rots" || active === "skins" || active === "skills";
+          const isBattleActive = active === "team-builder" || active === "battle-simulator" || active === "damage-calculator" || active === "compare";
 
           if (item.id === "database") {
             return (
@@ -185,6 +200,86 @@ export function SideNav({
             );
           }
 
+          if (item.id === "battle") {
+            return (
+              <div key={item.id} className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!expanded) {
+                      setExpanded(true);
+                    }
+                    setBattleOpen((prev) => !prev);
+                  }}
+                  onMouseEnter={() => setHovered(item.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  className={`group relative flex h-11 items-center justify-center transition-transform hover:scale-110 sm:h-12 ${expanded ? "w-full justify-start gap-3 rounded-lg px-2" : "w-11 sm:w-14"}`}
+                  aria-label={item.label}
+                  aria-current={isBattleActive ? "page" : undefined}
+                >
+                  <PixelIcon
+                    name={item.icon}
+                    size={28}
+                    color={isBattleActive ? item.color : "#e2e8f0"}
+                    outline={isBattleActive ? "#000000" : "rgba(0,0,0,0.7)"}
+                    outlineWidth={2}
+                  />
+                  {!expanded && (
+                    <span
+                      className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 sm:block"
+                      style={{
+                        background: "#0f1320",
+                        border: "1px solid rgba(255,255,255,0.2)",
+                        fontFamily: "var(--font-pixel), monospace",
+                        zIndex: 50,
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  )}
+                  {expanded && <span className="text-[10px] uppercase tracking-wide text-slate-100">{item.label}</span>}
+                </button>
+
+                {battleOpen && (
+                  <div
+                    className="mt-1 flex w-full flex-col gap-1 rounded-xl border border-black/40 bg-[#0f1320]/95 p-1.5 shadow-[4px_4px_0_rgba(0,0,0,0.35)]"
+                    style={{
+                      zIndex: 60,
+                      fontFamily: "var(--font-pixel), monospace",
+                    }}
+                  >
+                    {BATTLE_ITEMS.map((child) => {
+                      const childActive = active === child.id;
+                      return (
+                        <button
+                          key={child.id}
+                          type="button"
+                          onClick={() => {
+                            onNavigate?.(child.id);
+                            setExpanded(false);
+                            setBattleOpen(false);
+                          }}
+                          className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors ${
+                            childActive ? "bg-white/15 text-white" : "text-slate-200 hover:bg-white/10"
+                          }`}
+                        >
+                          <PixelIcon
+                            name={child.icon}
+                            size={18}
+                            color={childActive ? child.color : "#e2e8f0"}
+                            outline={childActive ? "#000000" : "rgba(0,0,0,0.7)"}
+                            outlineWidth={1.5}
+                          />
+                          <span>{child.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           return (
             <button
               key={item.id}
@@ -193,6 +288,7 @@ export function SideNav({
                 onNavigate?.(item.id as NavView);
                 setExpanded(false);
                 setDatabaseOpen(false);
+                setBattleOpen(false);
               }}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
