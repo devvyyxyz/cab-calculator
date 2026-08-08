@@ -161,7 +161,8 @@ export function SideNav({
                           type="button"
                           onClick={() => {
                             onNavigate?.(child.id);
-                            setDatabaseOpen(true);
+                            setExpanded(false);
+                            setDatabaseOpen(false);
                           }}
                           className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors ${
                             childActive ? "bg-white/15 text-white" : "text-slate-200 hover:bg-white/10"
@@ -188,7 +189,11 @@ export function SideNav({
             <button
               key={item.id}
               type="button"
-              onClick={() => onNavigate?.(item.id as NavView)}
+              onClick={() => {
+                onNavigate?.(item.id as NavView);
+                setExpanded(false);
+                setDatabaseOpen(false);
+              }}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
               /* No container box - just the icon with an outline */

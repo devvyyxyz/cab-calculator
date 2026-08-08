@@ -1995,6 +1995,52 @@ function ItemsView({
 
 /** Single item slot - extracted for reuse. */
 function SkillsView() {
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = usePersistentState<"name-az" | "name-za" | "rarity" | "power">("cab_sort_skills", "power");
+  const [rotsData] = useState<Record<string, Species>>(() => ({}));
+  const [skills, setSkills] = useState<Array<{ name: string; species: Species }>>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/cab/rots", { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to load skill data");
+        const payload = (await res.json()) as RotsResponse;
+        if (cancelled) return;
+        const entries = Object.entries(payload.Data || {}).map(([name, species]) => ({ name, species }));
+        setSkills(entries);
+      } catch {
+        setSkills([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filtered = skills
+    .filter(({ name, species }) => {
+      const haystack = `${name} ${species.FullName} ${species.ShortenedName}`.toLowerCase();
+      return haystack.includes(search.toLowerCase());
+    })
+    .sort((a, b) => {
+      const aSpecies = a.species;
+      const bSpecies = b.species;
+      switch (sortBy) {
+        case "name-az":
+          return a.name.localeCompare(b.name);
+        case "name-za":
+          return b.name.localeCompare(a.name);
+        case "rarity":
+          return bSpecies.Rarity - aSpecies.Rarity || a.name.localeCompare(b.name);
+        case "power":
+          return (bSpecies.Attack + bSpecies.Health + bSpecies.Speed) - (aSpecies.Attack + aSpecies.Health + aSpecies.Speed) || a.name.localeCompare(b.name);
+        default:
+          return 0;
+      }
+    });
+
   return (
     <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
@@ -2006,20 +2052,92 @@ function SkillsView() {
         </h2>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-4">
-        <div className="mx-auto flex max-w-2xl flex-col gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-4 text-sm text-slate-200 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
-            Database update
-          </p>
-          <h3 className="text-xl text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
-            Skill data coming soon
-          </h3>
-          <p className="leading-relaxed text-slate-300">
-            This section is ready for skill progression, passive bonuses, and training information once the data is wired in.
-          </p>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-[11px] uppercase tracking-[0.2em] text-slate-400">
-            Placeholder view for future skill database content
-          </div>
+      <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="search skills..."
+          className="stud-input h-9 max-w-md text-sm text-gray-900"
+          style={{
+            borderRadius: "0.875rem",
+            fontFamily: "var(--font-pixel), monospace",
+          }}
+        />
+        <SortPill
+          value={sortBy}
+          onChange={setSortBy}
+          options={[
+            { value: "power", label: "Power" },
+            { value: "rarity", label: "Rarity" },
+            { value: "name-az", label: "Name A-Z" },
+            { value: "name-za", label: "Name Z-A" },
+          ]}
+        />
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          {filtered.length === 0 ? (
+            <div className="col-span-full rounded-[1.25rem] border border-white/10 bg-black/20 p-6 text-center text-sm text-slate-300">
+              No skills match your search.
+            </div>
+          ) : (
+            filtered.map(({ name, species }) => {
+              const totalPower = species.Attack + species.Health + species.Speed;
+              return (
+                <div
+                  key={name}
+                  className="rounded-[1.25rem] border border-white/10 bg-black/20 p-3 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl bg-white/10 p-1">
+                      <SmartImage
+                        src={iconUrl(species.Icon)}
+                        alt={species.FullName}
+                        imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
+                        fallbackSize={32}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="truncate text-sm font-semibold uppercase tracking-wide text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+                          {species.FullName}
+                        </h3>
+                        {species.IsExclusive ? (
+                          <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[9px] uppercase tracking-[0.25em] text-red-300">
+                            Exclusive
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-1 text-[11px] uppercase tracking-[0.25em] text-slate-400">
+                        {species.ShortenedName}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                    <div className="rounded-xl bg-white/5 p-2">
+                      <div className="text-[11px] text-white">{species.Attack.toFixed(1)}</div>
+                      Attack
+                    </div>
+                    <div className="rounded-xl bg-white/5 p-2">
+                      <div className="text-[11px] text-white">{species.Health.toFixed(1)}</div>
+                      Health
+                    </div>
+                    <div className="rounded-xl bg-white/5 p-2">
+                      <div className="text-[11px] text-white">{species.Speed.toFixed(1)}</div>
+                      Speed
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-[10px] uppercase tracking-[0.25em] text-slate-400">
+                    <span>Rarity {species.Rarity.toFixed(1)}</span>
+                    <span>Power {totalPower.toFixed(1)}</span>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
