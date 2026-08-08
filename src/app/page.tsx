@@ -15,6 +15,20 @@ import { PixelIcon } from "@/components/trade/PixelIcon";
 import { usePersistentState } from "@/components/trade/usePersistentState";
 import { ItemDetailModal } from "@/components/trade/ItemDetailModal";
 import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  PolarAngleAxis,
+  PolarGrid,
+  Radar,
+  RadarChart,
+  Tooltip,
+} from "recharts";
+import {
   getRots,
   getBag,
   getInventory,
@@ -598,7 +612,7 @@ export default function Home() {
       {navView === "battle" && <BattleView />}
       {navView === "team-builder" && <BattleView title="TEAM BUILDER" />}
       {navView === "battle-simulator" && <BattleView title="BATTLE SIMULATOR" />}
-      {navView === "damage-calculator" && <BattleView title="DAMAGE CALCULATOR" />}
+      {navView === "damage-calculator" && <DamageCalculatorView rotsData={rotsData} />}
       {navView === "compare" && <CompareView rotsData={rotsData} />}
 
       {/* ===== VALUES VIEW ===== */}
@@ -2015,13 +2029,13 @@ function BattleView({ title = "BATTLE" }: { title?: string }) {
 
       <div className="flex-1 overflow-y-auto pb-4">
         <div className="mx-auto flex max-w-2xl flex-col gap-3 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 text-sm text-slate-800 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
-          <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-slate-700">
             Battle tools
           </p>
-          <p className="leading-relaxed text-slate-300">
+          <p className="leading-relaxed text-slate-700">
             This battle module is ready for team composition, combat simulation, damage math, and comparison tools.
           </p>
-          <div className="rounded-2xl border border-black/20 bg-white/80 p-3 text-[11px] uppercase tracking-[0.2em] text-slate-600">
+          <div className="rounded-2xl border border-black/20 bg-white/80 p-3 text-[11px] uppercase tracking-[0.2em] text-slate-700">
             Placeholder view for the next battle feature set
           </div>
         </div>
@@ -2072,6 +2086,85 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
     );
   }, [selectedEntries]);
 
+  const radarData = useMemo(() => {
+    return [
+      {
+        stat: "Attack",
+        ...Object.fromEntries(
+          selectedEntries.map(({ name, species }) => [
+            name,
+            Number((species.Attack / Math.max(maxValues.attack, 1)).toFixed(3)),
+          ])
+        ),
+      },
+      {
+        stat: "Health",
+        ...Object.fromEntries(
+          selectedEntries.map(({ name, species }) => [
+            name,
+            Number((species.Health / Math.max(maxValues.health, 1)).toFixed(3)),
+          ])
+        ),
+      },
+      {
+        stat: "Speed",
+        ...Object.fromEntries(
+          selectedEntries.map(({ name, species }) => [
+            name,
+            Number((species.Speed / Math.max(maxValues.speed, 1)).toFixed(3)),
+          ])
+        ),
+      },
+    ];
+  }, [maxValues, selectedEntries]);
+
+  const radarConfig = useMemo(() => {
+    const colors = ["#38bdf8", "#a855f7", "#4ade80", "#fb923c"];
+    return Object.fromEntries(
+      selectedEntries.map(({ name, species }, index) => [
+        name,
+        {
+          label: species.FullName,
+          color: colors[index % colors.length],
+        },
+      ])
+    );
+  }, [selectedEntries]);
+
+  const TriangleTooltip = ({ active, label }: { active?: boolean; label?: string }) => {
+    if (!active || !label) {
+      return null;
+    }
+
+    const statKey = `${label}`.toLowerCase() as "attack" | "health" | "speed";
+    const maxValue = maxValues[statKey] || 1;
+
+    return (
+      <div className="rounded-xl border border-black/20 bg-[#f8f6ef] px-3 py-2 shadow-xl" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
+        <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">{label}</div>
+        <div className="space-y-1 text-sm text-slate-900">
+          {selectedEntries.map(({ name, species }) => {
+            const rawValue = species[statKey === "attack" ? "Attack" : statKey === "health" ? "Health" : "Speed"];
+            const normalizedValue = rawValue / maxValue;
+            const color = radarConfig[name]?.color ?? "#64748b";
+
+            return (
+              <div key={name} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                  <span className="truncate text-[11px] uppercase tracking-wide text-slate-800">{species.ShortenedName}</span>
+                </div>
+                <span className="text-[11px] text-slate-700">
+                  {rawValue.toFixed(1)} ({Math.round(normalizedValue * 100)}%)
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const overallScores = useMemo(() => {
     return selectedEntries.map(({ name, species }) => {
       const attack = species.Attack / Math.max(maxValues.attack, 1);
@@ -2082,6 +2175,18 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
       return { name, species, score };
     });
   }, [maxValues, selectedEntries, weights]);
+
+  const baselineEntry = selectedEntries[0] ?? null;
+
+  const formatDelta = (value: number, baseline: number) => {
+    if (!Number.isFinite(value) || !Number.isFinite(baseline) || baseline === 0) {
+      return "0.0%";
+    }
+
+    const delta = ((value - baseline) / baseline) * 100;
+    const rounded = delta.toFixed(1);
+    return `${delta > 0 ? "+" : ""}${rounded}%`;
+  };
 
   const toggleSelection = (name: string) => {
     setSelected((prev) => {
@@ -2104,15 +2209,15 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
         >
           COMPARE
         </h2>
-        <p className="max-w-2xl text-center text-[11px] uppercase tracking-[0.25em] text-slate-600">
+          <p className="max-w-2xl text-center text-[11px] uppercase tracking-[0.25em] text-slate-700">
           Choose 2-4 brainrots to compare live stats, rarity, and weighted scores side by side.
         </p>
       </div>
 
       <div className="grid flex-1 gap-4 overflow-y-auto pb-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
+        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm uppercase tracking-[0.3em] text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+            <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
               1. CHOOSE BRAINROTS
             </h3>
             <span className="text-[10px] uppercase tracking-[0.25em] text-slate-600">
@@ -2151,7 +2256,7 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold uppercase tracking-wide text-white">
+                    <div className="truncate text-sm font-semibold uppercase tracking-wide text-slate-900">
                       {species.FullName}
                     </div>
                     <div className="mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
@@ -2164,9 +2269,9 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
           </div>
         </section>
 
-        <section className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.08)]">
+        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
           <div className="mb-3">
-            <h3 className="text-sm uppercase tracking-[0.3em] text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+            <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
               2. WHAT MATTERS MOST?
             </h3>
             <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
@@ -2176,9 +2281,9 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
 
           {(["attack", "health", "speed"] as const).map((key) => (
             <label key={key} className="mb-3 block rounded-[1rem] border border-black/20 bg-white/80 p-3">
-              <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.25em] text-slate-600">
+              <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.25em] text-slate-700">
                 <span>{key.toUpperCase()}</span>
-                <span className="text-white">{weights[key].toFixed(1)}×</span>
+                <span className="text-slate-900">{weights[key].toFixed(1)}×</span>
               </div>
               <input
                 type="range"
@@ -2195,24 +2300,24 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
           ))}
 
           <div className="rounded-[1rem] border border-black/20 bg-white/80 p-3">
-            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-600">
+            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
               OVERALL SCORE
             </div>
             {overallScores.length === 0 ? (
-              <p className="text-sm text-slate-300">Select at least two brainrots to start.</p>
+              <p className="text-sm text-slate-700">Select at least two brainrots to start.</p>
             ) : (
               <div className="space-y-2">
                 {overallScores.map(({ name, species, score }) => (
                   <div key={name} className="flex items-center justify-between rounded-xl bg-white/80 px-3 py-2">
                     <div>
-                      <div className="text-sm font-semibold uppercase tracking-wide text-white">
+                      <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">
                         {species.FullName}
                       </div>
                       <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">
                         {species.ShortenedName}
                       </div>
                     </div>
-                    <div className="text-lg font-semibold text-yellow-300">
+                    <div className="text-lg font-semibold text-yellow-700">
                       {score.toFixed(2)}
                     </div>
                   </div>
@@ -2223,25 +2328,70 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
         </section>
       </div>
 
+      <section className="mt-4 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+            TRIANGLE STATS
+          </h3>
+          <span className="text-[10px] uppercase tracking-[0.25em] text-slate-700">
+            Attack • Health • Speed
+          </span>
+        </div>
+
+        {selectedEntries.length >= 2 ? (
+          <ChartContainer
+            config={radarConfig}
+            className="h-[340px] w-full"
+          >
+            <RadarChart data={radarData} outerRadius="70%">
+              <PolarGrid stroke="#7f8ea3" strokeOpacity={0.65} />
+              <PolarAngleAxis
+                dataKey="stat"
+                tick={{ fill: "#1f2937", fontSize: 13, fontWeight: 600 }}
+              />
+              <Tooltip content={<TriangleTooltip />} />
+              {selectedEntries.map(({ name }) => (
+                <Radar
+                  key={name}
+                  dataKey={name}
+                  stroke={radarConfig[name].color}
+                  fill={radarConfig[name].color}
+                  fillOpacity={0.18}
+                  strokeWidth={2.5}
+                />
+              ))}
+              <ChartLegend
+                verticalAlign="bottom"
+                content={<ChartLegendContent />}
+              />
+            </RadarChart>
+          </ChartContainer>
+        ) : (
+          <div className="rounded-[1rem] border border-dashed border-black/20 bg-white/80 p-6 text-center text-sm text-slate-700">
+            Select at least two brainrots to show the triangle stats chart.
+          </div>
+        )}
+      </section>
+
       <section className="mt-2 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm uppercase tracking-[0.3em] text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+          <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
             COMPARISON
           </h3>
-          <span className="text-[10px] uppercase tracking-[0.25em] text-slate-400">
+          <span className="text-[10px] uppercase tracking-[0.25em] text-slate-700">
             {selectedEntries.length >= 2 ? "Live comparison" : "Select 2+ brainrots"}
           </span>
         </div>
 
         {selectedEntries.length >= 2 ? (
           <div className="overflow-x-auto">
-            <table className="min-w-full border-separate border-spacing-y-2 text-left text-sm text-slate-200">
+            <table className="min-w-full border-separate border-spacing-y-2 text-left text-sm text-slate-800">
               <thead>
                 <tr>
                   <th className="px-3 py-2 text-[10px] uppercase tracking-[0.25em] text-slate-600">Stat</th>
                   {selectedEntries.map(({ name, species }) => (
                     <th key={name} className="px-3 py-2">
-                      <div className="text-sm font-semibold uppercase tracking-wide text-white">{species.FullName}</div>
+                      <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">{species.FullName}</div>
                       <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">{species.ShortenedName}</div>
                     </th>
                   ))}
@@ -2256,11 +2406,51 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                 ].map((row) => (
                   <tr key={row.label} className="rounded-xl bg-white/70">
                     <td className="rounded-l-xl px-3 py-3 text-[10px] uppercase tracking-[0.25em] text-slate-600">{row.label}</td>
-                    {selectedEntries.map(({ name, species }) => (
-                      <td key={name + row.label} className="px-3 py-3 text-sm text-white">
-                        {row.getValue(species)}
-                      </td>
-                    ))}
+                    {selectedEntries.map(({ name, species }) => {
+                      const value = (() => {
+                        switch (row.label) {
+                          case "Attack":
+                            return species.Attack;
+                          case "Health":
+                            return species.Health;
+                          case "Speed":
+                            return species.Speed;
+                          case "Rarity":
+                            return species.Rarity;
+                          default:
+                            return 0;
+                        }
+                      })();
+                      const baselineValue = (() => {
+                        if (!baselineEntry) return value;
+                        switch (row.label) {
+                          case "Attack":
+                            return baselineEntry.species.Attack;
+                          case "Health":
+                            return baselineEntry.species.Health;
+                          case "Speed":
+                            return baselineEntry.species.Speed;
+                          case "Rarity":
+                            return baselineEntry.species.Rarity;
+                          default:
+                            return value;
+                        }
+                      })();
+
+                      const delta = formatDelta(value, baselineValue);
+                      const isBaseline = baselineEntry?.name === name;
+
+                      return (
+                        <td key={name + row.label} className="px-3 py-3 text-sm text-slate-900">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold">{row.getValue(species)}</span>
+                            <span className={`text-[10px] uppercase tracking-[0.25em] ${isBaseline ? "text-slate-500" : delta.startsWith("+") ? "text-green-700" : delta.startsWith("-") ? "text-red-700" : "text-slate-600"}`}>
+                              {isBaseline ? "baseline" : delta}
+                            </span>
+                          </div>
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>
@@ -2272,6 +2462,219 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function DamageCalculatorView({ rotsData }: { rotsData: Record<string, Species> }) {
+  const rots = useMemo(
+    () =>
+      Object.entries(rotsData)
+        .map(([name, species]) => ({ name, species }))
+        .sort((a, b) => a.species.FullName.localeCompare(b.species.FullName)),
+    [rotsData]
+  );
+
+  const [attackerName, setAttackerName] = useState("");
+  const [defenderName, setDefenderName] = useState("");
+  const [movePower, setMovePower] = useState(1.5);
+  const [damageBonus, setDamageBonus] = useState(1);
+  const [targetReduction, setTargetReduction] = useState(0.15);
+  const [critChance, setCritChance] = useState(0.2);
+  const [critMultiplier, setCritMultiplier] = useState(1.5);
+
+  useEffect(() => {
+    if (!attackerName && rots[0]) {
+      setAttackerName(rots[0].name);
+    }
+    if (!defenderName && rots[1]) {
+      setDefenderName(rots[1].name);
+    } else if (!defenderName && rots[0]) {
+      setDefenderName(rots[0].name);
+    }
+  }, [attackerName, defenderName, rots]);
+
+  const attacker = rotsData[attackerName] ?? null;
+  const defender = rotsData[defenderName] ?? null;
+
+  const damageState = useMemo(() => {
+    if (!attacker || !defender) {
+      return null;
+    }
+
+    const baseDamage = attacker.Attack * movePower * damageBonus;
+    const reducedDamage = Math.max(1, baseDamage * (1 - targetReduction));
+    const critDamage = reducedDamage * critMultiplier;
+    const averageDamage = reducedDamage * (1 + critChance * (critMultiplier - 1));
+    const hitsToKo = Math.max(1, Math.ceil(defender.Health / reducedDamage));
+    const critHitsToKo = Math.max(1, Math.ceil(defender.Health / critDamage));
+    const averageHitsToKo = Math.max(1, Math.ceil(defender.Health / averageDamage));
+
+    return {
+      baseDamage,
+      reducedDamage,
+      critDamage,
+      averageDamage,
+      hitsToKo,
+      critHitsToKo,
+      averageHitsToKo,
+    };
+  }, [attacker, defender, movePower, damageBonus, targetReduction, critChance, critMultiplier]);
+
+  const pickRots = (label: string, value: string, onChange: (value: string) => void) => (
+    <label className="block rounded-[1rem] border border-black/20 bg-white/80 p-3">
+      <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">{label}</div>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="stud-input h-10 w-full rounded-xl px-3 text-sm text-slate-900"
+        style={{ fontFamily: "var(--font-pixel), monospace" }}
+      >
+        {rots.map(({ name, species }) => (
+          <option key={name} value={name}>
+            {species.FullName}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+
+  return (
+    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          DAMAGE CALCULATOR
+        </h2>
+        <p className="max-w-2xl text-center text-[11px] uppercase tracking-[0.25em] text-slate-700">
+          Estimate damage, crit spikes, and hits to KO using CAB rots stats.
+        </p>
+      </div>
+
+      <div className="grid flex-1 gap-4 overflow-y-auto pb-4 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+              1. SELECT ROUGHT MATCHUP
+            </h3>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-slate-700">
+              {rots.length} rots loaded
+            </span>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {pickRots("Attacker", attackerName, setAttackerName)}
+            {pickRots("Defender", defenderName, setDefenderName)}
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {[
+              { key: "movePower", label: "Move power", value: movePower, min: 0.5, max: 5, step: 0.1, setter: setMovePower },
+              { key: "damageBonus", label: "Damage bonus", value: damageBonus, min: 0.5, max: 3, step: 0.1, setter: setDamageBonus },
+              { key: "targetReduction", label: "Target reduction", value: targetReduction, min: 0, max: 0.75, step: 0.05, setter: setTargetReduction },
+              { key: "critChance", label: "Crit chance", value: critChance, min: 0, max: 1, step: 0.05, setter: setCritChance },
+              { key: "critMultiplier", label: "Crit multiplier", value: critMultiplier, min: 1, max: 4, step: 0.1, setter: setCritMultiplier },
+            ].map((control) => (
+              <label key={control.key} className="rounded-[1rem] border border-black/20 bg-white/80 p-3">
+                <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-[0.25em] text-slate-700">
+                  <span>{control.label}</span>
+                  <span className="text-slate-900">
+                    {control.key === "critChance" || control.key === "targetReduction"
+                      ? `${Math.round(control.value * 100)}%`
+                      : `${control.value.toFixed(1)}×`}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={control.min}
+                  max={control.max}
+                  step={control.step}
+                  value={control.value}
+                  onChange={(e) => control.setter(Number(e.target.value))}
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-yellow-400"
+                />
+              </label>
+            ))}
+          </div>
+
+          <div className="mt-4 rounded-[1rem] border border-black/20 bg-white/80 p-3 text-sm text-slate-800">
+            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+              Formula
+            </div>
+            <p className="leading-relaxed text-slate-700">
+              Damage = Attacker Attack × Move Power × Damage Bonus × (1 - Target Reduction)
+            </p>
+          </div>
+        </section>
+
+        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+              2. DAMAGE OUTPUT
+            </h3>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-slate-700">
+              Estimated only
+            </span>
+          </div>
+
+          {!attacker || !defender || !damageState ? (
+            <div className="rounded-[1rem] border border-dashed border-black/20 bg-white/80 p-6 text-center text-sm text-slate-700">
+              Select an attacker and defender to calculate damage.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1rem] border border-black/20 bg-white/80 p-3">
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-slate-700">Attacker</div>
+                  <div className="mt-1 text-sm font-semibold uppercase tracking-wide text-slate-900">{attacker.FullName}</div>
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">Attack {attacker.Attack.toFixed(1)}</div>
+                </div>
+                <div className="rounded-[1rem] border border-black/20 bg-white/80 p-3">
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-slate-700">Defender</div>
+                  <div className="mt-1 text-sm font-semibold uppercase tracking-wide text-slate-900">{defender.FullName}</div>
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">Health {defender.Health.toFixed(1)}</div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { label: "Base damage", value: damageState.baseDamage },
+                  { label: "After reduction", value: damageState.reducedDamage },
+                  { label: "Crit damage", value: damageState.critDamage },
+                  { label: "Average damage", value: damageState.averageDamage },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-[1rem] border border-black/20 bg-white/80 p-3">
+                    <div className="text-[10px] uppercase tracking-[0.25em] text-slate-700">{item.label}</div>
+                    <div className="mt-1 text-2xl font-semibold text-slate-900">{item.value.toFixed(1)}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-[1rem] border border-black/20 bg-white/80 p-3">
+                <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">KO estimates</div>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {[
+                    { label: "Normal hits", value: damageState.hitsToKo },
+                    { label: "Crit hits", value: damageState.critHitsToKo },
+                    { label: "Average hits", value: damageState.averageHitsToKo },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-xl bg-[#f8f6ef] px-3 py-2 text-center" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
+                      <div className="text-[10px] uppercase tracking-[0.25em] text-slate-700">{item.label}</div>
+                      <div className="mt-1 text-xl font-semibold text-slate-900">{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[1rem] border border-black/20 bg-white/80 p-3 text-sm text-slate-700">
+                Higher crit chance and multiplier improve spike damage, while target reduction lowers sustained output.
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
