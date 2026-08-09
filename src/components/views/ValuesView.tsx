@@ -162,12 +162,12 @@ export function ValuesView() {
                   key={name}
                   className="flex items-center gap-3 rounded-xl p-2"
                   style={{
-                    background: "rgba(255,255,255,0.92)",
+                    background: tier.color,
                     backgroundImage: "url('/stud_texture.png')",
                     backgroundSize: "30px 30px",
                     backgroundRepeat: "repeat",
-                    backgroundBlendMode: "multiply",
-                    border: `2px solid ${tier.color}60`,
+                    backgroundBlendMode: "overlay",
+                    border: `2px solid ${tier.color}`,
                   }}
                 >
                   <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
@@ -181,20 +181,20 @@ export function ValuesView() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div
-                      className="truncate text-xs font-semibold text-gray-900"
+                      className="truncate text-xs font-semibold text-white"
                       style={{ fontFamily: "var(--font-pixel), monospace" }}
                     >
                       {sp.FullName}
                     </div>
                     <div
-                      className="truncate text-[10px] text-gray-600"
+                      className="truncate text-[10px] text-white/80"
                       style={{ fontFamily: "var(--font-pixel), monospace" }}
                     >
                       {tier.label} · R{sp.Rarity.toFixed(2)}
                     </div>
                   </div>
                   <span
-                    className="text-outline-sm-white text-sm font-bold text-gray-900"
+                    className="text-outline-sm-white text-sm font-bold text-white"
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
                   >
                     {value.toFixed(0)}

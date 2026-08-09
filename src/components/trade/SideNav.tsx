@@ -10,7 +10,7 @@ export type NavView =
   | "inventory"
   | "rots"
   | "skins"
-  | "skills"
+  | "movesets"
   | "battle"
   | "team-builder"
   | "battle-simulator"
@@ -26,7 +26,7 @@ const VIEW_TO_PATH: Record<NavView, string> = {
   inventory: "/inventory",
   rots: "/database/brainrots",
   skins: "/database/items",
-  skills: "/database/skills",
+  movesets: "/database/movesets",
   battle: "/battle",
   "team-builder": "/team-builder",
   "battle-simulator": "/battle-simulator",
@@ -43,7 +43,7 @@ const PATH_TO_VIEW: Record<string, NavView> = {
   "/inventory": "inventory",
   "/database/brainrots": "rots",
   "/database/items": "skins",
-  "/database/skills": "skills",
+  "/database/movesets": "movesets",
   "/battle": "battle",
   "/team-builder": "team-builder",
   "/battle-simulator": "battle-simulator",
@@ -73,10 +73,10 @@ const NAV_ITEMS: NavItem[] = [
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
 ];
 
-const DATABASE_ITEMS: Array<{ id: Extract<NavView, "rots" | "skins" | "skills">; label: string; icon: string; color: string }> = [
+const DATABASE_ITEMS: Array<{ id: Extract<NavView, "rots" | "skins" | "movesets">; label: string; icon: string; color: string }> = [
   { id: "rots", label: "Brainrots", icon: "book-open", color: "#fbbf24" },
   { id: "skins", label: "Items", icon: "fire", color: "#c084fc" },
-  { id: "skills", label: "Skill", icon: "scale", color: "#60a5fa" },
+  { id: "movesets", label: "Movesets", icon: "scale", color: "#60a5fa" },
 ];
 
 const BATTLE_ITEMS: Array<{ id: Extract<NavView, "team-builder" | "battle-simulator" | "damage-calculator" | "compare">; label: string; icon: string; color: string }> = [
@@ -171,7 +171,7 @@ export function SideNav({
       <nav className={`relative z-10 flex flex-1 flex-col gap-3 ${expanded ? "w-full items-stretch px-2" : "items-center"}`}>
         {NAV_ITEMS.map((item) => {
           const isActive = view === item.id;
-          const isDatabaseActive = view === "rots" || view === "skins" || view === "skills";
+          const isDatabaseActive = view === "rots" || view === "skins" || view === "movesets";
           const isBattleActive = view === "team-builder" || view === "battle-simulator" || view === "damage-calculator" || view === "compare";
 
           if (item.id === "database") {
