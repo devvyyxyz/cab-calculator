@@ -108,15 +108,16 @@ export function SettingsView() {
 
           <button
             onClick={clearCache}
-            className="mb-2 flex w-full items-center justify-between rounded-lg border-2 border-gray-200 bg-white p-3 transition-all hover:border-blue-300 hover:bg-blue-50"
-            style={{ fontFamily: "var(--font-pixel), monospace" }}
+            className={`flex items-center justify-center transition-transform active:translate-y-0.5 ${cacheCleared ? "bg-green-500" : "bg-red-500"} text-white`}
+            style={{
+              fontFamily: "var(--font-pixel), monospace",
+              width: "3rem",
+              height: "3rem",
+              boxShadow: cacheCleared ? "0 2px 0 #15803d" : "0 2px 0 #7f1d1d",
+            }}
+            aria-label={cacheCleared ? "Cache cleared" : "Clear cache"}
           >
-            <span
-              className="text-sm font-semibold text-gray-900"
-            >
-              {cacheCleared ? "✓ CACHE CLEARED!" : "CLEAR CACHE"}
-            </span>
-            <PixelIcon name="switch" size={18} color="#6b7280" />
+            <PixelIcon name="switch" size={18} color="#ffffff" />
           </button>
 
           <ComingSoonSetting label="THEME" />
