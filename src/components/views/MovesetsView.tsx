@@ -97,9 +97,6 @@ export function MovesetsView() {
         >
           MOVESETS
         </h2>
-        <p className="text-[10px] uppercase tracking-[0.25em] text-white/70">
-          Each rot can have up to 4 movesets
-        </p>
       </div>
 
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">

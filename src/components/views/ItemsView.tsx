@@ -18,7 +18,7 @@ import { usePersistentState } from "@/components/trade/usePersistentState";
 export function ItemsView() {
   const state = useAppState();
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = usePersistentState<"type" | "name-az" | "name-za">("cab_sort_items", "name-za");
+  const [sortBy, setSortBy] = usePersistentState<"type" | "name-az" | "name-za">("cab_sort_items", "type");
 
   const items = Object.entries(state.bagData);
   const filtered = items
