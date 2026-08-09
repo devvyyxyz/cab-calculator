@@ -2693,7 +2693,15 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                   { label: "Speed", getValue: (species: Species) => species.Speed.toFixed(1) },
                   { label: "Rarity", getValue: (species: Species) => species.Rarity.toFixed(1) },
                 ].map((row) => (
-                  <tr key={row.label} className="bg-white/60 even:bg-white/40">
+                  <tr
+                    key={row.label}
+                    className="bg-white/40 even:bg-white/30"
+                    style={{
+                      backgroundImage: "url('/stud_texture.png')",
+                      backgroundSize: "40px 40px",
+                      backgroundRepeat: "repeat",
+                    }}
+                  >
                     <td className="border-b border-r border-black/20 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-slate-800">
                       {row.label}
                     </td>
@@ -2733,8 +2741,17 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                       const isPositive = !isBaseline && delta.startsWith("+");
                       const isNegative = !isBaseline && delta.startsWith("-");
 
+                      const cellBg = isPositive
+                        ? "bg-green-200/70"
+                        : isNegative
+                        ? "bg-red-200/70"
+                        : "bg-transparent";
+
                       return (
-                        <td key={name + row.label} className="border-b border-r border-black/20 px-4 py-3 text-center last:border-r-0">
+                        <td
+                          key={name + row.label}
+                          className={`border-b border-r border-black/20 px-4 py-3 text-center last:border-r-0 ${cellBg}`}
+                        >
                           <div className="flex items-center justify-center gap-2">
                             <span className="text-base font-extrabold text-slate-900">
                               {row.getValue(species)}
@@ -2743,9 +2760,9 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                               <span
                                 className={`text-[11px] font-bold ${
                                   isPositive
-                                    ? "text-green-700"
+                                    ? "text-green-800"
                                     : isNegative
-                                    ? "text-red-700"
+                                    ? "text-red-800"
                                     : "text-slate-500"
                                 }`}
                               >
