@@ -30,3 +30,18 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Transaction {
+  id          String   @id @default(cuid())
+  discordId   String?
+  discordName String?
+  yourOffer   String   // JSON encoded offer
+  theirOffer  String   // JSON encoded offer
+  yourTotal   Float
+  theirTotal  Float
+  verdict     String
+  createdAt   DateTime @default(now())
+
+  @@index([discordId])
+  @@index([createdAt])
+}

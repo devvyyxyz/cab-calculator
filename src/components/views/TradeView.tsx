@@ -1,12 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
+import { toast } from "sonner";
 import { TradePanel } from "@/components/trade/TradePanel";
 import { FairnessBadge } from "@/components/app/FairnessBadge";
 import { ShareButton } from "@/components/app/ShareButton";
 import { InventoryDrawer } from "@/components/trade/InventoryDrawer";
 import { ShareTradeModal } from "@/components/app/ShareTradeModal";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
+import { DiscordLinkModal } from "@/components/app/DiscordLinkModal";
+import { SaveTradeModal } from "@/components/app/SaveTradeModal";
 import { useAppState } from "@/components/app/AppStateProvider";
 
 export function TradeView() {
@@ -111,6 +114,67 @@ export function TradeView() {
         link={shareLink}
         id={state.shareId}
       />
+
+      <DiscordLinkModal
+        open={state.showDiscordLinkModal}
+        onClose={() => state.setShowDiscordLinkModal(false)}
+        onConfirm={state.handleDiscordLink}
+      />
+
+      <SaveTradeModal
+        open={state.showSaveTradeModal}
+        onClose={() => state.setShowSaveTradeModal(false)}
+        onSave={state.handleSaveTrade}
+      />
+
+      {/* Persistent bottom action bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-center gap-3 border-t-4 border-black/30 bg-gray-800/95 p-3 backdrop-blur-sm"
+        style={{
+          backgroundImage: "url('/stud_texture.png')",
+          backgroundSize: "20px 20px",
+          backgroundRepeat: "repeat",
+          backgroundBlendMode: "multiply",
+        }}
+      >
+        {/* Cancel button - plain grey, no text */}
+        <button
+          onClick={() => {
+            state.setYourOffer({ rots: [], items: [] });
+            state.setTheirOffer({ rots: [], items: [] });
+            toast.success("Trade cleared");
+          }}
+          className="h-12 w-16 rounded-lg bg-gray-400 transition-all hover:bg-gray-500 active:translate-y-0.5 sm:w-20"
+          style={{
+            border: "3px solid #6b7280",
+            boxShadow: "0 3px 0 0 #374151",
+          }}
+          aria-label="Cancel trade"
+        />
+
+        {/* Completed button - triggers save flow */}
+        <button
+          onClick={() => state.setShowSaveTradeModal(true)}
+          className="h-12 rounded-lg bg-emerald-500 px-6 transition-all hover:bg-emerald-600 active:translate-y-0.5"
+          style={{
+            fontFamily: "var(--font-pixel), monospace",
+            border: "3px solid #065f46",
+            boxShadow: "0 3px 0 0 #065f46",
+          }}
+        >
+          <span className="text-sm font-bold text-white sm:text-base">Completed</span>
+        </button>
+
+        {/* Ready button - plain grey, no text */}
+        <button
+          onClick={() => toast.info("Ready status noted")}
+          className="h-12 w-16 rounded-lg bg-gray-400 transition-all hover:bg-gray-500 active:translate-y-0.5 sm:w-20"
+          style={{
+            border: "3px solid #6b7280",
+            boxShadow: "0 3px 0 0 #374151",
+          }}
+          aria-label="Mark as ready"
+        />
+      </div>
     </div>
   );
 }

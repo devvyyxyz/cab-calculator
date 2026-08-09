@@ -58,6 +58,10 @@ export interface AppState {
   savedProfile: { id: string; displayName: string; avatarUrl?: string } | null;
   mounted: boolean;
   shareId: string;
+  showDiscordLinkModal: boolean;
+  showSaveTradeModal: boolean;
+  discordId: string | null;
+  discordName: string | null;
 
   yourValued: ValuedRot[];
   theirValued: ValuedRot[];
@@ -88,6 +92,13 @@ export interface AppState {
   setSavedProfile: (v: { id: string; displayName: string; avatarUrl?: string } | null) => void;
   setMounted: (v: boolean) => void;
   setShareId: (v: string) => void;
+  setShowDiscordLinkModal: (v: boolean) => void;
+  setShowSaveTradeModal: (v: boolean) => void;
+  setDiscordId: (v: string | null) => void;
+  setDiscordName: (v: string | null) => void;
+
+  handleDiscordLink: (discordId: string, discordName: string) => void;
+  handleSaveTrade: () => Promise<void>;
 
   handleOnboarded: (userId: string, displayName: string, avatarUrl?: string) => void;
   handleSwitchAccount: () => void;
@@ -143,6 +154,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   } | null>(null);
   const [mounted, setMounted] = useState(false);
   const [shareId, setShareId] = useState("");
+
+  const [showDiscordLinkModal, setShowDiscordLinkModal] = useState(false);
+  const [showSaveTradeModal, setShowSaveTradeModal] = useState(false);
+  const [discordId, setDiscordId] = useState<string | null>(null);
+  const [discordName, setDiscordName] = useState<string | null>(null);
 
    useEffect(() => {
     setMounted(true);
@@ -395,6 +411,54 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   const verdictMemo = useMemo(() => verdict(yourTotal, theirTotal), [yourTotal, theirTotal]);
 
+  const handleDiscordLink = useCallback(
+    (newDiscordId: string, newDiscordName: string) => {
+      setDiscordId(newDiscordId);
+      setDiscordName(newDiscordName);
+      setShowDiscordLinkModal(false);
+      toast.success(`Discord account linked: ${newDiscordName}`);
+    },
+    []
+  );
+
+  const handleSaveTrade = useCallback(async () => {
+    const currentDiscordId = discordId;
+    const currentDiscordName = discordName;
+
+    // If no Discord linked, show the link modal
+    if (!currentDiscordId || !currentDiscordName) {
+      setShowSaveTradeModal(false);
+      setShowDiscordLinkModal(true);
+      return;
+    }
+
+    setShowSaveTradeModal(false);
+
+    try {
+      const res = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          discordId: currentDiscordId,
+          discordName: currentDiscordName,
+          yourOffer: yourOffer,
+          theirOffer: theirOffer,
+          yourTotal,
+          theirTotal,
+          verdict: verdictMemo,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to save transaction");
+      }
+
+      toast.success("Trade saved successfully!");
+    } catch (e) {
+      toast.error(`Failed to save trade: ${(e as Error).message}`);
+    }
+  }, [discordId, discordName, yourOffer, theirOffer, yourTotal, theirTotal, verdictMemo]);
+
   const sharePayload = useMemo<ShareTrade | null>(() => {
     const hasAnything =
       yourOffer.rots.length ||
@@ -528,6 +592,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     savedProfile,
     mounted,
     shareId,
+    showDiscordLinkModal,
+    showSaveTradeModal,
+    discordId,
+    discordName,
 
     yourValued,
     theirValued,
@@ -558,6 +626,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setSavedProfile,
     setMounted,
     setShareId,
+    setShowDiscordLinkModal,
+    setShowSaveTradeModal,
+    setDiscordId,
+    setDiscordName,
 
     handleOnboarded,
     handleSwitchAccount,
@@ -569,6 +641,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     addCatalogRot,
     openShare,
     renderOfferSlots,
+    handleDiscordLink,
+    handleSaveTrade,
   };
 
   return (
