@@ -56,16 +56,22 @@ export function SideNav({
   onNavigate,
   profile,
   onProfileClick,
+  expanded,
+  onExpandedChange,
 }: {
   active: NavView;
   onNavigate?: (view: NavView) => void;
   profile?: { id: string; displayName: string; avatarUrl?: string } | null;
   onProfileClick?: () => void;
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
 }) {
   const [hovered, setHovered] = useState<NavView | "database" | "battle" | null>(null);
   const [databaseOpen, setDatabaseOpen] = useState(false);
   const [battleOpen, setBattleOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+
+  const isExpanded = expanded ?? false;
+  const setIsExpanded = onExpandedChange ?? (() => {});
 
   return (
     <aside
@@ -94,7 +100,7 @@ export function SideNav({
         type="button"
         onClick={(event) => {
           event.preventDefault();
-          setExpanded((prev) => !prev);
+          setIsExpanded((prev) => !prev);
           setDatabaseOpen(false);
         }}
         className="group relative z-10 mb-2 block"
@@ -127,7 +133,7 @@ export function SideNav({
                   type="button"
                   onClick={() => {
                     if (!expanded) {
-                      setExpanded(true);
+                      setIsExpanded(true);
                     }
                     setDatabaseOpen(true);
                   }}
@@ -176,7 +182,7 @@ export function SideNav({
                           type="button"
                           onClick={() => {
                             onNavigate?.(child.id);
-                            setExpanded(false);
+                            setIsExpanded(false);
                             setDatabaseOpen(false);
                           }}
                           className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors ${
@@ -207,7 +213,7 @@ export function SideNav({
                   type="button"
                   onClick={() => {
                     if (!expanded) {
-                      setExpanded(true);
+                      setIsExpanded(true);
                     }
                     setBattleOpen((prev) => !prev);
                   }}
@@ -256,7 +262,7 @@ export function SideNav({
                           type="button"
                           onClick={() => {
                             onNavigate?.(child.id);
-                            setExpanded(false);
+                            setIsExpanded(false);
                             setBattleOpen(false);
                           }}
                           className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors ${
@@ -286,7 +292,7 @@ export function SideNav({
               type="button"
               onClick={() => {
                 onNavigate?.(item.id as NavView);
-                setExpanded(false);
+                setIsExpanded(false);
                 setDatabaseOpen(false);
                 setBattleOpen(false);
               }}

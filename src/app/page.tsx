@@ -91,6 +91,7 @@ export default function Home() {
   const [loading, setLoading] = useState<"you" | "meta" | null>(null);
   const [metaLoaded, setMetaLoaded] = useState(false);
   const [navView, setNavView] = useState<NavView>("trade");
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   // Account switch modal
   const [showAccountModal, setShowAccountModal] = useState(false);
@@ -511,10 +512,12 @@ export default function Home() {
         onNavigate={setNavView}
         profile={youProfile}
         onProfileClick={() => setShowAccountModal(true)}
+        expanded={sidebarExpanded}
+        onExpandedChange={setSidebarExpanded}
       />
       <main
         suppressHydrationWarning
-        className="relative flex h-screen w-full flex-col overflow-hidden pl-16 sm:pl-20"
+        className={`relative flex h-screen w-full flex-col overflow-hidden transition-all duration-200 ${sidebarExpanded ? "pl-44 sm:pl-52" : "pl-16 sm:pl-20"}`}
         style={{
           backgroundColor: "#0099ff",
           backgroundImage: "url('/stud_texture.png')",
@@ -2547,46 +2550,115 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
       <section className="mt-4 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
-            TRIANGLE STATS
+            RADAR CHART STATS
           </h3>
           <span className="text-[10px] uppercase tracking-[0.25em] text-slate-700">
             Attack • Health • Speed
           </span>
         </div>
 
-        {selectedEntries.length >= 2 ? (
-          <ChartContainer
-            config={radarConfig}
-            className="h-[340px] w-full"
-          >
-            <RadarChart data={radarData} outerRadius="70%">
-              <PolarGrid stroke="#7f8ea3" strokeOpacity={0.65} />
-              <PolarAngleAxis
-                dataKey="stat"
-                tick={{ fill: "#1f2937", fontSize: 13, fontWeight: 600 }}
-              />
-              <Tooltip content={<TriangleTooltip />} />
-              {selectedEntries.map(({ name }) => (
-                <Radar
-                  key={name}
-                  dataKey={name}
-                  stroke={radarConfig[name].color}
-                  fill={radarConfig[name].color}
-                  fillOpacity={0.18}
-                  strokeWidth={2.5}
-                />
-              ))}
-              <ChartLegend
-                verticalAlign="bottom"
-                content={<ChartLegendContent />}
-              />
-            </RadarChart>
-          </ChartContainer>
-        ) : (
-          <div className="rounded-[1rem] border border-dashed border-black/20 bg-white/80 p-6 text-center text-sm text-slate-700">
-            Select at least two brainrots to show the triangle stats chart.
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div>
+            {selectedEntries.length >= 2 ? (
+              <ChartContainer
+                config={radarConfig}
+                className="h-[340px] w-full"
+              >
+                <RadarChart data={radarData} outerRadius="70%">
+                  <PolarGrid stroke="#7f8ea3" strokeOpacity={0.65} />
+                  <PolarAngleAxis
+                    dataKey="stat"
+                    tick={{ fill: "#1f2937", fontSize: 13, fontWeight: 600 }}
+                  />
+                  <Tooltip content={<TriangleTooltip />} />
+                  {selectedEntries.map(({ name }) => (
+                    <Radar
+                      key={name}
+                      dataKey={name}
+                      stroke={radarConfig[name].color}
+                      fill={radarConfig[name].color}
+                      fillOpacity={0.18}
+                      strokeWidth={2.5}
+                    />
+                  ))}
+                  <ChartLegend
+                    verticalAlign="bottom"
+                    content={<ChartLegendContent />}
+                  />
+                </RadarChart>
+              </ChartContainer>
+            ) : (
+              <div className="rounded-[1rem] border border-dashed border-black/20 bg-white/80 p-6 text-center text-sm text-slate-700">
+                Select at least two brainrots to show the radar chart stats.
+              </div>
+            )}
           </div>
-        )}
+
+          <div>
+            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+              Weighted Breakdown
+            </div>
+            {selectedEntries.length >= 2 ? (
+              <div className="space-y-2">
+                {overallScores.map(({ name, species, score }) => {
+                  const attack = species.Attack / Math.max(maxValues.attack, 1);
+                  const health = species.Health / Math.max(maxValues.health, 1);
+                  const speed = species.Speed / Math.max(maxValues.speed, 1);
+                  const rarity = species.Rarity / Math.max(maxValues.rarity, 1);
+                  const weightedAttack = attack * weights.attack;
+                  const weightedHealth = health * weights.health;
+                  const weightedSpeed = speed * weights.speed;
+                  const weightedRarity = rarity * 0.7;
+
+                  return (
+                    <div key={name} className="rounded-xl border border-black/20 bg-white/80 p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">
+                            {species.FullName}
+                          </div>
+                          <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">
+                            {species.ShortenedName}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-semibold text-yellow-700">
+                            {score.toFixed(2)}
+                          </div>
+                          <div className="text-[9px] uppercase tracking-wider text-slate-500">
+                            overall
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-1 text-[9px] uppercase tracking-wider text-slate-600">
+                        <div className="flex items-center justify-between rounded bg-slate-50 px-2 py-1">
+                          <span>Attack</span>
+                          <span className="font-semibold text-slate-900">{weightedAttack.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between rounded bg-slate-50 px-2 py-1">
+                          <span>Health</span>
+                          <span className="font-semibold text-slate-900">{weightedHealth.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between rounded bg-slate-50 px-2 py-1">
+                          <span>Speed</span>
+                          <span className="font-semibold text-slate-900">{weightedSpeed.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between rounded bg-slate-50 px-2 py-1">
+                          <span>Rarity</span>
+                          <span className="font-semibold text-slate-900">{weightedRarity.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-[1rem] border border-dashed border-black/20 bg-white/80 p-6 text-center text-sm text-slate-700">
+                Select at least two brainrots to see weighted breakdown.
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       <section className="mt-2 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
