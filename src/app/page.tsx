@@ -1,22 +1,57 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
+const BACKGROUNDS = [
+  "/backgrounds/battle.png",
+  "/backgrounds/cat.png",
+  "/backgrounds/desert.png",
+  "/backgrounds/egg.png",
+  "/backgrounds/illigal_brainrot.png",
+];
+
+const FADE_INTERVAL_MS = 5000;
+const FADE_DURATION_MS = 1000;
+
 /**
- * Landing page — full-screen hero with background image.
+ * Landing page — full-screen hero with rotating background images.
  *
- * Place your background image in /public and update the `backgroundImage`
- * URL below. The dark overlay ensures text remains legible.
+ * Cycles through /public/backgrounds/* with a smooth fade transition.
+ * The dark overlay ensures text remains legible against any background.
  */
 export default function Home() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [bgOpacity, setBgOpacity] = useState(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Fade out
+      setBgOpacity(0);
+
+      // After fade completes, swap image and fade back in
+      const timeout = setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % BACKGROUNDS.length);
+        setBgOpacity(1);
+      }, FADE_DURATION_MS);
+
+      return () => clearTimeout(timeout);
+    }, FADE_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <main className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
-      {/* Background image layer */}
+      {/* Background image layer with fade transition */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out"
         style={{
-          backgroundImage: "url('/cab_icon.png')",
+          backgroundImage: `url('${BACKGROUNDS[currentIndex]}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
+          opacity: bgOpacity,
         }}
         aria-hidden="true"
       />
