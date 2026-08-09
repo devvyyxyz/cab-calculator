@@ -1801,12 +1801,12 @@ function BrainrotsView({
 
         {/* Legend */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[9px] text-white/80">
-          <LegendChip color="#c62828" label="Common" />
-          <LegendChip color="#fca5a5" label="Uncommon" />
-          <LegendChip color="#e5e7eb" label="Rare" />
-          <LegendChip color="#a3e635" label="Epic" />
-          <LegendChip color="#fbbf24" label="Legendary" />
-          <LegendChip color="#7f1d1d" label="Demon" />
+          <LegendChip color="#E5E7EB" label="Common" />
+          <LegendChip color="#FCA5A5" label="Uncommon" />
+          <LegendChip color="#7ED957" label="Rare" />
+          <LegendChip color="#B27DFF" label="Epic" />
+          <LegendChip color="#AA33FF" label="Insane" />
+          <LegendChip color="#FF5555" label="Exclusive" />
         </div>
       </div>
     </div>
@@ -1842,15 +1842,14 @@ function BrainrotSlot({ name, sp }: { name: string; sp: Species }) {
 }
 
 
-/** Rarity tier → { color, shimmer, label } for slot backgrounds.
- *  Only legendary (rarity >= 5) and demon get the shimmer effect. */
+/** Rarity tier → { color, shimmer, label } for slot backgrounds. */
 function rarityTier(rarity: number, isExclusive: boolean): { color: string; shimmer: boolean; label: string } {
-  if (isExclusive) return { color: "#7f1d1d", shimmer: true, label: "Demon" }; // demon
-  if (rarity >= 5) return { color: "#fbbf24", shimmer: true, label: "Legendary" }; // legendary
-  if (rarity >= 4) return { color: "#a3e635", shimmer: false, label: "Epic" }; // epic
-  if (rarity >= 3) return { color: "#e5e7eb", shimmer: false, label: "Rare" }; // rare
-  if (rarity >= 2) return { color: "#fca5a5", shimmer: false, label: "Uncommon" }; // uncommon
-  return { color: "#c62828", shimmer: false, label: "Common" }; // common
+  if (isExclusive) return { color: "#FF5555", shimmer: true, label: "Exclusive" };
+  if (rarity >= 5) return { color: "#AA33FF", shimmer: true, label: "Insane" };
+  if (rarity >= 4) return { color: "#B27DFF", shimmer: false, label: "Epic" };
+  if (rarity >= 3) return { color: "#7ED957", shimmer: false, label: "Rare" };
+  if (rarity >= 2) return { color: "#FCA5A5", shimmer: false, label: "Uncommon" };
+  return { color: "#E5E7EB", shimmer: false, label: "Common" };
 }
 
 /** Rarity tier → background color for slot tiles. */
@@ -2661,8 +2660,8 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
         </div>
       </section>
 
-      <section className="mt-2 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
-        <div className="mb-3 flex items-center justify-between">
+      <div className="mt-2 rounded-[1.5rem] border-2 border-black/30 bg-white/70 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]">
+        <div className="mb-3 flex items-center justify-between px-4 py-3">
           <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
             COMPARISON
           </h3>
@@ -2672,15 +2671,15 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
         </div>
 
         {selectedEntries.length >= 2 ? (
-          <div className="overflow-x-auto rounded-xl border-2 border-black/30 bg-white/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
+          <div className="overflow-x-auto">
             <table className="min-w-full border-collapse text-left text-sm">
               <thead>
-                <tr className="bg-slate-200/80">
-                  <th className="border border-black/20 px-4 py-3 text-left text-[10px] uppercase tracking-[0.25em] text-slate-700">
+                <tr className="bg-slate-200/90">
+                  <th className="border-b-2 border-r border-black/20 px-4 py-3 text-left text-[10px] uppercase tracking-[0.25em] text-slate-800">
                     Stat
                   </th>
                   {selectedEntries.map(({ name, species }) => (
-                    <th key={name} className="border border-black/20 px-4 py-3 text-center">
+                    <th key={name} className="border-b-2 border-r border-black/20 px-4 py-3 text-center last:border-r-0">
                       <div className="text-sm font-bold uppercase tracking-wide text-slate-900">{species.FullName}</div>
                       <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">{species.ShortenedName}</div>
                     </th>
@@ -2694,8 +2693,8 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                   { label: "Speed", getValue: (species: Species) => species.Speed.toFixed(1) },
                   { label: "Rarity", getValue: (species: Species) => species.Rarity.toFixed(1) },
                 ].map((row) => (
-                  <tr key={row.label} className="bg-white/70 even:bg-white/50">
-                    <td className="border border-black/20 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-slate-700">
+                  <tr key={row.label} className="bg-white/60 even:bg-white/40">
+                    <td className="border-b border-r border-black/20 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-slate-800">
                       {row.label}
                     </td>
                     {selectedEntries.map(({ name, species }) => {
@@ -2735,14 +2734,14 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                       const isNegative = !isBaseline && delta.startsWith("-");
 
                       return (
-                        <td key={name + row.label} className="border border-black/20 px-4 py-3 text-center">
+                        <td key={name + row.label} className="border-b border-r border-black/20 px-4 py-3 text-center last:border-r-0">
                           <div className="flex items-center justify-center gap-2">
-                            <span className="text-base font-bold text-slate-900">
+                            <span className="text-base font-extrabold text-slate-900">
                               {row.getValue(species)}
                             </span>
                             {!isBaseline && (
                               <span
-                                className={`text-[10px] font-semibold ${
+                                className={`text-[11px] font-bold ${
                                   isPositive
                                     ? "text-green-700"
                                     : isNegative
@@ -2754,7 +2753,7 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                               </span>
                             )}
                             {isBaseline && (
-                              <span className="text-[10px] font-semibold text-slate-500">
+                              <span className="text-[11px] font-bold text-slate-500">
                                 baseline
                               </span>
                             )}
@@ -2768,11 +2767,11 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
             </table>
           </div>
         ) : (
-          <div className="rounded-[1rem] border border-dashed border-black/20 bg-white/80 p-6 text-center text-sm text-slate-600">
+          <div className="px-4 py-6 text-center text-sm text-slate-600">
             Search above and select at least two brainrots to start comparing them.
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 }
@@ -4401,12 +4400,12 @@ function AboutView({
     : {};
 
   const rarityColors: Record<string, string> = {
-    Common: "#c62828",
-    Uncommon: "#fca5a5",
-    Rare: "#e5e7eb",
-    Epic: "#a3e635",
-    Legendary: "#fbbf24",
-    Demon: "#7f1d1d",
+    Common: "#E5E7EB",
+    Uncommon: "#FCA5A5",
+    Rare: "#7ED957",
+    Epic: "#B27DFF",
+    Insane: "#AA33FF",
+    Exclusive: "#FF5555",
   };
 
   // Item type distribution for bar chart
