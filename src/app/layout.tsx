@@ -5,35 +5,44 @@ import { SideNav } from "@/components/trade/SideNav";
 import { Preloader } from "@/components/trade/Preloader";
 import { Onboarding } from "@/components/trade/Onboarding";
 import { Toaster } from "@/components/ui/toaster";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 function Inner({ children }: { children: React.ReactNode }) {
   const state = useAppState();
+  const pathname = usePathname();
+  const isLanding = pathname === "/";
 
   return (
     <>
-      <Preloader />
-      <Preloader visible={!state.metaLoaded} message="LOADING GAME DATA" />
-      {!state.onboarded && state.mounted && (
+      {!isLanding && <Preloader />}
+      {!isLanding && <Preloader visible={!state.metaLoaded} message="LOADING GAME DATA" />}
+      {!isLanding && !state.onboarded && state.mounted && (
         <Onboarding
           onConfirm={state.handleOnboarded}
           initialProfile={state.savedProfile}
         />
       )}
-      <SideNav
-        profile={state.youProfile}
-        onProfileClick={() => state.setShowAccountModal(true)}
-        expanded={state.sidebarExpanded}
-        onExpandedChange={state.setSidebarExpanded}
-      />
+      {!isLanding && (
+        <SideNav
+          profile={state.youProfile}
+          onProfileClick={() => state.setShowAccountModal(true)}
+          expanded={state.sidebarExpanded}
+          onExpandedChange={state.setSidebarExpanded}
+        />
+      )}
       <main
         suppressHydrationWarning
-        className={`relative flex h-screen w-full flex-col overflow-hidden transition-all duration-200 ${state.sidebarExpanded ? "pl-44 sm:pl-52" : "pl-16 sm:pl-20"}`}
+        className={cn(
+          "relative flex h-screen w-full flex-col overflow-hidden transition-all duration-200",
+          isLanding ? "" : state.sidebarExpanded ? "pl-44 sm:pl-52" : "pl-16 sm:pl-20"
+        )}
         style={{
-          backgroundColor: "#0099ff",
-          backgroundImage: "url('/stud_texture.png')",
-          backgroundSize: "100px 100px",
-          backgroundRepeat: "repeat",
+          backgroundColor: isLanding ? "#000000" : "#0099ff",
+          backgroundImage: isLanding ? "none" : "url('/stud_texture.png')",
+          backgroundSize: isLanding ? "" : "100px 100px",
+          backgroundRepeat: isLanding ? "" : "repeat",
         }}
       >
         {children}
