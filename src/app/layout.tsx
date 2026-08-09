@@ -1,107 +1,61 @@
-import type { Metadata } from "next";
-import { Silkscreen, Inter } from "next/font/google";
-import "./globals.css";
+"use client";
+
+import { AppStateProvider, useAppState } from "@/components/app/AppStateProvider";
+import { SideNav } from "@/components/trade/SideNav";
+import { Preloader } from "@/components/trade/Preloader";
+import { Onboarding } from "@/components/trade/Onboarding";
 import { Toaster } from "@/components/ui/toaster";
+import "./globals.css";
 
-// All UI text is bold - load Silkscreen at 700 weight only
-const pixel = Silkscreen({
-  weight: "700",
-  variable: "--font-pixel",
-  subsets: ["latin"],
-  display: "swap",
-});
+function Inner({ children }: { children: React.ReactNode }) {
+  const state = useAppState();
 
-const body = Inter({
-  weight: ["400", "700"],
-  variable: "--font-body",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  metadataBase: new URL("https://cab.devvyy.xyz"),
-  title: {
-    default: "CAB Trade Calculator - Catch a Brainrot | Trade Calculator, Values List & Inventory Viewer",
-    template: "%s | CAB Trade Calculator"
-  },
-  description:
-    "Official Catch a Brainrot (CAB) trade calculator and values list. View brainrot values, item database, inventory viewer, and trade calculator for Roblox Catch a Brainrot game. Updated values list for all in-game rots and items.",
-  keywords: [
-    "Catch a Brainrot",
-    "CAB",
-    "CAB Trade Calculator",
-    "brainrot calculator",
-    "brainrot values",
-    "trade calculator",
-    "Roblox trade calculator",
-    "inventory viewer",
-    "brainrot database",
-    "item values",
-    "rot values",
-    "CAB values list",
-    "brainrot trading",
-    "Roblox brainrot",
-    "catch a brainrot trade",
-    "brainrot IV calculator",
-    "team builder",
-    "damage calculator"
-  ],
-  authors: [{ name: "CAB Trade Calculator" }],
-  creator: "CAB Trade Calculator",
-  publisher: "CAB Trade Calculator",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://cab.devvyy.xyz/",
-    siteName: "CAB Trade Calculator",
-    title: "CAB Trade Calculator - Catch a Brainrot | Official Trade Calculator & Values List",
-    description: "Official Catch a Brainrot trade calculator. View values, build trades, and track your brainrot inventory. The most accurate CAB values list and trading tool.",
-    images: [
-      {
-        url: "/cab_icon.png",
-        width: 512,
-        height: 512,
-        alt: "CAB Trade Calculator Logo",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CAB Trade Calculator - Catch a Brainrot",
-    description: "Official Catch a Brainrot trade calculator and values list. Build trades, view values, and track your inventory.",
-    images: ["/cab_icon.png"],
-  },
-  icons: {
-    icon: "/cab_icon.png",
-    apple: "/cab_icon.png",
-  },
-  alternates: {
-    canonical: "https://cab.devvyy.xyz/",
-  },
-  category: "gaming",
-};
+  return (
+    <>
+      <Preloader />
+      <Preloader visible={!state.metaLoaded} message="LOADING GAME DATA" />
+      {!state.onboarded && state.mounted && (
+        <Onboarding
+          onConfirm={state.handleOnboarded}
+          initialProfile={state.savedProfile}
+        />
+      )}
+      <SideNav
+        profile={state.youProfile}
+        onProfileClick={() => state.setShowAccountModal(true)}
+        expanded={state.sidebarExpanded}
+        onExpandedChange={state.setSidebarExpanded}
+      />
+      <main
+        suppressHydrationWarning
+        className={`relative flex h-screen w-full flex-col overflow-hidden transition-all duration-200 ${state.sidebarExpanded ? "pl-44 sm:pl-52" : "pl-16 sm:pl-20"}`}
+        style={{
+          backgroundColor: "#0099ff",
+          backgroundImage: "url('/stud_texture.png')",
+          backgroundSize: "100px 100px",
+          backgroundRepeat: "repeat",
+        }}
+      >
+        {children}
+      </main>
+      <Toaster />
+    </>
+  );
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${pixel.variable} ${body.variable} antialiased bg-background text-foreground font-bold`}
+        className={`antialiased bg-background text-foreground font-bold`}
       >
-        {children}
-        <Toaster />
+        <AppStateProvider>
+          <Inner>{children}</Inner>
+        </AppStateProvider>
       </body>
     </html>
   );

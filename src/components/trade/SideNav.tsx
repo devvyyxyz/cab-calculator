@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { PixelIcon } from "./PixelIcon";
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 export type NavView =
   | "trade"
@@ -19,6 +20,40 @@ export type NavView =
   | "news"
   | "settings"
   | "about";
+
+const VIEW_TO_PATH: Record<NavView, string> = {
+  trade: "/trade-calculator",
+  inventory: "/inventory",
+  rots: "/database/brainrots",
+  skins: "/database/items",
+  skills: "/database/skills",
+  battle: "/battle",
+  "team-builder": "/team-builder",
+  "battle-simulator": "/battle-simulator",
+  "damage-calculator": "/damage-calculator",
+  compare: "/compare",
+  values: "/values",
+  news: "/news",
+  settings: "/settings",
+  about: "/about",
+};
+
+const PATH_TO_VIEW: Record<string, NavView> = {
+  "/trade-calculator": "trade",
+  "/inventory": "inventory",
+  "/database/brainrots": "rots",
+  "/database/items": "skins",
+  "/database/skills": "skills",
+  "/battle": "battle",
+  "/team-builder": "team-builder",
+  "/battle-simulator": "battle-simulator",
+  "/damage-calculator": "damage-calculator",
+  "/compare": "compare",
+  "/values": "values",
+  "/news": "news",
+  "/settings": "settings",
+  "/about": "about",
+};
 
 interface NavItem {
   id: NavView | "database";
@@ -52,26 +87,39 @@ const BATTLE_ITEMS: Array<{ id: Extract<NavView, "team-builder" | "battle-simula
 ];
 
 export function SideNav({
-  active,
+  active: activeProp,
   onNavigate,
   profile,
   onProfileClick,
   expanded,
   onExpandedChange,
 }: {
-  active: NavView;
+  active?: NavView;
   onNavigate?: (view: NavView) => void;
   profile?: { id: string; displayName: string; avatarUrl?: string } | null;
   onProfileClick?: () => void;
   expanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const [hovered, setHovered] = useState<NavView | "database" | "battle" | null>(null);
   const [databaseOpen, setDatabaseOpen] = useState(false);
   const [battleOpen, setBattleOpen] = useState(false);
 
+  const view = PATH_TO_VIEW[pathname] ?? "trade";
   const isExpanded = expanded ?? false;
   const setIsExpanded = onExpandedChange ?? (() => {});
+
+  const navigate = (target: NavView) => {
+    const path = VIEW_TO_PATH[target];
+    if (path) {
+      router.push(path);
+    }
+    setIsExpanded(false);
+    setDatabaseOpen(false);
+    setBattleOpen(false);
+  };
 
   return (
     <aside
@@ -122,9 +170,9 @@ export function SideNav({
       {/* Nav items */}
       <nav className={`relative z-10 flex flex-1 flex-col gap-3 ${expanded ? "w-full items-stretch px-2" : "items-center"}`}>
         {NAV_ITEMS.map((item) => {
-          const isActive = active === item.id;
-          const isDatabaseActive = active === "rots" || active === "skins" || active === "skills";
-          const isBattleActive = active === "team-builder" || active === "battle-simulator" || active === "damage-calculator" || active === "compare";
+          const isActive = view === item.id;
+          const isDatabaseActive = view === "rots" || view === "skins" || view === "skills";
+          const isBattleActive = view === "team-builder" || view === "battle-simulator" || view === "damage-calculator" || view === "compare";
 
           if (item.id === "database") {
             return (
@@ -175,15 +223,13 @@ export function SideNav({
                     }}
                   >
                     {DATABASE_ITEMS.map((child) => {
-                      const childActive = active === child.id;
+                      const childActive = view === child.id;
                       return (
                         <button
                           key={child.id}
                           type="button"
                           onClick={() => {
-                            onNavigate?.(child.id);
-                            setIsExpanded(false);
-                            setDatabaseOpen(false);
+                            navigate(child.id);
                           }}
                           className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors ${
                             childActive ? "bg-white/15 text-white" : "text-slate-200 hover:bg-white/10"
@@ -255,15 +301,13 @@ export function SideNav({
                     }}
                   >
                     {BATTLE_ITEMS.map((child) => {
-                      const childActive = active === child.id;
+                      const childActive = view === child.id;
                       return (
                         <button
                           key={child.id}
                           type="button"
                           onClick={() => {
-                            onNavigate?.(child.id);
-                            setIsExpanded(false);
-                            setBattleOpen(false);
+                            navigate(child.id);
                           }}
                           className={`flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors ${
                             childActive ? "bg-white/15 text-white" : "text-slate-200 hover:bg-white/10"
@@ -287,15 +331,14 @@ export function SideNav({
           }
 
           return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => {
-                onNavigate?.(item.id as NavView);
-                setIsExpanded(false);
-                setDatabaseOpen(false);
-                setBattleOpen(false);
-              }}
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  if (item.id !== "database" && item.id !== "battle") {
+                    navigate(item.id as NavView);
+                  }
+                }}
               onMouseEnter={() => setHovered(item.id)}
               onMouseLeave={() => setHovered(null)}
               /* No container box - just the icon with an outline */
