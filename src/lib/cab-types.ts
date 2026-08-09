@@ -17,6 +17,7 @@ export interface Species {
   Rarity: number; // 1-6 (may be fractional)
   Speed: number;
   SpawnLocation?: SpawnLocation | null;
+  Exists?: number; // Total count of this species in the game
 }
 
 /** A captured brainrot instance owned by a player. */

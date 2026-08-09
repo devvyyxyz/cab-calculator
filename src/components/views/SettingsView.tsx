@@ -5,6 +5,7 @@ import { PixelIcon } from "@/components/trade/PixelIcon";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import { ComingSoonSetting } from "@/components/app/ComingSoonSetting";
 import { useAppState } from "@/components/app/AppStateProvider";
+import { VALUE_METHODS, type ValueMethod } from "@/lib/trade-values";
 
 export function SettingsView() {
   const state = useAppState();
@@ -20,6 +21,15 @@ export function SettingsView() {
       });
       setCacheCleared(true);
       setTimeout(() => setCacheCleared(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleMethodChange = (method: ValueMethod) => {
+    state.setValueMethod(method);
+    try {
+      localStorage.setItem("cab_value_method", method);
     } catch {
       /* ignore */
     }
@@ -105,6 +115,36 @@ export function SettingsView() {
           >
             PREFERENCES
           </h3>
+
+          <div className="mb-4">
+            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+              Value Method
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {VALUE_METHODS.map((option) => {
+                const isActive = state.valueMethod === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => handleMethodChange(option.id)}
+                    className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
+                      isActive
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50"
+                    }`}
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    <span className={`text-sm font-bold ${isActive ? "text-blue-900" : "text-gray-900"}`}>
+                      {option.label}
+                    </span>
+                    <span className="mt-1 text-[9px] text-gray-600">
+                      {option.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <button
             onClick={clearCache}

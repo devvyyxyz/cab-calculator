@@ -52,6 +52,7 @@ export interface AppState {
   metaLoaded: boolean;
   navView: string;
   sidebarExpanded: boolean;
+  valueMethod: "dev" | "rot";
   showAccountModal: boolean;
   shareOpen: boolean;
   savedProfile: { id: string; displayName: string; avatarUrl?: string } | null;
@@ -81,6 +82,7 @@ export interface AppState {
   setMetaLoaded: (v: boolean) => void;
   setNavView: (v: string) => void;
   setSidebarExpanded: (v: boolean) => void;
+  setValueMethod: (v: "dev" | "rot") => void;
   setShowAccountModal: (v: boolean) => void;
   setShareOpen: (v: boolean) => void;
   setSavedProfile: (v: { id: string; displayName: string; avatarUrl?: string } | null) => void;
@@ -129,6 +131,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [metaLoaded, setMetaLoaded] = useState(false);
   const [navView, setNavView] = useState("trade");
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [valueMethod, setValueMethod] = useState<"dev" | "rot">("dev");
 
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -141,7 +144,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [shareId, setShareId] = useState("");
 
-  useEffect(() => {
+   useEffect(() => {
     setMounted(true);
     try {
       const raw = localStorage.getItem("cab_profile");
@@ -150,6 +153,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         if (parsed?.id && parsed?.displayName) {
           setSavedProfile(parsed);
         }
+      }
+      const method = localStorage.getItem("cab_value_method");
+      if (method === "dev" || method === "rot") {
+        setValueMethod(method);
       }
     } catch {
       /* ignore */
@@ -348,14 +355,14 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const yourValued = useMemo(
     () =>
       yourOffer.rots.map((r) =>
-        valueRot(r, rotsData[r.Species])
+        valueRot(r, rotsData[r.Species], valueMethod)
       ),
-    [yourOffer.rots, rotsData]
+    [yourOffer.rots, rotsData, valueMethod]
   );
   const theirValued = useMemo(
     () =>
-      theirOffer.rots.map((r) => valueRot(r, rotsData[r.Species])),
-    [theirOffer.rots, rotsData]
+      theirOffer.rots.map((r) => valueRot(r, rotsData[r.Species], valueMethod)),
+    [theirOffer.rots, rotsData, valueMethod]
   );
 
   const yourItems = useMemo(
@@ -515,6 +522,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     metaLoaded,
     navView,
     sidebarExpanded,
+    valueMethod,
     showAccountModal,
     shareOpen,
     savedProfile,
@@ -544,6 +552,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setMetaLoaded,
     setNavView,
     setSidebarExpanded,
+    setValueMethod,
     setShowAccountModal,
     setShareOpen,
     setSavedProfile,

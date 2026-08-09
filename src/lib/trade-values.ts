@@ -1,27 +1,37 @@
 import type { Rot, Species, BagItemInfo } from "./cab-types";
 
 /**
- * Trade value estimator for "Catch a Brainrot".
+ * Official value methods per server announcement.
  *
- * Value model (community-style heuristic):
- *   - Brainrot base = species.Rarity (1..6, fractional).
- *   - IV multiplier - IV 0 → 0.6x, IV 1 → 1.4x (linear).
- *   - Level multiplier - every 10 levels adds +25% value.
- *   - Exclusive bonus - demon rots get ×1.5.
- *   - Box bonus - better capture boxes add small premium (Rot Box → Crystal Box).
+ * Dev:   ((rarity x 1000) / exists) + 100
+ * Rot:   ((rarity x 1000) / exists) + 100 + skill_value
  *
- *   - Bag items: tiered by name keywords (Egg, Box, Currency, Upgrade, Special).
- *     Currency (Coins/Ice Coins) valued at 1 unit each.
- *     Eggs valued higher than boxes; Legendary-tier boxes (Infinity) worth most.
- *
- *   - Hoverboards: valued by Speed stat (faster = more valuable).
- *
- * All values are returned in arbitrary "value units" used only for relative
- * comparison - not an official currency. The estimator is intentionally
- * transparent so users can see how each number is built.
+ * When `exists` is not available in the species data, we fall back to the
+ * legacy heuristic so the app still produces usable numbers.
  */
 
-const BOX_TIER: Record<string, number> = {
+export type ValueMethod = "dev" | "rot";
+
+export interface ValueMethodOption {
+  id: ValueMethod;
+  label: string;
+  description: string;
+}
+
+export const VALUE_METHODS: ValueMethodOption[] = [
+  {
+    id: "dev",
+    label: "Dev",
+    description: "((rarity × 1000) / exists) + 100",
+  },
+  {
+    id: "rot",
+    label: "Rot",
+    description: "((rarity × 1000) / exists) + 100 + skill_value",
+  },
+];
+
+const LEGACY_BOX_TIER: Record<string, number> = {
   "Rot Box": 1.0,
   "Rare Box": 1.05,
   "Epic Box": 1.1,
@@ -33,8 +43,139 @@ const BOX_TIER: Record<string, number> = {
   "Snowman Box": 1.1,
   "Miner Box": 1.1,
   "Silver Box": 1.05,
-  "Infinity Box": 2.0, // 100% catch rate
+  "Infinity Box": 2.0,
 };
+
+const SKILL_VALUE: Record<string, number> = {
+  Charge: 1,
+  Feathers: 2,
+  Fry: 3,
+  "MrBeast": 8,
+  "Wheel Attack": 5,
+  "Fire Blast": 7,
+  "Grow A Garden": 4,
+  Shield: 2,
+  Bomb: 6,
+  Shoot: 3,
+  Bite: 4,
+  Firework: 5,
+  Match: 2,
+  Slap: 1,
+  Growl: 1,
+  Tackle: 1,
+  "Water Gun": 3,
+  Ember: 3,
+  "Quick Attack": 4,
+  "Solar Beam": 9,
+  "Thunder Shock": 6,
+  "Ice Shard": 5,
+  "Earthquake": 10,
+  "Poison Sting": 3,
+  "Wing Attack": 5,
+  "Bone Rush": 6,
+  "Shadow Ball": 7,
+  "Dragon Rage": 8,
+  "Steel Wing": 4,
+  "Absorb": 3,
+  "Confusion": 5,
+  "Psychic": 9,
+  "Fury Attack": 4,
+  "Horn Drill": 10,
+  "Leech Life": 4,
+  "Mega Drain": 5,
+  "Pay Day": 3,
+  "Pin Missile": 6,
+  "Razor Leaf": 5,
+  "Rock Slide": 7,
+  "Sonic Boom": 3,
+  "String Shot": 1,
+  "Transform": 7,
+  "Barrier": 3,
+  "Double Kick": 5,
+  "Flash": 2,
+  "Hydro Pump": 9,
+  "Jump Kick": 7,
+  "Kinesis": 4,
+  "Lick": 2,
+  "Mimic": 3,
+  "Night Shade": 5,
+  "Recover": 6,
+  "Rest": 2,
+  "Screech": 1,
+  "Seismic Toss": 6,
+  "Sharpen": 1,
+  "Sing": 4,
+  "Stun Spore": 3,
+  "Substitute": 5,
+  "Swift": 3,
+  "Teleport": 2,
+  "Tri Attack": 7,
+  "Whirlwind": 4,
+  "Agility": 3,
+  "Amnesia": 4,
+  "Barrage": 3,
+  "Bide": 5,
+  "Clamp": 4,
+  "Constrict": 2,
+  "Defense Curl": 1,
+  Dig: 5,
+  "Dizzy Punch": 5,
+  "Double Edge": 8,
+  "Double Team": 2,
+  "Egg Bomb": 6,
+  Explosion: 10,
+  "Fury Swipes": 4,
+  Glare: 4,
+  Gust: 2,
+  "Hyper Beam": 10,
+  Jump: 3,
+  Kick: 4,
+  "Leech Seed": 3,
+  "Lovely Kiss": 5,
+  Meditate: 2,
+  Minimize: 1,
+  "Pay Day": 3,
+  "Petal Dance": 7,
+  Rage: 4,
+  "Rapid Spin": 4,
+  "Razor Wind": 6,
+  Reflect: 4,
+  Roar: 3,
+  "Rock Throw": 4,
+  Rollout: 4,
+  "Sand Attack": 2,
+  Scratch: 1,
+  "Self-Destruct": 9,
+  "Skull Bash": 8,
+  "Sky Attack": 8,
+  Sludge: 5,
+  Smog: 3,
+  "Soft-Boiled": 6,
+  Splash: 1,
+  Stockpile: 2,
+  Strength: 6,
+  "String Shot": 1,
+  Submission: 7,
+  "Super Fang": 7,
+  Supersonic: 2,
+  "Take Down": 5,
+  Teleport: 2,
+  Thunder: 8,
+  Thunderbolt: 8,
+  Toxic: 5,
+  "Vice Grip": 3,
+  "Vine Whip": 3,
+  Waterfall: 6,
+  Withdraw: 2,
+};
+
+function getSkillValue(skill: string): number {
+  return SKILL_VALUE[skill] ?? 1;
+}
+
+function getSkillValueSum(moveset: string[]): number {
+  return moveset.reduce((sum, skill) => sum + getSkillValue(skill), 0);
+}
 
 export interface ValuedRot {
   rot: Rot;
@@ -76,20 +217,43 @@ export function classifyItem(name: string): { tier: string; value: number } {
   return { tier: "Misc", value: 5 };
 }
 
-export function valueRot(rot: Rot, species?: Species): ValuedRot {
+export function valueRot(rot: Rot, species?: Species, method: ValueMethod = "dev"): ValuedRot {
   const breakdown: { label: string; amount: number }[] = [];
 
   if (!species) {
-    // Unknown species - small flat value based on level
     const v = Math.max(1, rot.Level * 0.5);
     breakdown.push({ label: "Unknown species (level-only)", amount: v });
     return { rot, species, value: v, breakdown };
   }
 
+  const exists = species.Exists ?? 0;
+
+  if (exists > 0) {
+    const base = (species.Rarity * 1000) / exists + 100;
+    breakdown.push({
+      label: `Official (rarity ${species.Rarity.toFixed(2)} / exists ${exists})`,
+      amount: base,
+    });
+
+    if (method === "rot") {
+      const skillValue = getSkillValueSum(rot.Moveset);
+      const skillBoost = skillValue;
+      breakdown.push({
+        label: `Skill value (${rot.Moveset.length} moves)`,
+        amount: skillBoost,
+      });
+
+      const total = base + skillBoost;
+      return { rot, species, value: Math.max(1, total), breakdown };
+    }
+
+    return { rot, species, value: Math.max(1, base), breakdown };
+  }
+
+  // Fallback when exists count is not available
   const base = species.Rarity * 10;
   breakdown.push({ label: `Base (rarity ${species.Rarity.toFixed(2)})`, amount: base });
 
-  // IV multiplier: 0 -> 0.6, 1 -> 1.4
   const ivMult = 0.6 + rot.IV * 0.8;
   const ivBoost = base * ivMult - base;
   breakdown.push({
@@ -97,7 +261,6 @@ export function valueRot(rot: Rot, species?: Species): ValuedRot {
     amount: ivBoost,
   });
 
-  // Level multiplier: +25% per 10 levels
   const lvlMult = 1 + Math.floor(rot.Level / 10) * 0.25;
   const lvlBoost = base * lvlMult - base;
   breakdown.push({
@@ -105,14 +268,12 @@ export function valueRot(rot: Rot, species?: Species): ValuedRot {
     amount: lvlBoost,
   });
 
-  // Exclusive bonus (demon rots)
   if (species.IsExclusive) {
     const ex = base * 0.5;
     breakdown.push({ label: "Exclusive demon rot (+50%)", amount: ex });
   }
 
-  // Box bonus
-  const boxMult = BOX_TIER[rot.Box] ?? 1.0;
+  const boxMult = LEGACY_BOX_TIER[rot.Box] ?? 1.0;
   if (boxMult > 1.0) {
     const boxBoost = base * (boxMult - 1.0);
     breakdown.push({
@@ -185,7 +346,7 @@ export function verdict(
       color = "#22c55e";
     } else if (percent > 0.2) {
       label = "WIN";
-      color = "#84cc16";
+      color = "#84cc81";
     } else {
       label = "SLIGHT WIN";
       color = "#bef264";
