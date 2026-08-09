@@ -129,12 +129,12 @@ export function BrainrotsView() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[9px] text-white/80">
-          <LegendChip color="#E5E7EB" label="Common" />
-          <LegendChip color="#FCA5A5" label="Uncommon" />
-          <LegendChip color="#7ED957" label="Rare" />
-          <LegendChip color="#B27DFF" label="Epic" />
-          <LegendChip color="#AA33FF" label="Insane" />
-          <LegendChip color="#FF5555" label="Exclusive" />
+          <LegendChip color="#585858" label="Common" />
+          <LegendChip color="#4c644e" label="Uncommon" />
+          <LegendChip color="#324b55" label="Rare" />
+          <LegendChip color="#473155" label="Epic" />
+          <LegendChip color="#543233" label="Insane" />
+          <LegendChip color="#64552b" label="Exclusive" />
         </div>
       </div>
 

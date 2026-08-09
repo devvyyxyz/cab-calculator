@@ -55,12 +55,12 @@ export function AboutView() {
     : {};
 
   const rarityColors: Record<string, string> = {
-    Common: "#E5E7EB",
-    Uncommon: "#FCA5A5",
-    Rare: "#7ED957",
-    Epic: "#B27DFF",
-    Insane: "#AA33FF",
-    Exclusive: "#FF5555",
+    Common: "#585858",
+    Uncommon: "#4c644e",
+    Rare: "#324b55",
+    Epic: "#473155",
+    Insane: "#543233",
+    Exclusive: "#64552b",
   };
 
   const itemTypes = Object.entries(

@@ -4,12 +4,12 @@ export function rarityTier(
   rarity: number,
   isExclusive: boolean
 ): { color: string; shimmer: boolean; label: string } {
-  if (isExclusive) return { color: "#FF5555", shimmer: true, label: "Exclusive" };
-  if (rarity >= 5) return { color: "#AA33FF", shimmer: true, label: "Insane" };
-  if (rarity >= 4) return { color: "#B27DFF", shimmer: false, label: "Epic" };
-  if (rarity >= 3) return { color: "#7ED957", shimmer: false, label: "Rare" };
-  if (rarity >= 2) return { color: "#FCA5A5", shimmer: false, label: "Uncommon" };
-  return { color: "#E5E7EB", shimmer: false, label: "Common" };
+  if (isExclusive) return { color: "#64552b", shimmer: true, label: "Exclusive" };
+  if (rarity >= 5) return { color: "#543233", shimmer: true, label: "Insane" };
+  if (rarity >= 4) return { color: "#473155", shimmer: false, label: "Epic" };
+  if (rarity >= 3) return { color: "#324b55", shimmer: false, label: "Rare" };
+  if (rarity >= 2) return { color: "#4c644e", shimmer: false, label: "Uncommon" };
+  return { color: "#585858", shimmer: false, label: "Common" };
 }
 
 export function rarityTierColor(rarity: number, isExclusive: boolean): string {
