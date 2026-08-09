@@ -2,35 +2,50 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { SortPill } from "@/components/trade/SortPill";
 import { PixelIcon } from "@/components/trade/PixelIcon";
 import { SmartImage } from "@/components/trade/SmartImage";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import {
   SectionDivider,
   EmptyState,
+  rarityTier,
 } from "@/lib/trade-utils";
-import { classifyItem } from "@/lib/trade-values";
+import { classifyItem, valueSpecies, type ValueMethod } from "@/lib/trade-values";
 import type { Species, BagItemInfo } from "@/lib/cab-types";
 import { useAppState } from "@/components/app/AppStateProvider";
-import { rarityTier } from "@/lib/trade-utils";
+import { usePersistentState } from "@/components/trade/usePersistentState";
 import { iconUrl } from "@/lib/cab-client";
 
 export function ValuesView() {
   const state = useAppState();
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"rots" | "items">("rots");
+  const [sortBy, setSortBy] = usePersistentState<"value-desc" | "value-asc" | "name-az" | "name-za">("cab_sort_values", "value-desc");
+  const [method, setMethod] = useState<ValueMethod>(state.valueMethod);
 
   const rotValues = Object.entries(state.rotsData)
     .map(([name, sp]) => {
-      const base = sp.Rarity * 10;
-      const ivMult = 0.6 + 0.5 * 0.8;
-      const value = base * ivMult * (sp.IsExclusive ? 1.5 : 1);
+      const value = valueSpecies(sp, method);
       return { name, sp, value, tier: rarityTier(sp.Rarity, sp.IsExclusive) };
     })
     .filter((r) =>
       `${r.name} ${r.sp.ShortenedName} ${r.sp.FullName}`.toLowerCase().includes(search.toLowerCase())
     )
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "value-asc":
+          return a.value - b.value || a.name.localeCompare(b.name);
+        case "value-desc":
+          return b.value - a.value || a.name.localeCompare(b.name);
+        case "name-az":
+          return a.name.localeCompare(b.name);
+        case "name-za":
+          return b.name.localeCompare(a.name);
+        default:
+          return 0;
+      }
+    });
 
   const itemValues = Object.entries(state.bagData)
     .map(([name, info]) => {
@@ -38,7 +53,30 @@ export function ValuesView() {
       return { name, info, value, tier };
     })
     .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "value-asc":
+          return a.value - b.value || a.name.localeCompare(b.name);
+        case "value-desc":
+          return b.value - a.value || a.name.localeCompare(b.name);
+        case "name-az":
+          return a.name.localeCompare(b.name);
+        case "name-za":
+          return b.name.localeCompare(a.name);
+        default:
+          return 0;
+      }
+    });
+
+  const handleMethodChange = (next: ValueMethod) => {
+    setMethod(next);
+    state.setValueMethod(next);
+    try {
+      localStorage.setItem("cab_value_method", next);
+    } catch {
+      /* ignore */
+    }
+  };
 
   return (
     <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
@@ -61,6 +99,26 @@ export function ValuesView() {
             borderRadius: "0.875rem",
             fontFamily: "var(--font-pixel), monospace",
           }}
+        />
+        <SortPill
+          value={sortBy}
+          onChange={setSortBy}
+          label="SORT"
+          options={[
+            { value: "value-desc", label: "Value ↓" },
+            { value: "value-asc", label: "Value ↑" },
+            { value: "name-az", label: "Name A-Z" },
+            { value: "name-za", label: "Name Z-A" },
+          ]}
+        />
+        <SortPill
+          value={method}
+          onChange={(next) => handleMethodChange(next)}
+          label="METHOD"
+          options={[
+            { value: "dev", label: "Dev" },
+            { value: "rot", label: "Rot" },
+          ]}
         />
       </div>
 

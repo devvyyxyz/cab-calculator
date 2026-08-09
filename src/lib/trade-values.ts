@@ -177,6 +177,17 @@ function getSkillValueSum(moveset: string[]): number {
   return moveset.reduce((sum, skill) => sum + getSkillValue(skill), 0);
 }
 
+export function valueSpecies(species: Species, method: ValueMethod = "dev"): number {
+  const exists = species.Exists ?? 0;
+
+  if (exists > 0) {
+    const base = (species.Rarity * 1000) / exists + 100;
+    return Math.max(1, base);
+  }
+
+  return Math.max(1, species.Rarity * 10);
+}
+
 export interface ValuedRot {
   rot: Rot;
   species: Species | undefined;
