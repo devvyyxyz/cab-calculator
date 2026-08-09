@@ -111,7 +111,6 @@ export function SideNav({
       router.push(path);
     }
     setIsExpanded(false);
-    setOpenMenus({});
   };
 
   const toggleMenu = (id: string) => {
@@ -152,7 +151,6 @@ export function SideNav({
             onClick={(event) => {
               event.preventDefault();
               setIsExpanded((prev) => !prev);
-              setOpenMenus({});
             }}
             className="group"
             aria-label="Toggle sidebar"

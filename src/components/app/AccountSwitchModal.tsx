@@ -22,7 +22,7 @@ export function AccountSwitchModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
+        className="w-full max-w-sm rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
         style={{
           backgroundImage: "url('/stud_texture.png')",
           backgroundSize: "30px 30px",
@@ -30,70 +30,41 @@ export function AccountSwitchModal({
           backgroundBlendMode: "multiply",
         }}
       >
-        <div className="mb-4 flex items-center gap-3">
-          <div
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg"
-            style={{
-              background: "linear-gradient(135deg, #7cb3ff, #60a5fa)",
-              border: "3px solid #1e3a5f",
-              boxShadow: "0 3px 0 0 #1e3a5f",
-            }}
-          >
-            <span className="text-xl">👤</span>
-          </div>
-          <div className="flex flex-col">
-            <h3
-              className="text-outline-white text-lg font-bold text-gray-900"
-              style={{ fontFamily: "var(--font-pixel), monospace" }}
-            >
-              SWITCH ACCOUNT
-            </h3>
-            <p className="text-xs text-gray-600">
-              Currently logged in as:
-            </p>
-          </div>
-        </div>
-
-        <div
-          className="mb-4 rounded-lg border-2 border-gray-200 bg-gray-50 p-3"
-          style={{
-            backgroundImage: "url('/stud_texture.png')",
-            backgroundSize: "20px 20px",
-            backgroundRepeat: "repeat",
-            backgroundBlendMode: "multiply",
-          }}
-        >
-          <div className="flex items-center gap-3">
+        <div className="mb-5 flex flex-col items-center text-center">
+          <div className="mb-3 h-20 w-20 overflow-hidden rounded-2xl border-4 border-black/40 bg-white/80 p-1 shadow-[0_4px_0_rgba(0,0,0,0.25)]">
             {profile?.avatarUrl ? (
               <img
                 src={profile.avatarUrl}
                 alt={profile.displayName}
-                className="h-10 w-10 rounded-lg object-cover [image-rendering:pixelated]"
+                className="h-full w-full object-cover [image-rendering:pixelated]"
               />
             ) : (
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-gray-200">
-                <span className="text-xs">👤</span>
+              <div className="grid h-full w-full place-items-center bg-gray-200">
+                <PixelIcon name="backpack" size={32} color="#6b7280" />
               </div>
             )}
-            <div className="min-w-0 flex-1">
-              <div
-                className="truncate text-sm font-bold text-gray-900"
-                style={{ fontFamily: "var(--font-pixel), monospace" }}
-              >
-                {profile?.displayName ?? "Unknown"}
-              </div>
-              <div className="truncate text-xs text-gray-600">
-                ID: {profile?.id}
-              </div>
-            </div>
           </div>
+          <h3
+            className="text-outline-white text-lg font-bold text-gray-900"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            SWITCH ACCOUNT
+          </h3>
+          <p className="mt-1 text-xs text-gray-600">
+            {profile?.displayName ? `Logged in as ${profile.displayName}` : "No account linked"}
+          </p>
+          {profile?.id && (
+            <p className="text-[10px] uppercase tracking-[0.25em] text-gray-500">
+              ID: {profile.id}
+            </p>
+          )}
         </div>
 
         <p
-          className="mb-4 text-sm text-gray-700"
+          className="mb-4 text-center text-sm text-gray-700"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
         >
-          Do you want to switch to a different account?
+          Do you want to switch to a different Roblox account?
         </p>
 
         <div className="flex gap-2">
