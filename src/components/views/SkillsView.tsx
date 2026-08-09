@@ -58,7 +58,7 @@ export function SkillsView() {
     });
 
   return (
-    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"

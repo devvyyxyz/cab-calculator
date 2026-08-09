@@ -27,7 +27,7 @@ export function TradeView() {
   const shareLink = state.shareLink;
 
   return (
-    <div className="relative z-10 flex h-full w-full flex-col">
+    <div className="relative flex h-full w-full flex-col">
       <div className="shrink-0 px-4 pt-4 sm:px-6">
         <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
           <h2

@@ -31,7 +31,7 @@ export function InventoryView() {
 
   if (!state.youProfile) {
     return (
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+      <div className="relative mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
         <p className="text-outline text-base text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
           COMPLETE ONBOARDING FIRST
         </p>
@@ -41,7 +41,7 @@ export function InventoryView() {
 
   if (state.loading === "you" && !state.yourData) {
     return (
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+      <div className="relative mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
         <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-white" />
         <p className="text-outline text-base text-white" style={{ fontFamily: "var(--font-pixel), monospace" }}>
           LOADING INVENTORY...
@@ -52,7 +52,7 @@ export function InventoryView() {
 
   if (!state.yourData) {
     return (
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
+      <div className="relative mx-auto max-w-7xl px-4 pt-20 text-center sm:px-6">
         <p
           className="text-outline mb-3 text-base text-white"
           style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -111,7 +111,7 @@ export function InventoryView() {
   const currentRots = tab === "team" ? teamRots : pcRots;
 
   return (
-    <div className="relative z-10 mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
