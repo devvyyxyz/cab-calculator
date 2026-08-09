@@ -16,6 +16,7 @@ import { InventoryRotSlot } from "@/components/trade/InventoryRotSlot";
 import { InventoryBagSlot } from "@/components/trade/InventoryBagSlot";
 import { usePersistentState } from "@/components/trade/usePersistentState";
 import { classifyItem } from "@/lib/trade-values";
+import { iconUrl } from "@/lib/cab-client";
 import type { Rot, PlayerData, Species, BagItemInfo } from "@/lib/cab-types";
 import { useAppState } from "@/components/app/AppStateProvider";
 
@@ -237,6 +238,64 @@ export function InventoryView() {
               return bagEntries.map(([name, qty]) => (
                 <InventoryBagSlot key={name} name={name} qty={qty} info={state.bagData[name]} onClick={() => setDetailBag({ name, info: state.bagData[name], qty })} />
               ));
+            })()}
+          </div>
+        ) : tab === "team" ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {(() => {
+              if (teamRots.length === 0) {
+                return <EmptyState text="No team rots" />;
+              }
+              return teamRots.map((rot) => {
+                const sp = state.rotsData[rot.Species];
+                const name = rot.Nickname || rot.Species;
+                const health = sp?.Health ?? 0;
+                const maxHealth = 500;
+                const healthPercent = Math.min(100, Math.max(0, (health / maxHealth) * 100));
+                const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
+                return (
+                  <div
+                    key={rot.UID}
+                    className="flex items-center gap-3 rounded-xl border border-black/20 p-3 shadow-sm"
+                    style={{
+                      background: tier.color,
+                      backgroundImage: "url('/stud_texture.png')",
+                      backgroundSize: "30px 30px",
+                      backgroundRepeat: "repeat",
+                      backgroundBlendMode: "overlay",
+                    }}
+                    onClick={() => setDetailRot(rot)}
+                  >
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl p-1">
+                      <SmartImage
+                        src={sp?.Icon ? iconUrl(sp.Icon) : ""}
+                        alt={rot.Species}
+                        imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
+                        fallbackSize={32}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold uppercase tracking-wide text-white">
+                        {name}
+                      </div>
+                      <div className="mt-1 flex items-center gap-3">
+                        <div className="flex flex-1 items-center gap-2">
+                          <div className="h-3 flex-1 overflow-hidden rounded-full bg-black/20">
+                            <div
+                              className="h-full rounded-full bg-green-400"
+                              style={{ width: `${healthPercent}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] font-bold text-white/90">{health.toFixed(0)}</span>
+                        </div>
+                        <div className="text-xs text-white/80">
+                          lvl <span className="font-bold text-white">{rot.Level}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
             })()}
           </div>
         ) : (
