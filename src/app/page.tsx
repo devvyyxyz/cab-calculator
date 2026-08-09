@@ -2672,14 +2672,16 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
         </div>
 
         {selectedEntries.length >= 2 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-separate border-spacing-y-2 text-left text-sm text-slate-800">
+          <div className="overflow-x-auto rounded-xl border-2 border-black/30 bg-white/60 shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
+            <table className="min-w-full border-collapse text-left text-sm">
               <thead>
-                <tr>
-                  <th className="px-3 py-2 text-[10px] uppercase tracking-[0.25em] text-slate-600">Stat</th>
+                <tr className="bg-slate-200/80">
+                  <th className="border border-black/20 px-4 py-3 text-left text-[10px] uppercase tracking-[0.25em] text-slate-700">
+                    Stat
+                  </th>
                   {selectedEntries.map(({ name, species }) => (
-                    <th key={name} className="px-3 py-2">
-                      <div className="text-sm font-semibold uppercase tracking-wide text-slate-900">{species.FullName}</div>
+                    <th key={name} className="border border-black/20 px-4 py-3 text-center">
+                      <div className="text-sm font-bold uppercase tracking-wide text-slate-900">{species.FullName}</div>
                       <div className="text-[10px] uppercase tracking-[0.25em] text-slate-600">{species.ShortenedName}</div>
                     </th>
                   ))}
@@ -2692,8 +2694,10 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
                   { label: "Speed", getValue: (species: Species) => species.Speed.toFixed(1) },
                   { label: "Rarity", getValue: (species: Species) => species.Rarity.toFixed(1) },
                 ].map((row) => (
-                  <tr key={row.label} className="rounded-xl bg-white/70">
-                    <td className="rounded-l-xl px-3 py-3 text-[10px] uppercase tracking-[0.25em] text-slate-600">{row.label}</td>
+                  <tr key={row.label} className="bg-white/70 even:bg-white/50">
+                    <td className="border border-black/20 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-slate-700">
+                      {row.label}
+                    </td>
                     {selectedEntries.map(({ name, species }) => {
                       const value = (() => {
                         switch (row.label) {
@@ -2727,14 +2731,33 @@ function CompareView({ rotsData }: { rotsData: Record<string, Species> }) {
 
                       const delta = formatDelta(value, baselineValue);
                       const isBaseline = baselineEntry?.name === name;
+                      const isPositive = !isBaseline && delta.startsWith("+");
+                      const isNegative = !isBaseline && delta.startsWith("-");
 
                       return (
-                        <td key={name + row.label} className="px-3 py-3 text-sm text-slate-900">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="font-semibold">{row.getValue(species)}</span>
-                            <span className={`text-[10px] uppercase tracking-[0.25em] ${isBaseline ? "text-slate-500" : delta.startsWith("+") ? "text-green-700" : delta.startsWith("-") ? "text-red-700" : "text-slate-600"}`}>
-                              {isBaseline ? "baseline" : delta}
+                        <td key={name + row.label} className="border border-black/20 px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="text-base font-bold text-slate-900">
+                              {row.getValue(species)}
                             </span>
+                            {!isBaseline && (
+                              <span
+                                className={`text-[10px] font-semibold ${
+                                  isPositive
+                                    ? "text-green-700"
+                                    : isNegative
+                                    ? "text-red-700"
+                                    : "text-slate-500"
+                                }`}
+                              >
+                                {delta}
+                              </span>
+                            )}
+                            {isBaseline && (
+                              <span className="text-[10px] font-semibold text-slate-500">
+                                baseline
+                              </span>
+                            )}
                           </div>
                         </td>
                       );
