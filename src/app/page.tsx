@@ -113,8 +113,13 @@ export default function Home() {
 
       {/* Centered content */}
       <div className="relative z-20 flex max-w-3xl flex-col items-center justify-center gap-6 px-6 text-center">
-        {/* Site name */}
-        <h1 className="text-4xl font-bold uppercase tracking-wider text-white text-outline-white md:text-6xl lg:text-7xl">
+        {/* Site name with subtle rotation animation */}
+        <h1 
+          className="text-4xl font-bold uppercase tracking-wider text-white text-outline-white md:text-6xl lg:text-7xl"
+          style={{
+            animation: "subtleRotate 4s ease-in-out infinite",
+          }}
+        >
           CAB Calculator
         </h1>
 
@@ -136,7 +141,7 @@ export default function Home() {
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className="px-8 py-4 text-sm font-bold uppercase tracking-widest transition-transform duration-75 hover:brightness-110 active:translate-y-1 md:text-base"
+            className="btn-follow px-8 py-4 text-sm font-bold uppercase tracking-widest transition-transform duration-75 hover:brightness-110 active:translate-y-1 md:text-base"
             style={{
               background: "#7cb3ff",
               color: "#ffffff",
@@ -171,6 +176,15 @@ export default function Home() {
           }
           100% {
             transform: scale(1.1);
+          }
+        }
+
+        @keyframes subtleRotate {
+          0%, 100% {
+            transform: rotate(-2deg);
+          }
+          50% {
+            transform: rotate(2deg);
           }
         }
       `}</style>

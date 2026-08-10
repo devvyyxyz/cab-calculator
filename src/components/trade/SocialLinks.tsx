@@ -47,9 +47,6 @@ export function SocialLinks() {
           rel="noopener noreferrer"
           className="btn-follow group relative flex h-16 w-16 items-center justify-center md:h-20 md:w-20"
           aria-label={social.name}
-          style={{
-            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
-          }}
         >
           {/* Icon - white by default, colored on hover */}
           <div 
