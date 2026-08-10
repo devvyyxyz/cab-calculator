@@ -70,7 +70,7 @@ export function AccountSwitchModal({
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-300"
+            className="btn-follow flex-1 rounded-lg bg-gray-200 px-4 py-3 text-sm font-bold text-gray-700"
             style={{
               fontFamily: "var(--font-pixel), monospace",
               border: "2px solid #9ca3af",
@@ -81,7 +81,7 @@ export function AccountSwitchModal({
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 rounded-lg bg-red-500 px-4 py-3 text-sm font-bold text-white transition-all hover:bg-red-600"
+            className="btn-follow flex-1 rounded-lg bg-red-500 px-4 py-3 text-sm font-bold text-white"
             style={{
               fontFamily: "var(--font-pixel), monospace",
               border: "2px solid #7f1d1d",

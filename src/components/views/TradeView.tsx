@@ -143,7 +143,7 @@ export function TradeView() {
             state.setTheirOffer({ rots: [], items: [] });
             toast.success("Trade cleared");
           }}
-          className="h-12 w-16 rounded-lg bg-gray-400 transition-all hover:bg-gray-500 active:translate-y-0.5 sm:w-20"
+          className="btn-follow h-12 w-16 rounded-lg bg-gray-400 active:translate-y-0.5 sm:w-20"
           style={{
             border: "3px solid #6b7280",
             boxShadow: "0 3px 0 0 #374151",
@@ -154,7 +154,7 @@ export function TradeView() {
         {/* Completed button - triggers save flow */}
         <button
           onClick={() => state.setShowSaveTradeModal(true)}
-          className="h-12 rounded-lg bg-emerald-500 px-6 transition-all hover:bg-emerald-600 active:translate-y-0.5"
+          className="btn-follow h-12 rounded-lg bg-emerald-500 px-6 active:translate-y-0.5"
           style={{
             fontFamily: "var(--font-pixel), monospace",
             border: "3px solid #065f46",
@@ -167,7 +167,7 @@ export function TradeView() {
         {/* Ready button - plain grey, no text */}
         <button
           onClick={() => toast.info("Ready status noted")}
-          className="h-12 w-16 rounded-lg bg-gray-400 transition-all hover:bg-gray-500 active:translate-y-0.5 sm:w-20"
+          className="btn-follow h-12 w-16 rounded-lg bg-gray-400 active:translate-y-0.5 sm:w-20"
           style={{
             border: "3px solid #6b7280",
             boxShadow: "0 3px 0 0 #374151",

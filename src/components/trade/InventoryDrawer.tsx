@@ -204,7 +204,8 @@ export function InventoryDrawer({
             </div>
             <button
               onClick={onClose}
-              className="grid h-9 w-9 place-items-center rounded-full bg-red-500 text-white shadow-[0_3px_0_#7f1d1d]"
+              className="btn-follow grid h-9 w-9 place-items-center rounded-full bg-red-500 text-white"
+              style={{ boxShadow: "0 3px 0 #7f1d1d" }}
               aria-label="Close"
             >
               ✕
@@ -422,7 +423,8 @@ export function InventoryDrawer({
           </div>
           <button
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-full bg-red-500 text-white shadow-[0_3px_0_#7f1d1d]"
+            className="btn-follow grid h-9 w-9 place-items-center rounded-full bg-red-500 text-white"
+            style={{ boxShadow: "0 3px 0 #7f1d1d" }}
             aria-label="Close inventory"
           >
             ✕

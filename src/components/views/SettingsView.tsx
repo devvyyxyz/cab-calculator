@@ -88,7 +88,7 @@ export function SettingsView() {
             {state.youProfile && (
               <button
                 onClick={state.handleSwitchAccount}
-                className="rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white transition-transform active:translate-y-0.5"
+                className="btn-follow rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white active:translate-y-0.5"
                 style={{
                   fontFamily: "var(--font-pixel), monospace",
                   boxShadow: "0 2px 0 #7f1d1d",
@@ -148,7 +148,7 @@ export function SettingsView() {
 
           <button
             onClick={clearCache}
-            className={`flex items-center justify-center transition-transform active:translate-y-0.5 ${cacheCleared ? "bg-green-500" : "bg-red-500"} text-white`}
+            className={`btn-follow flex items-center justify-center active:translate-y-0.5 ${cacheCleared ? "bg-green-500" : "bg-red-500"} text-white`}
             style={{
               fontFamily: "var(--font-pixel), monospace",
               width: "3rem",

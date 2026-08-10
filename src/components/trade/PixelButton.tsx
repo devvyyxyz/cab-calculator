@@ -34,7 +34,7 @@ export function PixelButton({
     <button
       {...rest}
       className={cn(
-        "relative font-bold uppercase tracking-wider transition-transform",
+        "btn-follow relative font-bold uppercase tracking-wider",
         "active:translate-y-0.5",
         sizes[size],
         className

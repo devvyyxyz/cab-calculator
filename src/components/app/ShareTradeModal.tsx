@@ -129,7 +129,7 @@ export function ShareTradeModal({
           type="button"
           onClick={download}
           disabled={!id}
-          className="w-full rounded-lg bg-green-500 px-4 py-3 text-sm font-bold text-white transition-all enabled:hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-follow w-full rounded-lg bg-green-500 px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
           style={{
             fontFamily: "var(--font-pixel), monospace",
             border: "2px solid #14532d",
@@ -142,7 +142,7 @@ export function ShareTradeModal({
         <button
           type="button"
           onClick={onClose}
-          className="mt-2 w-full rounded-lg bg-gray-200 px-4 py-2.5 text-xs font-bold text-gray-700 transition-all hover:bg-gray-300"
+          className="btn-follow mt-2 w-full rounded-lg bg-gray-200 px-4 py-2.5 text-xs font-bold text-gray-700"
           style={{
             fontFamily: "var(--font-pixel), monospace",
             border: "2px solid #9ca3af",

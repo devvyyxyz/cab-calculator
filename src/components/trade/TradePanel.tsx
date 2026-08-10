@@ -61,7 +61,7 @@ export function TradePanel({
         <div className="mt-3">
           <button
             onClick={() => setDetailsOpen((o) => !o)}
-            className="flex w-full items-center justify-between rounded-xl bg-black/25 px-3 py-2 text-[10px] uppercase text-white"
+            className="btn-follow flex w-full items-center justify-between rounded-xl bg-black/25 px-3 py-2 text-[10px] uppercase text-white"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             <span>DETAILS</span>

@@ -74,7 +74,7 @@ export function SaveTradeModal({
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-follow flex-1 rounded-lg bg-gray-200 px-4 py-3 text-sm font-bold text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
             style={{
               fontFamily: "var(--font-pixel), monospace",
               border: "2px solid #9ca3af",
@@ -87,7 +87,7 @@ export function SaveTradeModal({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 rounded-lg bg-green-500 px-4 py-3 text-sm font-bold text-white transition-all hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-follow flex-1 rounded-lg bg-green-500 px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
             style={{
               fontFamily: "var(--font-pixel), monospace",
               border: "2px solid #14532d",

@@ -91,7 +91,7 @@ export function DiscordLinkModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-lg bg-gray-200 px-4 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-300"
+              className="btn-follow flex-1 rounded-lg bg-gray-200 px-4 py-3 text-sm font-bold text-gray-700"
               style={{
                 fontFamily: "var(--font-pixel), monospace",
                 border: "2px solid #9ca3af",
@@ -102,7 +102,7 @@ export function DiscordLinkModal({
             </button>
             <button
               type="submit"
-              className="flex-1 rounded-lg bg-indigo-500 px-4 py-3 text-sm font-bold text-white transition-all hover:bg-indigo-600"
+              className="btn-follow flex-1 rounded-lg bg-indigo-500 px-4 py-3 text-sm font-bold text-white"
               style={{
                 fontFamily: "var(--font-pixel), monospace",
                 border: "2px solid #3730a3",

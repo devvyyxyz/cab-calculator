@@ -230,7 +230,8 @@ export function CompareView() {
                   </div>
                   <button
                     onClick={() => setSelectorOpen(false)}
-                    className="grid h-9 w-9 place-items-center rounded-full bg-red-500 text-white shadow-[0_3px_0_#7f1d1d]"
+                    className="btn-follow grid h-9 w-9 place-items-center rounded-full bg-red-500 text-white"
+                    style={{ boxShadow: "0 3px 0 #7f1d1d" }}
                     aria-label="Close"
                   >
                     ✕
@@ -409,7 +410,7 @@ export function CompareView() {
         <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
           <button
             onClick={() => setMattersOpen((o) => !o)}
-            className="mb-3 flex w-full items-center justify-between rounded-xl bg-black/25 px-3 py-2 text-left"
+            className="btn-follow mb-3 flex w-full items-center justify-between rounded-xl bg-black/25 px-3 py-2 text-left"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
           >
             <div>

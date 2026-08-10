@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { SocialLinks } from "@/components/trade/SocialLinks";
 
 const BACKGROUNDS = [
   "/backgrounds/battle.png",
@@ -154,6 +155,11 @@ export default function Home() {
             Get Started
           </button>
         </Link>
+
+        {/* Social Media Links */}
+        <div className="mt-16 w-full">
+          <SocialLinks />
+        </div>
       </div>
     </main>
   );
