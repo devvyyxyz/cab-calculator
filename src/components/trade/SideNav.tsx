@@ -262,13 +262,13 @@ export function SideNav({
           <button
             type="button"
             onClick={onProfileClick}
-            className={`group ${isExpanded ? "w-full justify-start gap-2 px-2" : "justify-center"}`}
+            className={`group flex ${isExpanded ? "w-full items-center justify-start gap-2 px-2" : "items-center justify-center"}`}
             title={`${profile.displayName} · ID ${profile.id} - Click to switch account`}
           >
             <img
               src={profile.avatarUrl}
               alt={profile.displayName}
-              className="h-11 w-11 rounded-lg object-cover [image-rendering:pixelated] transition-transform hover:scale-110 sm:h-14 sm:w-14"
+              className="h-11 w-11 flex-shrink-0 rounded-lg object-cover [image-rendering:pixelated] transition-transform hover:scale-110 sm:h-14 sm:w-14"
             />
             {isExpanded && (
               <span className="max-w-[8rem] truncate text-left text-[10px] uppercase tracking-wide text-slate-100">
