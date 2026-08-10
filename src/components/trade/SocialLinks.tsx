@@ -48,45 +48,33 @@ export function SocialLinks() {
             animation: "slowZoom 20s ease-in-out infinite alternate",
           }}
         />
-        {/* Dark overlay for text readability */}
+        {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/60" />
       </div>
 
-      {/* Content */}
+      {/* Social media buttons grid - icons only */}
       <div className="relative z-10 mx-auto max-w-6xl px-6">
-        <div className="mb-10 text-center">
-          <h2 className="mb-3 text-3xl font-bold uppercase tracking-wider text-white md:text-4xl">
-            Connect With Us
-          </h2>
-          <p className="text-sm uppercase tracking-widest text-white/80 md:text-base">
-            Join our community across all platforms
-          </p>
-        </div>
-
-        {/* Social media buttons grid */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
           {socialLinks.map((social) => (
             <a
               key={social.name}
               href={social.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-follow group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-white p-6 shadow-lg"
+              className="btn-follow group flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg md:h-20 md:w-20"
+              aria-label={social.name}
             >
-              {/* Icon container */}
-              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 transition-colors duration-300 group-hover:bg-gray-200">
+              {/* Icon only */}
+              <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
                 {getSocialIcon(social.icon)}
               </div>
 
-              {/* Platform name */}
-              <span className="text-sm font-bold uppercase tracking-wider text-gray-800">
-                {social.name}
-              </span>
-
-              {/* Hover accent line */}
+              {/* Hover accent ring */}
               <div
-                className="absolute bottom-0 left-0 h-1 w-full transition-all duration-300 group-hover:h-1.5"
-                style={{ backgroundColor: social.color }}
+                className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                style={{
+                  boxShadow: `0 0 0 3px ${social.color}`,
+                }}
               />
             </a>
           ))}
