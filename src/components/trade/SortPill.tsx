@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { ChevronDownIcon } from "lucide-react";
 import { PixelIcon } from "./PixelIcon";
 
 export interface SortOption<T> {
@@ -55,7 +56,7 @@ export function SortPill<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase"
+        className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase outline-none transition-transform hover:scale-105 focus:ring-2 focus:ring-blue-400"
         style={{
           color: "#1f2937",
           fontFamily: "var(--font-pixel), monospace",
@@ -66,16 +67,10 @@ export function SortPill<T extends string>({
       >
         <span className="text-gray-500">{label}:</span>
         <span className="text-gray-900">{current.label}</span>
-        <span
-          className="ml-1 text-[8px] text-gray-600"
-          style={{
-            transform: open ? "rotate(180deg)" : "none",
-            transition: "transform 0.15s",
-            display: "inline-block",
-          }}
-        >
-          ▼
-        </span>
+        <ChevronDownIcon
+          className="ml-1 size-3 shrink-0 text-gray-600 transition-transform duration-150"
+          style={{ transform: open ? "rotate(180deg)" : "none" }}
+        />
       </button>
 
       {open && (

@@ -145,7 +145,7 @@ export function SideNav({
       />
       <div className="flex flex-1 flex-col gap-3">
         {/* Logo */}
-        <div className="flex justify-center">
+        <div className="flex justify-start px-2">
           <button
             type="button"
             onClick={(event) => {
