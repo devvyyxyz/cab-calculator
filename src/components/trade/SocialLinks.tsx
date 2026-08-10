@@ -38,61 +38,31 @@ const socialLinks: SocialLink[] = [
 
 export function SocialLinks() {
   return (
-    <section className="relative w-full overflow-hidden py-16 md:py-24">
-      {/* Animated background with zoom effect */}
-      <div className="absolute inset-0 z-0">
-        <div
-          className="h-full w-full bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('/backgrounds/illigal_brainrot.png')`,
-            animation: "slowZoom 20s ease-in-out infinite alternate",
-          }}
-        />
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/60" />
-      </div>
+    <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+      {socialLinks.map((social) => (
+        <a
+          key={social.name}
+          href={social.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-follow group relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg md:h-20 md:w-20"
+          aria-label={social.name}
+        >
+          {/* Icon only */}
+          <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+            {getSocialIcon(social.icon)}
+          </div>
 
-      {/* Social media buttons grid - icons only */}
-      <div className="relative z-10 mx-auto max-w-6xl px-6">
-        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-          {socialLinks.map((social) => (
-            <a
-              key={social.name}
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-follow group flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg md:h-20 md:w-20"
-              aria-label={social.name}
-            >
-              {/* Icon only */}
-              <div className="flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                {getSocialIcon(social.icon)}
-              </div>
-
-              {/* Hover accent ring */}
-              <div
-                className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                style={{
-                  boxShadow: `0 0 0 3px ${social.color}`,
-                }}
-              />
-            </a>
-          ))}
-        </div>
-      </div>
-
-      {/* CSS Animation Styles */}
-      <style jsx>{`
-        @keyframes slowZoom {
-          0% {
-            transform: scale(1);
-          }
-          100% {
-            transform: scale(1.1);
-          }
-        }
-      `}</style>
-    </section>
+          {/* Hover accent ring */}
+          <div
+            className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            style={{
+              boxShadow: `0 0 0 3px ${social.color}`,
+            }}
+          />
+        </a>
+      ))}
+    </div>
   );
 }
 

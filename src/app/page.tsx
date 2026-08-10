@@ -100,6 +100,7 @@ export default function Home() {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           opacity: bgOpacity,
+          animation: "slowZoom 20s ease-in-out infinite alternate",
         }}
         aria-hidden="true"
       />
@@ -161,6 +162,18 @@ export default function Home() {
           <SocialLinks />
         </div>
       </div>
+
+      {/* CSS Animation Styles */}
+      <style jsx>{`
+        @keyframes slowZoom {
+          0% {
+            transform: scale(1);
+          }
+          100% {
+            transform: scale(1.1);
+          }
+        }
+      `}</style>
     </main>
   );
 }
