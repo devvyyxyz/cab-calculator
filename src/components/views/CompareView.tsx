@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { SortPill } from "@/components/trade/SortPill";
 import { SmartImage } from "@/components/trade/SmartImage";
+import { PixelIcon } from "@/components/trade/PixelIcon";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import {
   ChartContainer,
@@ -134,7 +135,7 @@ export function CompareView() {
   };
 
   return (
-    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
+    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col overflow-y-auto px-4 pt-4 sm:px-6">
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
@@ -147,7 +148,7 @@ export function CompareView() {
         </p>
       </div>
 
-      <div className="grid flex-1 gap-4 overflow-y-auto pb-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
@@ -158,41 +159,72 @@ export function CompareView() {
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {selectedEntries.map(({ name, species }) => (
-              <div
-                key={name}
-                className="flex items-center gap-2 rounded-xl border border-black/20 bg-white/90 px-2 py-1.5 shadow-sm"
-              >
-                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-white/80 p-0.5">
-                  <SmartImage
-                    src={species.Icon ? `/api/cab/icon?name=${encodeURIComponent(species.Icon)}` : ""}
-                    alt={species.FullName}
-                    imgClassName="h-full w-full object-contain [image-rendering:pixelated]"
-                    fallbackSize={20}
-                  />
-                </div>
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-900">
-                  {species.ShortenedName}
-                </span>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => {
+              const entry = selectedEntries[index];
+              const isEmpty = !entry;
+              return (
                 <button
+                  key={index}
                   type="button"
-                  onClick={() => toggleSelection(name)}
-                  className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white shadow-[0_2px_0_#7f1d1d] transition-all hover:bg-red-600"
-                  aria-label={`Remove ${species.FullName}`}
+                  onClick={() => {
+                    setSelectorSearch("");
+                    setSelectorOpen(true);
+                  }}
+                  className="group relative aspect-square w-full select-none transition-transform active:translate-y-0.5"
+                  style={{
+                    background: "#d4e0eb",
+                    borderRadius: "18%",
+                    boxShadow: "inset 0 2px 2px 0 rgba(255,255,255,0.6), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+                  }}
+                  aria-label={isEmpty ? "Empty slot" : `Filled with ${entry.species.FullName}`}
                 >
-                  ✕
+                  <span className="relative z-10 block h-full w-full">
+                    {entry && (
+                      <div className="relative flex h-full w-full items-center justify-center p-1.5">
+                        <SmartImage
+                          src={entry.species.Icon ? `/api/cab/icon?name=${encodeURIComponent(entry.species.Icon)}` : ""}
+                          alt={entry.species.FullName}
+                          imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
+                          fallbackSize={32}
+                        />
+                      </div>
+                    )}
+                  </span>
+                  {isEmpty && (
+                    <span className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center opacity-30 transition-opacity group-hover:opacity-60">
+                      <PixelIcon name="plus" size={28} color="#1e3a5f" />
+                    </span>
+                  )}
+                  {!isEmpty && (
+                    <span
+                      className="absolute inset-0 z-20 flex items-center justify-center rounded-[18%] bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
+                      aria-hidden
+                    >
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSelection(entry.name);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation();
+                            toggleSelection(entry.name);
+                          }
+                        }}
+                        className="grid h-10 w-10 cursor-pointer place-items-center"
+                        aria-label="Remove"
+                      >
+                        <PixelIcon name="close" size={32} color="#ffffff" />
+                      </span>
+                    </span>
+                  )}
+                  <span className="pointer-events-none absolute inset-0 rounded-[18%] ring-1 ring-inset ring-white/30" />
                 </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() => { setSelectorSearch(""); setSelectorOpen(true); }}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-black/30 text-lg text-slate-500 transition-all hover:border-black/50 hover:text-slate-700"
-              aria-label="Add brainrot"
-            >
-              +
-            </button>
+              );
+            })}
           </div>
 
           {selectorOpen && (
