@@ -1,105 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { SocialLinks } from "@/components/trade/SocialLinks";
-
-const BACKGROUNDS = [
-  "/backgrounds/battle.png",
-  "/backgrounds/cat.png",
-  "/backgrounds/desert.png",
-  "/backgrounds/egg.png",
-  "/backgrounds/illigal_brainrot.png",
-];
-
-const FADE_INTERVAL_MS = 5000;
-const FADE_DURATION_MS = 1000;
+import { useTilt } from "@/lib/useTilt";
 
 /**
- * Landing page — full-screen hero with rotating background images.
+ * Minimalist landing page - a single full-screen background with a centered
+ * title, a call-to-action button and the social icons.
  *
- * Cycles through /public/backgrounds/* with a smooth fade transition.
- * The dark overlay ensures text remains legible against any background.
+ * The "Get Started" button uses the same 3D tilt-on-hover effect as every
+ * other button in the app (via the shared useTilt hook).
  */
+const BACKGROUND = "/backgrounds/illigal_brainrot.png";
+
 export default function Home() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [bgOpacity, setBgOpacity] = useState(1);
-  const [tilt, setTilt] = useState({ x: 0, y: 0, translateX: 0, translateY: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const rafRef = useRef<number>();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Fade out
-      setBgOpacity(0);
-
-      // After fade completes, swap image and fade back in
-      const timeout = setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % BACKGROUNDS.length);
-        setBgOpacity(1);
-      }, FADE_DURATION_MS);
-
-      return () => clearTimeout(timeout);
-    }, FADE_INTERVAL_MS);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!buttonRef.current) return;
-
-    const rect = buttonRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    // Calculate mouse position relative to button center (-1 to 1)
-    const mouseX = (e.clientX - centerX) / (rect.width / 2);
-    const mouseY = (e.clientY - centerY) / (rect.height / 2);
-
-    // Cancel any pending animation frame
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-
-    // Smooth update using requestAnimationFrame
-    rafRef.current = requestAnimationFrame(() => {
-      // Rotation: max 12 degrees tilt
-      const rotateX = -mouseY * 12; // Tilt up/down based on vertical mouse position
-      const rotateY = mouseX * 12; // Tilt left/right based on horizontal mouse position
-
-      // Translation: max 4px movement toward cursor
-      const translateX = mouseX * 4;
-      const translateY = mouseY * 4;
-
-      setTilt({ x: rotateX, y: rotateY, translateX, translateY });
-    });
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovering(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovering(false);
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-    }
-    // Smoothly reset to default position
-    setTilt({ x: 0, y: 0, translateX: 0, translateY: 0 });
-  };
+  const { buttonRef, handleMouseMove, handleMouseEnter, handleMouseLeave, tilt, isHovering } =
+    useTilt(12, 4);
 
   return (
     <main className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
-      {/* Background image layer with fade transition */}
+      {/* Full-screen background image */}
       <div
-        className="absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out"
+        className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `url('${BACKGROUNDS[currentIndex]}')`,
+          backgroundImage: `url('${BACKGROUND}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          opacity: bgOpacity,
           animation: "slowZoom 20s ease-in-out infinite alternate",
         }}
         aria-hidden="true"
@@ -112,9 +39,9 @@ export default function Home() {
       />
 
       {/* Centered content */}
-      <div className="relative z-20 flex max-w-3xl flex-col items-center justify-center gap-6 px-6 text-center">
+      <div className="relative z-20 flex max-w-3xl flex-col items-center justify-center gap-8 px-6 text-center">
         {/* Site name with subtle rotation animation */}
-        <h1 
+        <h1
           className="text-4xl font-bold uppercase tracking-wider text-white text-outline-white md:text-6xl lg:text-7xl"
           style={{
             animation: "subtleRotate 4s ease-in-out infinite",
@@ -126,12 +53,6 @@ export default function Home() {
         {/* Tagline */}
         <p className="text-base font-bold uppercase tracking-widest text-white/90 text-outline-sm-white md:text-lg">
           Creatures and Buddies Trade Tool
-        </p>
-
-        {/* Brief description */}
-        <p className="max-w-lg text-sm leading-relaxed text-white/80 md:text-base">
-          Calculate fair trade values, manage your inventory, and build the perfect
-          team. Your essential companion for mastering the CAB marketplace.
         </p>
 
         {/* Call-to-action */}

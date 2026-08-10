@@ -247,28 +247,33 @@
                 box-shadow 0.3s ease;
   }
 
-  /* Social icon hover colors - icons are white by default, colored on hover */
-  .group:hover svg {
-    color: inherit;
+  /* Social icon colors - white by default, brand color on hover.
+     The SVG icons use fill="currentColor", so setting the <a> color tints them. */
+  .social-icon-link {
+    color: white;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+  .social-icon-link:hover {
+    transform: scale(1.1);
   }
 
   /* Discord hover color */
-  a[aria-label="Discord"]:hover > div {
+  a[aria-label="Discord"].social-icon-link:hover {
     color: #5865F2;
   }
 
   /* YouTube hover color */
-  a[aria-label="YouTube"]:hover > div {
+  a[aria-label="YouTube"].social-icon-link:hover {
     color: #FF0000;
   }
 
-  /* Roblox hover color */
-  a[aria-label="Roblox"]:hover > div {
-    color: #000000;
+  /* Roblox hover color - official Roblox red */
+  a[aria-label="Roblox"].social-icon-link:hover {
+    color: #E2231A;
   }
 
   /* Twitter hover color */
-  a[aria-label="Twitter"]:hover > div {
+  a[aria-label="Twitter"].social-icon-link:hover {
     color: #1DA1F2;
   }
 }

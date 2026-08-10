@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useTilt } from "@/lib/useTilt";
 
 /** Big retro pixel button matching the in-game trade UI. */
 export function PixelButton({
@@ -30,9 +31,18 @@ export function PixelButton({
     lg: "px-5 py-3 text-[12px]",
   };
 
+  // Same 3D tilt effect as the landing "Get Started" button, scaled by button size.
+  const maxTilt = size === "sm" ? 8 : size === "md" ? 12 : 14;
+  const { buttonRef, handleMouseMove, handleMouseEnter, handleMouseLeave, tilt, isHovering } =
+    useTilt(maxTilt, 4);
+
   return (
     <button
       {...rest}
+      ref={buttonRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={cn(
         "btn-follow relative font-bold uppercase tracking-wider",
         "active:translate-y-0.5",
@@ -43,13 +53,21 @@ export function PixelButton({
         background: p.bg,
         color: p.text,
         borderRadius: "12px",
-        boxShadow: `0 4px 0 0 ${p.shadow}, inset 0 2px 0 0 rgba(255,255,255,0.4)`,
+        boxShadow: isHovering
+          ? `0 ${4 + tilt.translateY * 0.5}px 0 0 ${p.shadow}, inset 0 2px 0 0 rgba(255,255,255,0.4)`
+          : `0 4px 0 0 ${p.shadow}, inset 0 2px 0 0 rgba(255,255,255,0.4)`,
         border: `2px solid ${p.shadow}`,
         fontFamily: "var(--font-pixel), monospace",
         textShadow:
           variant === "amber" || variant === "default"
             ? "none"
             : "1px 1px 0 rgba(0,0,0,0.5)",
+        transform: isHovering
+          ? `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translate(${tilt.translateX}px, ${tilt.translateY}px)`
+          : "none",
+        transition: isHovering
+          ? "none"
+          : "transform 0.3s ease-out, box-shadow 0.3s ease-out",
       }}
     >
       {children}

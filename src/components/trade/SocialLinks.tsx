@@ -26,7 +26,7 @@ const socialLinks: SocialLink[] = [
     name: "Roblox",
     url: "https://roblox.com/communities/35468297/Indieun-x-zv-u",
     icon: "roblox",
-    color: "#000000",
+    color: "#E2231A",  // Official Roblox red
   },
   {
     name: "Twitter",
@@ -45,19 +45,10 @@ export function SocialLinks() {
           href={social.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-follow group relative flex h-16 w-16 items-center justify-center md:h-20 md:w-20"
+          className="social-icon-link group"
           aria-label={social.name}
         >
-          {/* Icon - white by default, colored on hover */}
-          <div 
-            className="transition-transform duration-300 group-hover:scale-110"
-            style={{
-              color: "white",
-              transition: "color 0.3s ease, transform 0.3s ease",
-            }}
-          >
-            {getSocialIcon(social.icon)}
-          </div>
+          {getSocialIcon(social.icon)}
         </a>
       ))}
     </div>
@@ -69,7 +60,7 @@ export function SocialLinks() {
  * Icons use currentColor so they inherit the text color
  */
 function getSocialIcon(platform: string): React.ReactNode {
-  const iconClass = "h-8 w-8 md:h-10 md:w-10";
+  const iconClass = "h-8 w-8 md:h-10 md:w-10 transition-all duration-300 group-hover:scale-110";
 
   switch (platform) {
     case "discord":
