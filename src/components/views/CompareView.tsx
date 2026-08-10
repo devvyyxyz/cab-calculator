@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { SortPill } from "@/components/trade/SortPill";
 import { SmartImage } from "@/components/trade/SmartImage";
+import { iconUrl } from "@/lib/cab-client";
 import { PixelIcon } from "@/components/trade/PixelIcon";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import {
@@ -34,13 +35,6 @@ export function CompareView() {
   const [mattersOpen, setMattersOpen] = useState(true);
   const [selectorSearch, setSelectorSearch] = useState("");
   const [selectorSortBy, setSelectorSortBy] = usePersistentState<"rarity-desc" | "rarity-asc" | "name-az" | "name-za">("cab_compare_sort", "rarity-desc");
-
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    if (selected.length || Object.keys(state.rotsData).length === 0) return;
-    setSelected(Object.keys(state.rotsData).slice(0, 2));
-  }, [state.rotsData, selected.length]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const selectedEntries = useMemo(() => {
     return selected
@@ -150,15 +144,6 @@ export function CompareView() {
 
       <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm uppercase tracking-[0.3em] text-slate-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
-              1. CHOOSE BRAINROTS
-            </h3>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-slate-600">
-              {selected.length}/4 selected
-            </span>
-          </div>
-
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => {
               const entry = selectedEntries[index];
@@ -183,7 +168,7 @@ export function CompareView() {
                     {entry && (
                       <div className="relative flex h-full w-full items-center justify-center p-1.5">
                         <SmartImage
-                          src={entry.species.Icon ? `/api/cab/icon?name=${encodeURIComponent(entry.species.Icon)}` : ""}
+                          src={iconUrl(entry.species.Icon)}
                           alt={entry.species.FullName}
                           imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
                           fallbackSize={32}
