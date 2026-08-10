@@ -33,13 +33,13 @@ export function PixelButton({
 
   // Same 3D tilt effect as the landing "Get Started" button, scaled by button size.
   const maxTilt = size === "sm" ? 8 : size === "md" ? 12 : 14;
-  const { buttonRef, handleMouseMove, handleMouseEnter, handleMouseLeave, tilt, isHovering } =
-    useTilt(maxTilt, 4);
+  const { ref, handleMouseMove, handleMouseEnter, handleMouseLeave, tilt, isHovering } =
+    useTilt<HTMLButtonElement>(maxTilt, 4);
 
   return (
     <button
       {...rest}
-      ref={buttonRef}
+      ref={ref}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

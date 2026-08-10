@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { PixelIcon } from "@/components/trade/PixelIcon";
+import { TiltCard } from "@/components/trade/TiltCard";
 
 export function ShareTradeModal({
   open,
@@ -54,7 +55,7 @@ export function ShareTradeModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div
+      <TiltCard
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-lg rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
         style={{
@@ -151,7 +152,7 @@ export function ShareTradeModal({
         >
           CLOSE
         </button>
-      </div>
+      </TiltCard>
     </div>
   );
 }

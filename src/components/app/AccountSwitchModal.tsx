@@ -1,6 +1,7 @@
 "use client";
 
 import { PixelIcon } from "@/components/trade/PixelIcon";
+import { TiltCard } from "@/components/trade/TiltCard";
 
 export function AccountSwitchModal({
   open,
@@ -20,7 +21,7 @@ export function AccountSwitchModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div
+      <TiltCard
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-sm rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
         style={{
@@ -91,7 +92,7 @@ export function AccountSwitchModal({
             YES, SWITCH
           </button>
         </div>
-      </div>
+      </TiltCard>
     </div>
   );
 }

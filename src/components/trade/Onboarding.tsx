@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { PixelButton } from "./PixelButton";
+import { TiltCard } from "./TiltCard";
 
 interface RobloxUser {
   id: number;
@@ -146,7 +147,7 @@ export function Onboarding({
 
       {/* Centered content card with stud background */}
       <div className="relative z-10 grid min-h-screen place-items-center p-4">
-        <div
+        <TiltCard
           className="w-full max-w-md overflow-hidden p-6"
           style={{
             backgroundColor: "#1a1f2e",
@@ -318,7 +319,7 @@ export function Onboarding({
               </PixelButton>
             </div>
           )}
-        </div>
+        </TiltCard>
       </div>
     </div>
   );

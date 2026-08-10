@@ -14,7 +14,7 @@ import { useTilt } from "@/lib/useTilt";
 const BACKGROUND = "/backgrounds/illigal_brainrot.png";
 
 export default function Home() {
-  const { buttonRef, handleMouseMove, handleMouseEnter, handleMouseLeave, tilt, isHovering } =
+  const { ref: getBtnRef, handleMouseMove, handleMouseEnter, handleMouseLeave, tilt, isHovering } =
     useTilt(12, 4);
 
   return (
@@ -58,7 +58,7 @@ export default function Home() {
         {/* Call-to-action */}
         <Link href="/trade-calculator" className="mt-4">
           <button
-            ref={buttonRef}
+            ref={getBtnRef}
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}

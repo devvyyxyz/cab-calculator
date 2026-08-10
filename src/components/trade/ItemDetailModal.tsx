@@ -5,6 +5,7 @@ import type { Rot, Species, BagItemInfo } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
 import { SmartImage } from "./SmartImage";
 import { PixelIcon } from "./PixelIcon";
+import { TiltCard } from "./TiltCard";
 
 /**
  * Item detail modal - shows when clicking a rot or item in the inventory.
@@ -59,7 +60,7 @@ export function ItemDetailModal({
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div
+      <TiltCard
         onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-md overflow-hidden"
         style={{
@@ -334,7 +335,7 @@ export function ItemDetailModal({
             BACK
           </button>
         </div>
-      </div>
+      </TiltCard>
     </div>
   );
 }
