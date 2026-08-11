@@ -3,7 +3,7 @@
 import type { TradeVerdict } from "@/lib/trade-values";
 import { PixelIcon } from "@/components/trade/PixelIcon";
 
-export function FairnessBadge({ verdict }: { verdict: TradeVerdict }) {
+export function FairnessBadge({ verdict, className }: { verdict: TradeVerdict; className?: string }) {
   const isWin = verdict.winner === "them";
   const isLoss = verdict.winner === "you";
 
@@ -20,7 +20,7 @@ export function FairnessBadge({ verdict }: { verdict: TradeVerdict }) {
   return (
     <button
       type="button"
-      className="btn-follow flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold text-white enabled:active:translate-y-0.5"
+      className={`btn-follow flex min-w-[6rem] items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold text-white enabled:active:translate-y-0.5 ${className ?? ""}`}
       style={{
         fontFamily: "var(--font-pixel), monospace",
         background,

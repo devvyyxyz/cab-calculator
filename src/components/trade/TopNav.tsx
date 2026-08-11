@@ -4,6 +4,7 @@ import Image from "next/image";
 import { PixelIcon } from "./PixelIcon";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { LogoutConfirmModal } from "@/components/app/LogoutConfirmModal";
 
 export type NavView =
   | "trade"
@@ -98,6 +99,7 @@ export function TopNav({
   const router = useRouter();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [accountOpen, setAccountOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const view = PATH_TO_VIEW[pathname] ?? "trade";
 
   const navigate = (target: NavView) => {
@@ -107,6 +109,7 @@ export function TopNav({
     }
     setOpenMenus({});
     setAccountOpen(false);
+    setLogoutConfirmOpen(false);
   };
 
   const toggleMenu = (id: string) => {
@@ -116,6 +119,54 @@ export function TopNav({
   const isChildActive = (item: NavItem) => {
     if (item.id === view) return true;
     return item.children?.some((child) => child.id === view) ?? false;
+  };
+
+  const renderAccountMenuItem = (item: typeof ACCOUNT_MENU_ITEMS[number]) => {
+    const isActive = view === item.id;
+
+    if (item.id === "logout") {
+      return (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => {
+            setOpenMenus({});
+            setAccountOpen(false);
+            setLogoutConfirmOpen(true);
+          }}
+          className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
+        >
+          <PixelIcon
+            name={item.icon}
+            size={18}
+            color="#ef4444"
+            outline="#000000"
+            outlineWidth={1.5}
+          />
+          <span className="text-red-400">Logout</span>
+        </button>
+      );
+    }
+
+    return (
+      <button
+        key={item.id}
+        type="button"
+        onClick={() => navigate(item.id)}
+        className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
+      >
+        <PixelIcon
+          name={item.icon}
+          size={18}
+          color={isActive ? item.color : "#e2e8f0"}
+          outline={isActive ? "#000000" : "rgba(0,0,0,0.7)"}
+          outlineWidth={1.5}
+        />
+        <span className={isActive ? "text-white" : "text-slate-200"}>
+          {item.label}
+        </span>
+      </button>
+    );
   };
 
   return (
@@ -131,7 +182,6 @@ export function TopNav({
       }}
       aria-label="Main navigation"
     >
-      {/* Semi-transparent dark overlay layer for extra contrast on top of studs */}
       <div
         className="pointer-events-none absolute inset-0 z-0"
         style={{
@@ -140,7 +190,6 @@ export function TopNav({
         }}
       />
 
-      {/* Logo - far left */}
       <div className="relative z-10 flex shrink-0 items-center">
         <a href="/trade-calculator" className="group">
           <Image
@@ -154,10 +203,8 @@ export function TopNav({
         </a>
       </div>
 
-      {/* Vertical separator */}
       <div className="relative z-10 h-8 w-0.5 shrink-0 rounded-full bg-white/20" />
 
-      {/* Navigation items */}
       <div className="relative z-10 flex items-center gap-1">
         {NAV_ITEMS.map((item) => {
           const active = isChildActive(item);
@@ -252,11 +299,9 @@ export function TopNav({
         })}
       </div>
 
-      {/* Flexible spacer */}
       <div className="flex-1" />
 
-      {/* Account dropdown - triggered by avatar */}
-      {profile?.avatarUrl && (
+      {profile && (
         <div className="relative z-10">
           <button
             type="button"
@@ -266,7 +311,7 @@ export function TopNav({
             aria-expanded={accountOpen}
           >
             <img
-              src={profile.avatarUrl}
+              src={profile.avatarUrl || "/cab_icon.png"}
               alt={profile.displayName}
               className="h-full w-full object-cover [image-rendering:pixelated]"
             />
@@ -289,54 +334,17 @@ export function TopNav({
                     "linear-gradient(180deg, rgba(15,19,32,0.35) 0%, rgba(15,19,32,0.55) 100%)",
                 }}
               />
-              {ACCOUNT_MENU_ITEMS.map((item) => {
-                const isActive = view === item.id;
-                if (item.id === "logout") {
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => {
-                        setAccountOpen(false);
-                        onLogout?.();
-                      }}
-                      className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
-                    >
-                      <PixelIcon
-                        name={item.icon}
-                        size={18}
-                        color="#ef4444"
-                        outline="#000000"
-                        outlineWidth={1.5}
-                      />
-                      <span className="text-red-400">Logout</span>
-                    </button>
-                  );
-                }
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => navigate(item.id)}
-                    className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
-                  >
-                    <PixelIcon
-                      name={item.icon}
-                      size={18}
-                      color={isActive ? item.color : "#e2e8f0"}
-                      outline={isActive ? "#000000" : "rgba(0,0,0,0.7)"}
-                      outlineWidth={1.5}
-                    />
-                    <span className={isActive ? "text-white" : "text-slate-200"}>
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
+              {ACCOUNT_MENU_ITEMS.map((item) => renderAccountMenuItem(item))}
             </div>
           )}
         </div>
       )}
+
+      <LogoutConfirmModal
+        open={logoutConfirmOpen}
+        onClose={() => setLogoutConfirmOpen(false)}
+        onConfirm={onLogout ?? (() => {})}
+      />
     </nav>
   );
 }

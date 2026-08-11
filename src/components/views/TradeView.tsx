@@ -10,7 +10,6 @@ import { ShareTradeModal } from "@/components/app/ShareTradeModal";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import { DiscordLinkModal } from "@/components/app/DiscordLinkModal";
 import { SaveTradeModal } from "@/components/app/SaveTradeModal";
-import { PixelIcon } from "@/components/trade/PixelIcon";
 import { useAppState } from "@/components/app/AppStateProvider";
 
 export function TradeView() {
@@ -43,7 +42,7 @@ export function TradeView() {
         </div>
       </div>
 
-      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 pb-44 sm:px-6 sm:pb-28">
+      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
         <section className="relative mx-auto grid max-w-7xl grid-cols-1 gap-4 md:grid-cols-2">
           <TradePanel
             title="YOUR OFFER"
@@ -57,14 +56,38 @@ export function TradeView() {
 
           <div className="flex items-center justify-center gap-3 md:hidden">
             <FairnessBadge verdict={v} />
+            <button
+              onClick={() => state.setShowSaveTradeModal(true)}
+              className="btn-follow flex min-w-[6rem] items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold text-white transition-all enabled:hover:scale-105 enabled:active:translate-y-0.5"
+              style={{
+                fontFamily: "var(--font-pixel), monospace",
+                background: "linear-gradient(180deg, #22c55e, #15803d)",
+                border: "3px solid #14532d",
+                boxShadow: "0 3px 0 0 #14532d",
+              }}
+            >
+              Save
+            </button>
             <ShareButton
               onClick={state.openShare}
               disabled={!sharePayload}
             />
           </div>
 
-          <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 md:flex">
+          <div className="absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 md:flex">
             <FairnessBadge verdict={v} />
+            <button
+              onClick={() => state.setShowSaveTradeModal(true)}
+              className="btn-follow flex min-w-[6rem] items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold text-white transition-all enabled:hover:scale-105 enabled:active:translate-y-0.5"
+              style={{
+                fontFamily: "var(--font-pixel), monospace",
+                background: "linear-gradient(180deg, #22c55e, #15803d)",
+                border: "3px solid #14532d",
+                boxShadow: "0 3px 0 0 #14532d",
+              }}
+            >
+              Save
+            </button>
             <ShareButton
               onClick={state.openShare}
               disabled={!sharePayload}
@@ -125,57 +148,6 @@ export function TradeView() {
         onClose={() => state.setShowSaveTradeModal(false)}
         onSave={state.handleSaveTrade}
       />
-
-      {/* Persistent bottom action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-center gap-3 border-t-4 border-black/30 bg-gray-800/95 p-3 backdrop-blur-sm"
-        style={{
-          backgroundImage: "url('/stud_texture.png')",
-          backgroundSize: "20px 20px",
-          backgroundRepeat: "repeat",
-          backgroundBlendMode: "multiply",
-        }}
-      >
-        {/* Cancel button */}
-        <button
-          onClick={() => {
-            state.setYourOffer({ rots: [], items: [] });
-            state.setTheirOffer({ rots: [], items: [] });
-            toast.success("Trade cleared");
-          }}
-          className="btn-follow h-12 w-12 rounded-full bg-gray-400 active:translate-y-0.5"
-          style={{
-            border: "3px solid #6b7280",
-            boxShadow: "0 3px 0 0 #374151",
-          }}
-          aria-label="Cancel trade"
-        />
-
-        {/* Save button */}
-        <button
-          onClick={() => state.setShowSaveTradeModal(true)}
-          className="btn-follow flex items-center gap-1.5 rounded-full px-4 py-2 text-[11px] font-bold text-white enabled:active:translate-y-0.5"
-          style={{
-            fontFamily: "var(--font-pixel), monospace",
-            background: "linear-gradient(180deg, #22c55e, #15803d)",
-            border: "3px solid #14532d",
-            boxShadow: "0 3px 0 0 #14532d",
-          }}
-        >
-          <PixelIcon name="check" size={16} color="#ffffff" outline="#14532d" outlineWidth={1} />
-          Save
-        </button>
-
-        {/* Ready button */}
-        <button
-          onClick={() => toast.info("Ready status noted")}
-          className="btn-follow h-12 w-12 rounded-full bg-gray-400 active:translate-y-0.5"
-          style={{
-            border: "3px solid #6b7280",
-            boxShadow: "0 3px 0 0 #374151",
-          }}
-          aria-label="Mark as ready"
-        />
-      </div>
     </div>
   );
 }
