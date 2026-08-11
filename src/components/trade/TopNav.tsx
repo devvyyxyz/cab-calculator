@@ -154,7 +154,13 @@ export function TopNav({
   };
 
   const toggleMenu = (id: string) => {
-    setOpenMenus((prev) => ({ ...prev, [id]: !prev[id] }));
+    setOpenMenus((prev) => {
+      const isOpen = prev[id];
+      if (isOpen) {
+        return { ...prev, [id]: false };
+      }
+      return { ...Object.fromEntries(Object.keys(prev).map((k) => [k, false])), [id]: true };
+    });
   };
 
   const isChildActive = (item: NavItem) => {

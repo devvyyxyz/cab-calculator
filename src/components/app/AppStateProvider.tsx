@@ -196,7 +196,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         if (cachedRots && cachedBag) {
           const r = JSON.parse(cachedRots) as RotsResponse;
           const b = JSON.parse(cachedBag) as BagResponse;
-          if (r?.Data && b?.Data) {
+          const hasDemand = Object.values(r?.Data ?? {}).some((sp: Species) => "Demand" in sp);
+          if (r?.Data && b?.Data && hasDemand) {
             setRotsData(r.Data);
             setBagData(b.Data);
             setMetaLoaded(true);
