@@ -46,19 +46,6 @@ const ICON_PATHS: Record<string, IconPaths> = {
   check: [
     { d: "M10 18H8v-2h2v2Zm-2-2H6v-2h2v2Zm4-2v2h-2v-2h2Zm-6 0H4v-2h2v2Zm8 0h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2V8h2v2Zm2-2h-2V6h2v2Z" },
   ],
-  database: [
-    { d: "M3 3h7v2H3zM3 11h7v2H3zM3 19h7v2H3zM14 3h7v2h-7zM14 11h7v2h-7zM14 19h7v2h-7z" },
-  ],
-  sword: [
-    { d: "M3 21h7v-2h5v-2h5v-2h5v-2h2V7l-8-8-8 8v7H3v7z" },
-    { d: "M7 13h2v4h6v2h6v-2h2v-4h-2v-2h-2v2h-6v-2h-6v-2h-2v2h-2v4h2z" },
-  ],
-  chart: [
-    { d: "M3 3h7v2H3zM3 11h7v2H3zM3 19h7v2H3zM14 3h7v2h-7zM14 11h7v2h-7zM14 19h7v2h-7z" },
-  ],
-  megaphone: [
-    { d: "M3 3h7v2H3zM3 11h7v2H3zM3 19h7v2H3zM14 3h7v2h-7zM14 11h7v2h-7zM14 19h7v2h-7z" },
-  ],
   "arrow-down": [
     { d: "M6 10h12l-6 6z" },
   ],

@@ -1,10 +1,43 @@
 "use client";
 
 import Image from "next/image";
-import { PixelIcon } from "./PixelIcon";
+import {
+  Repeat,
+  Backpack,
+  BookOpen,
+  Fire,
+  Scale,
+  InfoBox,
+  Switch,
+  Close,
+  Plus,
+  Database,
+  Sword,
+  Chart,
+  Megaphone,
+} from "pixelarticons/react";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LogoutConfirmModal } from "@/components/app/LogoutConfirmModal";
+import { PixelIcon } from "./PixelIcon";
+
+type IconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+
+const ICON_MAP: Record<string, IconComponent> = {
+  repeat: Repeat,
+  backpack: Backpack,
+  "book-open": BookOpen,
+  fire: Fire,
+  scale: Scale,
+  "info-box": InfoBox,
+  switch: Switch,
+  close: Close,
+  plus: Plus,
+  database: Database,
+  sword: Sword,
+  chart: Chart,
+  megaphone: Megaphone,
+};
 
 export type NavView =
   | "trade"
@@ -87,6 +120,14 @@ const ACCOUNT_MENU_ITEMS = [
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
   { id: "logout", label: "Logout", icon: "close", color: "#ef4444" },
 ];
+
+function NavIcon({ name, size = 20, color = "currentColor", className }: { name: string; size?: number; color?: string; className?: string }) {
+  const IconComponent = ICON_MAP[name];
+  if (!IconComponent) {
+    return <PixelIcon name={name} size={size} color={color} className={className} />;
+  }
+  return <IconComponent width={size} height={size} className={className} style={{ color }} />;
+}
 
 export function TopNav({
   profile,
@@ -221,12 +262,11 @@ export function TopNav({
                   aria-label={item.label}
                   aria-expanded={isOpen}
                 >
-                  <PixelIcon
+                  <NavIcon
                     name={item.icon}
                     size={20}
                     color={active ? item.color : "#e2e8f0"}
-                    outline={active ? "#000000" : "rgba(0,0,0,0.7)"}
-                    outlineWidth={1.5}
+                    className="shrink-0"
                   />
                   <span className="hidden sm:inline">{item.label}</span>
                 </button>
@@ -257,12 +297,11 @@ export function TopNav({
                           onClick={() => navigate(child.id)}
                           className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
                         >
-                          <PixelIcon
+                          <NavIcon
                             name={child.icon}
                             size={18}
                             color={childActive ? child.color : "#e2e8f0"}
-                            outline={childActive ? "#000000" : "rgba(0,0,0,0.7)"}
-                            outlineWidth={1.5}
+                            className="shrink-0"
                           />
                           <span className={childActive ? "text-white" : "text-slate-200"}>
                             {child.label}
@@ -286,12 +325,11 @@ export function TopNav({
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
             >
-              <PixelIcon
+              <NavIcon
                 name={item.icon}
                 size={20}
                 color={active ? item.color : "#e2e8f0"}
-                outline={active ? "#000000" : "rgba(0,0,0,0.7)"}
-                outlineWidth={1.5}
+                className="shrink-0"
               />
               <span className="hidden sm:inline">{item.label}</span>
             </button>

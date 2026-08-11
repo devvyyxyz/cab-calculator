@@ -1,6 +1,8 @@
 "use client";
 
-import { PixelIcon } from "@/components/trade/PixelIcon";
+import type { ValuedRot, ValuedItem } from "@/lib/trade-values";
+import { TradeSlot, RotSlotContent, ItemSlotContent } from "@/components/trade/TradeSlot";
+import { ArrowBigDownDash, ArrowBigUpDash } from "pixelarticons/react";
 
 export function TradePanel({
   title,
@@ -17,6 +19,8 @@ export function TradePanel({
 }) {
   const bg = variant === "you" ? "#7cb3ff" : "#7ed957";
   const border = variant === "you" ? "#1e3a5f" : "#2e5a1f";
+  const isDown = compareTotal !== undefined && total < compareTotal;
+  const ArrowIcon = isDown ? ArrowBigDownDash : ArrowBigUpDash;
 
   return (
     <div
@@ -39,20 +43,23 @@ export function TradePanel({
         >
           {title}
         </h2>
-        <PixelIcon
-          name={compareTotal !== undefined && total < compareTotal ? "arrow-down" : "arrow-up"}
-          size={20}
-          color="#ffffff"
-          outline={border}
-          outlineWidth={2}
+        <ArrowIcon
+          width={20}
+          height={20}
+          className="shrink-0"
+          style={{ color: "#ffffff" }}
         />
-        <PixelIcon
-          name={compareTotal !== undefined && total < compareTotal ? "arrow-down" : "arrow-up"}
-          size={20}
-          color="#ffffff"
-          outline={border}
-          outlineWidth={2}
-        />
+        <span
+          className="text-right text-lg sm:text-2xl"
+          style={{
+            fontFamily: "var(--font-pixel-bold, var(--font-pixel)), monospace",
+            color: "#ffffff",
+            WebkitTextStroke: `3px ${border}`,
+            paintOrder: "stroke fill",
+          }}
+        >
+          {total.toFixed(0)}
+        </span>
       </div>
 
       <div
