@@ -46,6 +46,12 @@ const ICON_PATHS: Record<string, IconPaths> = {
   check: [
     { d: "M10 18H8v-2h2v2Zm-2-2H6v-2h2v2Zm4-2v2h-2v-2h2Zm-6 0H4v-2h2v2Zm8 0h-2v-2h2v2Zm2-2h-2v-2h2v2Zm2-2h-2V8h2v2Zm2-2h-2V6h2v2Z" },
   ],
+  "arrow-down": [
+    { d: "M6 10h12l-6 6z" },
+  ],
+  "arrow-up": [
+    { d: "M6 16h12l-6-6z" },
+  ],
 };
 
 export function PixelIcon({

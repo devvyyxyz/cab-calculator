@@ -10,6 +10,7 @@ import { ShareTradeModal } from "@/components/app/ShareTradeModal";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import { DiscordLinkModal } from "@/components/app/DiscordLinkModal";
 import { SaveTradeModal } from "@/components/app/SaveTradeModal";
+import { PixelIcon } from "@/components/trade/PixelIcon";
 import { useAppState } from "@/components/app/AppStateProvider";
 
 export function TradeView() {
@@ -48,6 +49,7 @@ export function TradeView() {
             title="YOUR OFFER"
             variant="you"
             total={yourTotal}
+            compareTotal={theirTotal}
             valuedRots={yourValued}
             items={yourItems}
           >
@@ -66,6 +68,7 @@ export function TradeView() {
                 boxShadow: "0 3px 0 0 #14532d",
               }}
             >
+              <PixelIcon name="check" size={16} color="#ffffff" outline="#14532d" outlineWidth={1} />
               Save
             </button>
             <ShareButton
@@ -86,6 +89,7 @@ export function TradeView() {
                 boxShadow: "0 3px 0 0 #14532d",
               }}
             >
+              <PixelIcon name="check" size={16} color="#ffffff" outline="#14532d" outlineWidth={1} />
               Save
             </button>
             <ShareButton
@@ -98,6 +102,7 @@ export function TradeView() {
             title="THEIR OFFER"
             variant="them"
             total={theirTotal}
+            compareTotal={yourTotal}
             valuedRots={theirValued}
             items={theirItems}
           >
