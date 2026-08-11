@@ -79,20 +79,25 @@ const NAV_ITEMS: NavItem[] = [
   ]},
   { id: "values", label: "Values", icon: "scale", color: "#f472b6" },
   { id: "news", label: "News", icon: "book-open", color: "#f59e0b" },
+];
+
+const ACCOUNT_MENU_ITEMS = [
   { id: "settings", label: "Settings", icon: "switch", color: "#60a5fa" },
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
+  { id: "logout", label: "Logout", icon: "close", color: "#ef4444" },
 ];
 
 export function TopNav({
   profile,
-  onProfileClick,
+  onLogout,
 }: {
   profile?: { id: string; displayName: string; avatarUrl?: string } | null;
-  onProfileClick?: () => void;
+  onLogout?: () => void;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const [accountOpen, setAccountOpen] = useState(false);
   const view = PATH_TO_VIEW[pathname] ?? "trade";
 
   const navigate = (target: NavView) => {
@@ -101,6 +106,7 @@ export function TopNav({
       router.push(path);
     }
     setOpenMenus({});
+    setAccountOpen(false);
   };
 
   const toggleMenu = (id: string) => {
@@ -249,14 +255,15 @@ export function TopNav({
       {/* Flexible spacer */}
       <div className="flex-1" />
 
-      {/* Circular avatar frame - far right */}
+      {/* Account dropdown - triggered by avatar */}
       {profile?.avatarUrl && (
         <div className="relative z-10">
           <button
             type="button"
-            onClick={onProfileClick}
+            onClick={() => setAccountOpen((prev) => !prev)}
             className="grid h-10 w-10 place-items-center overflow-hidden rounded-full border-2 border-white/30 transition-transform hover:scale-110"
-            title={`${profile.displayName} · ID ${profile.id} - Click to switch account`}
+            title={`${profile.displayName} · ID ${profile.id}`}
+            aria-expanded={accountOpen}
           >
             <img
               src={profile.avatarUrl}
@@ -264,6 +271,70 @@ export function TopNav({
               className="h-full w-full object-cover [image-rendering:pixelated]"
             />
           </button>
+
+          {accountOpen && (
+            <div
+              className="absolute right-0 top-full mt-1 flex min-w-[160px] flex-col gap-1 rounded-xl border border-black/20 p-2 shadow-lg"
+              style={{
+                backgroundColor: "#0a1230",
+                backgroundImage: "url('/stud_texture.png')",
+                backgroundSize: "40px 40px",
+                backgroundRepeat: "repeat",
+              }}
+            >
+              <div
+                className="pointer-events-none absolute inset-0 z-0 rounded-xl"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(15,19,32,0.35) 0%, rgba(15,19,32,0.55) 100%)",
+                }}
+              />
+              {ACCOUNT_MENU_ITEMS.map((item) => {
+                const isActive = view === item.id;
+                if (item.id === "logout") {
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setAccountOpen(false);
+                        onLogout?.();
+                      }}
+                      className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
+                    >
+                      <PixelIcon
+                        name={item.icon}
+                        size={18}
+                        color="#ef4444"
+                        outline="#000000"
+                        outlineWidth={1.5}
+                      />
+                      <span className="text-red-400">Logout</span>
+                    </button>
+                  );
+                }
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => navigate(item.id)}
+                    className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
+                  >
+                    <PixelIcon
+                      name={item.icon}
+                      size={18}
+                      color={isActive ? item.color : "#e2e8f0"}
+                      outline={isActive ? "#000000" : "rgba(0,0,0,0.7)"}
+                      outlineWidth={1.5}
+                    />
+                    <span className={isActive ? "text-white" : "text-slate-200"}>
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </nav>

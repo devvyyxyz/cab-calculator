@@ -27,7 +27,7 @@ function Inner({ children }: { children: React.ReactNode }) {
       {!isLanding && (
         <TopNav
           profile={state.youProfile}
-          onProfileClick={() => state.setShowAccountModal(true)}
+          onLogout={state.handleLogout}
         />
       )}
       <main

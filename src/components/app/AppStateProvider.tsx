@@ -100,6 +100,7 @@ export interface AppState {
 
   handleOnboarded: (userId: string, displayName: string, avatarUrl?: string) => void;
   handleSwitchAccount: () => void;
+  handleLogout: () => void;
   loadYourInventory: (userId: string) => Promise<void>;
   addRot: (side: "you" | "them", rot: Rot) => void;
   removeRot: (side: "you" | "them", uid: string) => void;
@@ -294,6 +295,18 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       /* ignore */
     }
     setShowAccountModal(false);
+    window.location.reload();
+  }, [youProfile]);
+
+  const handleLogout = useCallback(() => {
+    try {
+      localStorage.removeItem("cab_profile");
+      if (youProfile?.id) {
+        localStorage.removeItem("cab_inventory_" + youProfile.id);
+      }
+    } catch {
+      /* ignore */
+    }
     window.location.reload();
   }, [youProfile]);
 
@@ -628,6 +641,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
     handleOnboarded,
     handleSwitchAccount,
+    handleLogout,
     loadYourInventory,
     addRot,
     removeRot,
