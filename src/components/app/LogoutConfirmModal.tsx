@@ -18,7 +18,7 @@ export function LogoutConfirmModal({ open, onClose, onConfirm }: LogoutConfirmMo
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-black/20 bg-white/95 p-6 shadow-xl"
+        className="modal-pop flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-black/20 bg-white/95 p-6 shadow-xl"
         style={{
           backgroundImage: "url('/stud_texture.png')",
           backgroundSize: "40px 40px",

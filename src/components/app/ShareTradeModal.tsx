@@ -57,7 +57,7 @@ export function ShareTradeModal({
     >
       <TiltCard
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
+        className="modal-pop w-full max-w-lg rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
         style={{
           backgroundImage: "url('/stud_texture.png')",
           backgroundSize: "30px 30px",
@@ -115,7 +115,7 @@ export function ShareTradeModal({
           <button
             type="button"
             onClick={copy}
-            className="shrink-0 rounded-lg bg-blue-500 px-4 text-xs font-bold text-white transition-all hover:bg-blue-600"
+            className="btn-follow shrink-0 rounded-lg bg-blue-500 px-4 text-xs font-bold text-white transition-all hover:bg-blue-600"
             style={{
               fontFamily: "var(--font-pixel), monospace",
               border: "2px solid #1e3a5f",

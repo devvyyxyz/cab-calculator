@@ -62,7 +62,7 @@ export function ItemDetailModal({
     >
       <TiltCard
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md overflow-hidden"
+        className="modal-pop relative w-full max-w-md overflow-hidden"
         style={{
           backgroundColor: "#3b82f6",
           backgroundImage: "url('/stud_texture.png')",

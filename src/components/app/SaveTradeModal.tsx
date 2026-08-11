@@ -36,7 +36,7 @@ export function SaveTradeModal({
     >
       <TiltCard
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
+        className="modal-pop w-full max-w-sm rounded-xl border-4 border-black/50 bg-white/95 p-6 shadow-2xl"
         style={{
           backgroundImage: "url('/stud_texture.png')",
           backgroundSize: "30px 30px",
