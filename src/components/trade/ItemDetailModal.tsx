@@ -102,7 +102,7 @@ export function ItemDetailModal({
 
                 {/* Name */}
                 <h3
-                  className="text-outline truncate text-lg text-white sm:text-xl"
+                  className="text-outline text-lg text-white sm:text-xl"
                   style={{ fontFamily: "var(--font-pixel), monospace" }}
                 >
                   {name}
