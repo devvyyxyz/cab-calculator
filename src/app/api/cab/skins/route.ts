@@ -5,21 +5,22 @@ const prisma = new PrismaClient();
 
 export async function GET(_req: NextRequest) {
   try {
-    const movesets = await prisma.moveset.findMany({
-      orderBy: { energy: "asc" },
+    const hoverboards = await prisma.hoverboard.findMany({
+      orderBy: { name: "asc" },
     });
 
-    const result = movesets.map((m) => ({
-      name: m.name,
-      energy: m.energy,
-      type: m.type as "damage" | "healing" | "utility",
-      demonExclusive: m.demonExclusive,
-      ownerCount: 0,
-      owners: [],
-    }));
+    const data: Record<string, { Name: string; Description: string; Icon: string; Speed: number }> = {};
+    for (const hb of hoverboards) {
+      data[hb.name] = {
+        Name: hb.name,
+        Description: hb.description,
+        Icon: hb.icon,
+        Speed: hb.speed,
+      };
+    }
 
     return NextResponse.json(
-      { movesets: result },
+      { Data: data },
       {
         headers: {
           "Content-Type": "application/json",

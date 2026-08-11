@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -44,4 +41,60 @@ model Transaction {
 
   @@index([discordId])
   @@index([createdAt])
+}
+
+model Species {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  fullName      String
+  shortenedName String
+  icon          String
+  attack        Float
+  health        Float
+  speed         Float
+  rarity        Float
+  isExclusive   Boolean  @default(false)
+  exists        Int?
+  spawnWorld    Int?
+  spawnZone     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([name])
+  @@index([rarity])
+}
+
+model BagItem {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+}
+
+model Moveset {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  energy         Int
+  type           String   // "damage" | "healing" | "utility"
+  demonExclusive Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([name])
+}
+
+model Hoverboard {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  speed       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
 }
