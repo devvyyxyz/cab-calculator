@@ -130,7 +130,7 @@ export function ItemDetailModal({
                   >
                     HEALTH
                   </span>
-                  <div className="mt-0.5 h-3.5 overflow-hidden rounded-full bg-black/40">
+                  <div className="mt-0.5 h-5 overflow-hidden rounded-full bg-black/40">
                     <div
                       className="grid h-full place-items-center rounded-full"
                       style={{
@@ -157,7 +157,7 @@ export function ItemDetailModal({
                   >
                     EXP
                   </span>
-                  <div className="mt-0.5 h-3.5 overflow-hidden rounded-full bg-black/40">
+                  <div className="mt-0.5 h-5 overflow-hidden rounded-full bg-black/40">
                     <div
                       className="grid h-full place-items-center rounded-full"
                       style={{
@@ -258,16 +258,20 @@ export function ItemDetailModal({
                 return (
                   <div
                     key={i}
-                    className="grid place-items-center rounded-xl px-2 py-2"
+                    className="grid h-12 place-items-center rounded-xl px-3 py-2"
                     style={{
                       background: color,
+                      backgroundImage: "url('/stud_texture.png')",
+                      backgroundSize: "20px 20px",
+                      backgroundRepeat: "repeat",
+                      backgroundBlendMode: "multiply",
                       border: "2px solid rgba(0,0,0,0.2)",
                       boxShadow:
                         "inset 2px 2px 0 rgba(255,255,255,0.4), inset -2px -2px 0 rgba(0,0,0,0.2)",
                     }}
                   >
                     <span
-                      className="text-outline-sm text-[10px] text-white"
+                      className="text-[10px] text-white"
                       style={{ fontFamily: "var(--font-pixel), monospace" }}
                     >
                       {move.toUpperCase()}
