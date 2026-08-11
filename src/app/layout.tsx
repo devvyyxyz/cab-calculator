@@ -33,7 +33,8 @@ function Inner({ children }: { children: React.ReactNode }) {
       <main
         suppressHydrationWarning
         className={cn(
-          "relative flex h-screen w-full flex-col overflow-hidden transition-all duration-200"
+          "relative flex h-screen w-full flex-col overflow-auto transition-all duration-200",
+          !isLanding && "pt-16"
         )}
         style={{
           backgroundColor: isLanding ? "#000000" : "#0099ff",
