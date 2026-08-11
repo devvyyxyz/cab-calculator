@@ -16,6 +16,28 @@ import type { Species, BagItemInfo } from "@/lib/cab-types";
 import { useAppState } from "@/components/app/AppStateProvider";
 import { usePersistentState } from "@/components/trade/usePersistentState";
 import { iconUrl } from "@/lib/cab-client";
+import { CellularSignal0, CellularSignal1, CellularSignal2, CellularSignal3 } from "pixelarticons/react";
+
+const DEMAND_ICONS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  "very-low": CellularSignal0,
+  low: CellularSignal1,
+  medium: CellularSignal2,
+  high: CellularSignal3,
+};
+
+const DEMAND_COLORS: Record<string, string> = {
+  "very-low": "#ef4444",
+  low: "#f97316",
+  medium: "#a3e635",
+  high: "#22c55e",
+};
+
+function DemandIcon({ demand }: { demand?: string }) {
+  if (!demand) return null;
+  const Icon = DEMAND_ICONS[demand] ?? CellularSignal2;
+  const color = DEMAND_COLORS[demand] ?? "#9ca3af";
+  return <Icon width={16} height={16} style={{ color }} />;
+}
 
 export function ValuesView() {
   const state = useAppState();
@@ -193,6 +215,9 @@ export function ValuesView() {
                       {tier.label} · R{sp.Rarity.toFixed(2)}
                     </div>
                   </div>
+                  <div className="flex items-center gap-1">
+                    <DemandIcon demand={sp.Demand} />
+                  </div>
                   <span
                     className="text-outline-sm-white text-sm font-bold text-white"
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -243,6 +268,9 @@ export function ValuesView() {
                     >
                       {tier}
                     </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <DemandIcon demand={info.Demand} />
                   </div>
                   <span
                     className="text-outline-sm-white text-sm font-bold text-gray-900"

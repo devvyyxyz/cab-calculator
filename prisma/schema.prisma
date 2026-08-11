@@ -57,11 +57,13 @@ model Species {
   exists        Int?
   spawnWorld    Int?
   spawnZone     Int?
+  demand        String   @default("medium") // "very-low" | "low" | "medium" | "high"
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([name])
   @@index([rarity])
+  @@index([demand])
 }
 
 model BagItem {
@@ -69,10 +71,12 @@ model BagItem {
   name        String   @unique
   description String
   icon        String
+  demand      String   @default("medium") // "very-low" | "low" | "medium" | "high"
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([name])
+  @@index([demand])
 }
 
 model Moveset {

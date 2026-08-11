@@ -12,12 +12,13 @@ export interface Species {
   Health: number;
   FullName: string;
   ShortenedName: string;
-  Icon: string; // e.g. "73.png"
+  Icon: string;
   IsExclusive: boolean;
-  Rarity: number; // 1-6 (may be fractional)
+  Rarity: number;
   Speed: number;
   SpawnLocation?: SpawnLocation | null;
-  Exists?: number; // Total count of this species in the game
+  Exists?: number;
+  Demand?: string;
 }
 
 /** A captured brainrot instance owned by a player. */
@@ -37,6 +38,7 @@ export interface BagItemInfo {
   Name: string;
   Description: string;
   Icon: string;
+  Demand?: string;
 }
 
 /** Hoverboard skin info. */

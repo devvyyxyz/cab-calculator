@@ -57,6 +57,13 @@ const MOVESET_META: Array<{ name: string; energy: number; type: string; demonExc
   { name: "Whirlpool", energy: 6, type: "damage", demonExclusive: true },
 ];
 
+function getDemand(rarity: number): string {
+  if (rarity >= 5) return "high";
+  if (rarity >= 4) return "medium";
+  if (rarity >= 3) return "low";
+  return "very-low";
+}
+
 async function main() {
   console.log("Seeding local database...");
 
@@ -84,6 +91,7 @@ async function main() {
         exists: sp.Exists ?? undefined,
         spawnWorld: sp.SpawnLocation?.World ?? undefined,
         spawnZone: sp.SpawnLocation?.Zone ?? undefined,
+        demand: getDemand(sp.Rarity),
       },
     });
   }
@@ -98,6 +106,7 @@ async function main() {
         name,
         description: info.Description,
         icon: info.Icon,
+        demand: "medium",
       },
     });
   }

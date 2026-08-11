@@ -20,6 +20,7 @@ export async function GET(_req: NextRequest) {
       IsExclusive: boolean;
       Exists?: number;
       SpawnLocation?: { World: number; Zone: number } | null;
+      Demand: string;
     }> = {};
 
     for (const sp of species) {
@@ -36,6 +37,7 @@ export async function GET(_req: NextRequest) {
         SpawnLocation: sp.spawnWorld !== null && sp.spawnZone !== null
           ? { World: sp.spawnWorld, Zone: sp.spawnZone }
           : null,
+        Demand: sp.demand,
       };
     }
 
