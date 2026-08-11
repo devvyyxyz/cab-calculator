@@ -52,6 +52,7 @@ export interface AppState {
   metaLoaded: boolean;
   navView: string;
   valueMethod: "dev" | "rot";
+  sellMethod: "estimated";
   showAccountModal: boolean;
   shareOpen: boolean;
   savedProfile: { id: string; displayName: string; avatarUrl?: string } | null;
@@ -85,6 +86,7 @@ export interface AppState {
   setMetaLoaded: (v: boolean) => void;
   setNavView: (v: string) => void;
   setValueMethod: (v: "dev" | "rot") => void;
+  setSellMethod: (v: "estimated") => void;
   setShowAccountModal: (v: boolean) => void;
   setShareOpen: (v: boolean) => void;
   setSavedProfile: (v: { id: string; displayName: string; avatarUrl?: string } | null) => void;
@@ -141,6 +143,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [metaLoaded, setMetaLoaded] = useState(false);
   const [navView, setNavView] = useState("trade");
   const [valueMethod, setValueMethod] = useState<"dev" | "rot">("dev");
+  const [sellMethod, setSellMethod] = useState<"estimated">("estimated");
 
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -171,6 +174,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const method = localStorage.getItem("cab_value_method");
       if (method === "dev" || method === "rot") {
         setValueMethod(method);
+      }
+      const sell = localStorage.getItem("cab_sell_method");
+      if (sell === "estimated") {
+        setSellMethod(sell);
       }
     } catch {
       /* ignore */
@@ -597,6 +604,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     metaLoaded,
     navView,
     valueMethod,
+    sellMethod,
     showAccountModal,
     shareOpen,
     savedProfile,
@@ -630,6 +638,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setMetaLoaded,
     setNavView,
     setValueMethod,
+    setSellMethod,
     setShowAccountModal,
     setShareOpen,
     setSavedProfile,

@@ -31,6 +31,68 @@ export const VALUE_METHODS: ValueMethodOption[] = [
   },
 ];
 
+/**
+ * Sell value estimation methods.
+ *
+ * EstimatedSellValue is reverse-engineered from observed in-game values
+ * and may not exactly match the game's internal formula.
+ */
+
+export type SellMethod = "estimated";
+
+export interface SellMethodOption {
+  id: SellMethod;
+  label: string;
+  description: string;
+}
+
+export const SELL_METHODS: SellMethodOption[] = [
+  {
+    id: "estimated",
+    label: "Estimated Sell Value",
+    description: "Reverse-engineered formula based on observed level-to-sell-value data",
+  },
+];
+
+function formatCompact(value: number): string {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(2)}M`;
+  }
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(2)}k`;
+  }
+  return value.toFixed(0);
+}
+
+const SELL_FORMULAS: Record<string, (level: number) => number | null> = {
+  "Karkerkar": (level) => 700 + 74.2 * level,
+  "TungTungTung Sahur": (level) => 102 + (level - 1) * 10,
+  "TuTuTu Sahur": (level) => 102 + (level - 1) * 10,
+  "TaTaTa Sahur": (level) => 102 + (level - 1) * 10,
+};
+
+export function sellSpecies(species: Species, level: number): { value: number; display: string } | null {
+  const specific = SELL_FORMULAS[species.FullName];
+  if (specific) {
+    const value = specific(level);
+    if (value === null || value < 0) return null;
+    return {
+      value: Math.round(value),
+      display: formatCompact(Math.round(value)),
+    };
+  }
+
+  const rarity = species.Rarity ?? 0;
+  const base = 100 + rarity * 50;
+  const increment = 5 + rarity * 2;
+  const value = base + (level - 1) * increment;
+
+  return {
+    value: Math.round(value),
+    display: formatCompact(Math.round(value)),
+  };
+}
+
 const LEGACY_BOX_TIER: Record<string, number> = {
   "Rot Box": 1.0,
   "Rare Box": 1.05,

@@ -5,7 +5,7 @@ import { PixelIcon } from "@/components/trade/PixelIcon";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import { ComingSoonSetting } from "@/components/app/ComingSoonSetting";
 import { useAppState } from "@/components/app/AppStateProvider";
-import { VALUE_METHODS, type ValueMethod } from "@/lib/trade-values";
+import { VALUE_METHODS, type ValueMethod, SELL_METHODS, type SellMethod } from "@/lib/trade-values";
 
 export function SettingsView() {
   const state = useAppState();
@@ -30,6 +30,15 @@ export function SettingsView() {
     state.setValueMethod(method);
     try {
       localStorage.setItem("cab_value_method", method);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleSellMethodChange = (method: SellMethod) => {
+    state.setSellMethod(method);
+    try {
+      localStorage.setItem("cab_sell_method", method);
     } catch {
       /* ignore */
     }
@@ -135,6 +144,36 @@ export function SettingsView() {
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
                   >
                     <span className={`text-sm font-bold ${isActive ? "text-blue-900" : "text-gray-900"}`}>
+                      {option.label}
+                    </span>
+                    <span className="mt-1 text-[9px] text-gray-600">
+                      {option.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+              Sell Method
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {SELL_METHODS.map((option) => {
+                const isActive = state.sellMethod === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => handleSellMethodChange(option.id)}
+                    className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
+                      isActive
+                        ? "border-green-500 bg-green-50"
+                        : "border-gray-200 bg-white hover:border-green-300 hover:bg-green-50"
+                    }`}
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    <span className={`text-sm font-bold ${isActive ? "text-green-900" : "text-gray-900"}`}>
                       {option.label}
                     </span>
                     <span className="mt-1 text-[9px] text-gray-600">

@@ -6,6 +6,7 @@ import { iconUrl } from "@/lib/cab-client";
 import { SmartImage } from "./SmartImage";
 import { PixelIcon } from "./PixelIcon";
 import { TiltCard } from "./TiltCard";
+import { sellSpecies } from "@/lib/trade-values";
 
 /**
  * Item detail modal - shows when clicking a rot or item in the inventory.
@@ -243,6 +244,28 @@ export function ItemDetailModal({
                   />
                 </div>
               </div>
+
+              {/* Sell value */}
+              {species && rot && (() => {
+                const sell = sellSpecies(species, rot.Level);
+                if (!sell) return null;
+                return (
+                  <div className="flex items-center justify-between rounded-lg bg-black/20 px-3 py-2">
+                    <span
+                      className="text-outline-sm text-[9px] text-white"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      EST. SELL VALUE
+                    </span>
+                    <span
+                      className="text-outline-sm text-sm font-bold text-yellow-300"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {sell.display}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
