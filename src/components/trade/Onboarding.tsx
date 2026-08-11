@@ -164,7 +164,7 @@ export function Onboarding({
           <div className="mb-4 flex justify-center">
             <Image
               src="/cab_icon.png"
-              alt="CAB"
+              alt="CAB: Rot Dex"
               width={72}
               height={72}
               priority

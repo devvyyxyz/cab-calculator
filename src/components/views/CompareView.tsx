@@ -27,7 +27,7 @@ import type { Species } from "@/lib/cab-types";
 import { useAppState } from "@/components/app/AppStateProvider";
 import { usePersistentState } from "@/components/trade/usePersistentState";
 
-export function CompareView() {
+export function CompareView({ embedded = false }: { embedded?: boolean }) {
   const state = useAppState();
   const [selected, setSelected] = useState<string[]>([]);
   const [weights, setWeights] = useState({ attack: 1.2, health: 1, speed: 1.1 });
@@ -128,26 +128,15 @@ export function CompareView() {
     });
   };
 
-  return (
-    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col overflow-y-auto px-4 pt-4 sm:px-6">
-      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
-        <h2
-          className="text-outline text-center text-2xl text-white sm:text-3xl"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
-        >
-          COMPARE
-        </h2>
-        <p className="max-w-2xl text-center text-[11px] uppercase tracking-[0.25em] text-slate-700">
-          Choose 2-4 brainrots to compare live stats, rarity, and weighted scores side by side.
-        </p>
-      </div>
-
+  const inner = (
+    <>
       <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]">
+          <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: 4 }).map((_, index) => {
               const entry = selectedEntries[index];
               const isEmpty = !entry;
+              const tier = entry ? rarityTier(entry.species.Rarity, entry.species.IsExclusive) : null;
               return (
                 <button
                   key={index}
@@ -156,12 +145,13 @@ export function CompareView() {
                     setSelectorSearch("");
                     setSelectorOpen(true);
                   }}
-                  className="group relative aspect-square w-full select-none transition-transform active:translate-y-0.5"
+                  className={`group relative aspect-square w-full select-none transition-transform active:translate-y-0.5 ${tier?.shimmer ? "shimmer-rare" : ""}`}
                   style={{
-                    background: "#d4e0eb",
-                    borderRadius: "18%",
-                    boxShadow: "inset 0 2px 2px 0 rgba(255,255,255,0.6), inset 0 -2px 3px 0 rgba(0,0,0,0.4)",
+                    background: tier?.color ?? "#d4e0eb",
+                    borderRadius: "1.25rem",
+                    boxShadow: "inset 0 2px 2px 0 rgba(255,255,255,0.4), inset 0 -2px 3px 0 rgba(0,0,0,0.3)",
                   }}
+                  title={isEmpty ? "" : `${entry.species.FullName} · Rarity ${entry.species.Rarity.toFixed(2)}${entry.species.IsExclusive ? " · DEMON" : ""}`}
                   aria-label={isEmpty ? "Empty slot" : `Filled with ${entry.species.FullName}`}
                 >
                   <span className="relative z-10 block h-full w-full">
@@ -340,14 +330,14 @@ export function CompareView() {
                                   title={sp.FullName}
                                 >
                                   <SmartImage
-                                    src={sp.Icon ? `/api/cab/icon?name=${encodeURIComponent(sp.Icon)}` : ""}
+                                    src={iconUrl(sp.Icon)}
                                     alt={sp.FullName}
                                     imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
                                     fallbackSize={32}
                                   />
                                   {isSelected && (
                                     <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                      <span className="grid h-6 w-6 place-items-center rounded-full bg-yellow-400 text-xs font-bold text-yellow-900 shadow-[0_2px_0_#7f1d1d]">
+                                      <span className="grid h-6 w-6 place-items-center rounded-full bg-yellow-400 text-xs font-bold text-yellow-900 shadow-[0 2px_0_#7f1d1d]">
                                         ✓
                                       </span>
                                     </span>
@@ -399,14 +389,14 @@ export function CompareView() {
                                 title={sp.FullName}
                               >
                                 <SmartImage
-                                  src={sp.Icon ? `/api/cab/icon?name=${encodeURIComponent(sp.Icon)}` : ""}
+                                  src={iconUrl(sp.Icon)}
                                   alt={sp.FullName}
                                   imgClassName="h-full w-full object-contain p-1 [image-rendering:pixelated]"
                                   fallbackSize={32}
                                 />
                                 {isSelected && (
                                   <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                                    <span className="grid h-6 w-6 place-items-center rounded-full bg-yellow-400 text-xs font-bold text-yellow-900 shadow-[0_2px_0_#7f1d1d]">
+                                    <span className="grid h-6 w-6 place-items-center rounded-full bg-yellow-400 text-xs font-bold text-yellow-900 shadow-[0 2px_0 #7f1d1d]">
                                       ✓
                                     </span>
                                   </span>
@@ -424,7 +414,7 @@ export function CompareView() {
           )}
         </section>
 
-        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
+        <section className="rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]">
           <button
             onClick={() => setMattersOpen((o) => !o)}
             className="btn-follow mb-3 flex w-full items-center justify-between rounded-xl bg-black/25 px-3 py-2 text-left"
@@ -754,6 +744,25 @@ export function CompareView() {
           </div>
         )}
       </div>
+    </>
+  );
+
+  if (embedded) {
+    return inner;
+  }
+
+  return (
+    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col overflow-y-auto px-4 pt-4 sm:px-6">
+      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          COMPARE
+        </h2>
+      </div>
+
+      {inner}
 
       <AccountSwitchModal
         open={state.showAccountModal}

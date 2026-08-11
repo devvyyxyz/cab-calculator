@@ -47,12 +47,12 @@ export default function Home() {
             animation: "subtleRotate 4s ease-in-out infinite",
           }}
         >
-          CAB Calculator
+          CAB: Rot Dex
         </h1>
 
         {/* Tagline */}
         <p className="text-base font-bold uppercase tracking-widest text-white/90 text-outline-sm-white md:text-lg">
-          Creatures and Buddies Trade Tool
+          Catch a Brainrot RotDex
         </p>
 
         {/* Call-to-action */}

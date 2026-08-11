@@ -157,7 +157,7 @@ export function SideNav({
           >
             <Image
               src="/cab_icon.png"
-              alt="Catch a Brainrot"
+              alt="Catch a Brainrot RotDex"
               width={44}
               height={44}
               priority

@@ -1,7 +1,7 @@
 "use client";
 
-import { BattleView } from "@/components/views/BattleView";
+import { BattleHubView } from "@/components/views/BattleHubView";
 
 export default function BattlePage() {
-  return <BattleView />;
+  return <BattleHubView />;
 }

@@ -33,20 +33,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: trade
       ? `Trade: ${trade.you.total.toFixed(1)} vs ${trade.them.total.toFixed(1)}`
-      : "CAB Trade",
-    description: "Catch a Brainrot trade calculator — share a trade.",
+      : "CAB: Rot Dex",
+    description: "Catch a Brainrot RotDex — share a trade.",
     openGraph: {
       title: trade
-        ? `CAB Trade: ${trade.you.total.toFixed(1)} vs ${trade.them.total.toFixed(1)}`
-        : "CAB Trade Calculator",
-      description: "A Catch a Brainrot trade, as calculated on cab.devvyy.xyz",
-      siteName: "CAB Trade Calc",
+        ? `CAB: Rot Dex · ${trade.you.total.toFixed(1)} vs ${trade.them.total.toFixed(1)}`
+        : "CAB: Rot Dex",
+      description: "A Catch a Brainrot RotDex trade, as calculated on cab.devvyy.xyz",
+      siteName: "CAB: Rot Dex",
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
-          alt: "CAB trade preview",
+          alt: "CAB: Rot Dex trade preview",
         },
       ],
     },
@@ -91,7 +91,7 @@ export default async function SharePage({ params }: PageProps) {
     >
       <img
         src={`/api/share/${id}/image`}
-        alt="CAB trade preview"
+        alt="CAB: Rot Dex trade preview"
         style={{
           maxWidth: "100%",
           maxHeight: "70vh",

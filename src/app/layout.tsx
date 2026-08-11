@@ -1,7 +1,7 @@
 "use client";
 
 import { AppStateProvider, useAppState } from "@/components/app/AppStateProvider";
-import { SideNav } from "@/components/trade/SideNav";
+import { TopNav } from "@/components/trade/TopNav";
 import { Preloader } from "@/components/trade/Preloader";
 import { Onboarding } from "@/components/trade/Onboarding";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,18 +25,15 @@ function Inner({ children }: { children: React.ReactNode }) {
         />
       )}
       {!isLanding && (
-        <SideNav
+        <TopNav
           profile={state.youProfile}
           onProfileClick={() => state.setShowAccountModal(true)}
-          expanded={state.sidebarExpanded}
-          onExpandedChange={state.setSidebarExpanded}
         />
       )}
       <main
         suppressHydrationWarning
         className={cn(
-          "relative flex h-screen w-full flex-col overflow-hidden transition-all duration-200",
-          isLanding ? "" : state.sidebarExpanded ? "pl-44 sm:pl-52" : "pl-16 sm:pl-20"
+          "relative flex h-screen w-full flex-col overflow-hidden transition-all duration-200"
         )}
         style={{
           backgroundColor: isLanding ? "#000000" : "#0099ff",

@@ -61,7 +61,7 @@ export function InventoryView() {
           NO INVENTORY FOUND
         </p>
         <p className="mx-auto max-w-md text-[10px] text-white/70">
-          Your Roblox account doesn&apos;t have a Catch a Brainrot save yet.
+          Your Roblox account doesn&apos;t have a Catch a Brainrot RotDex save yet.
           Play the game and come back, or use the catalog picker on the trade view.
         </p>
       </div>

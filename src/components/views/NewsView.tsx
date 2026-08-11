@@ -70,7 +70,7 @@ export function NewsView() {
                 rel="noopener noreferrer"
                 className="font-semibold text-blue-600 underline hover:text-blue-700"
               >
-                catch a brainrot calculator site
+                catch a brainrot rotdex site
               </a>
               . You can find the site here:{" "}
               <a

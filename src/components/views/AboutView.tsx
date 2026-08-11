@@ -83,7 +83,7 @@ export function AboutView() {
         <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
           <Image
             src="/cab_icon.png"
-            alt="CAB"
+            alt="CAB: Rot Dex"
             width={64}
             height={64}
             priority

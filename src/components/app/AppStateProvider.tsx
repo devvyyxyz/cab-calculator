@@ -51,7 +51,6 @@ export interface AppState {
   loading: "you" | "meta" | null;
   metaLoaded: boolean;
   navView: string;
-  sidebarExpanded: boolean;
   valueMethod: "dev" | "rot";
   showAccountModal: boolean;
   shareOpen: boolean;
@@ -85,7 +84,6 @@ export interface AppState {
   setLoading: (v: "you" | "meta" | null) => void;
   setMetaLoaded: (v: boolean) => void;
   setNavView: (v: string) => void;
-  setSidebarExpanded: (v: boolean) => void;
   setValueMethod: (v: "dev" | "rot") => void;
   setShowAccountModal: (v: boolean) => void;
   setShareOpen: (v: boolean) => void;
@@ -141,7 +139,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState<"you" | "meta" | null>(null);
   const [metaLoaded, setMetaLoaded] = useState(false);
   const [navView, setNavView] = useState("trade");
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [valueMethod, setValueMethod] = useState<"dev" | "rot">("dev");
 
   const [showAccountModal, setShowAccountModal] = useState(false);
@@ -263,7 +260,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         /* ignore */
       }
       toast.error(
-        `No Catch a Brainrot inventory found for this Roblox account. You can still use the catalog picker.`
+        `No Catch a Brainrot RotDex inventory found for this Roblox account. You can still use the catalog picker.`
       );
     } finally {
       setLoading(null);
@@ -585,7 +582,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     loading,
     metaLoaded,
     navView,
-    sidebarExpanded,
     valueMethod,
     showAccountModal,
     shareOpen,
@@ -619,7 +615,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setLoading,
     setMetaLoaded,
     setNavView,
-    setSidebarExpanded,
     setValueMethod,
     setShowAccountModal,
     setShareOpen,
