@@ -78,195 +78,161 @@ export function ItemDetailModal({
       >
 
         <div className="flex flex-col gap-3 p-5">
-          {/* Header - name + subtitle */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
+          {/* Top section: stats on left, icon on right */}
+          {isRot ? (
+            <div className="grid grid-cols-[1fr_auto] gap-4">
+              {/* Left side - stats */}
+              <div className="flex flex-col gap-2">
+                {/* Serial - only for rots */}
+                {rot?.Serial && (
+                  <div
+                    className="text-shimmer-gold text-center text-[10px] font-bold tracking-widest"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    #{rot.Serial}
+                  </div>
+                )}
+
+                {/* Name */}
+                <h3
+                  className="text-outline truncate text-lg text-white sm:text-xl"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  {name}
+                </h3>
+
+                {/* Rarity + Level */}
+                <p
+                  className="text-outline-sm text-[10px]"
+                  style={{
+                    fontFamily: "var(--font-pixel), monospace",
+                    color: "#fcd34d",
+                  }}
+                >
+                  {rarityLabel} {rarity.toFixed(2)} · LVL {rot!.Level}
+                </p>
+
+                {/* Divider */}
+                <div className="h-1 rounded-full bg-white" />
+
+                {/* Health bar */}
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span
+                      className="text-outline-sm text-[9px] text-white"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      HEALTH
+                    </span>
+                    <span
+                      className="text-outline-sm text-[9px] text-white"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {currentHealth}/{maxHealth}
+                    </span>
+                  </div>
+                  <div className="mt-1 h-4 overflow-hidden rounded-full bg-black/40">
+                    <div
+                      className="grid h-full place-items-center rounded-full"
+                      style={{
+                        width: "100%",
+                        background: "linear-gradient(180deg, #4ade80, #16a34a)",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
+                      }}
+                    >
+                      <span
+                        className="text-[8px] text-black"
+                        style={{ fontFamily: "var(--font-pixel), monospace" }}
+                      >
+                        {currentHealth}/{maxHealth}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* EXP bar */}
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span
+                      className="text-outline-sm text-[9px] text-white"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      EXP
+                    </span>
+                    <span
+                      className="text-outline-sm text-[9px] text-white"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {currentExp}/{(maxExp / 1000).toFixed(1)}K
+                    </span>
+                  </div>
+                  <div className="mt-1 h-4 overflow-hidden rounded-full bg-black/40">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${Math.min((currentExp / maxExp) * 100, 100)}%`,
+                        background: "linear-gradient(180deg, #fb923c, #c2410c)",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Sell value */}
+                {species && rot && (() => {
+                  const sell = sellSpecies(species, rot.Level);
+                  if (!sell) return null;
+                  return (
+                    <div className="flex items-center justify-between rounded-lg bg-black/20 px-3 py-2">
+                      <span
+                        className="text-outline-sm text-[9px] text-white"
+                        style={{ fontFamily: "var(--font-pixel), monospace" }}
+                      >
+                        EST. SELL VALUE
+                      </span>
+                      <span
+                        className="text-outline-sm text-sm font-bold text-yellow-300"
+                        style={{ fontFamily: "var(--font-pixel), monospace" }}
+                      >
+                        {sell.display}
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Right side - icon */}
+              <div className="grid h-28 w-28 shrink-0 place-items-center sm:h-32 sm:w-32">
+                {icon ? (
+                  <SmartImage
+                    src={iconUrl(icon)}
+                    alt={name}
+                    fill={false}
+                    fallbackSize={96}
+                    imgClassName="object-contain [image-rendering:pixelated]"
+                  />
+                ) : (
+                  <Image
+                    src="/cab_icon.png"
+                    alt={name}
+                    width={96}
+                    height={96}
+                    className="opacity-30 [image-rendering:pixelated]"
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Bag item header */}
               <h3
                 className="text-outline truncate text-lg text-white sm:text-xl"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 {name}
               </h3>
-              <p
-                className="text-outline-sm mt-1 text-[10px]"
-                style={{
-                  fontFamily: "var(--font-pixel), monospace",
-                  color: "#fcd34d",
-                }}
-              >
-                {subtitle}
-              </p>
-            </div>
-          </div>
-
-          {/* Icon display - centered, fixed size */}
-          <div className="grid h-28 place-items-center sm:h-32">
-            {icon ? (
-              <SmartImage
-                src={iconUrl(icon)}
-                alt={name}
-                fill={false}
-                fallbackSize={96}
-                imgClassName="object-contain [image-rendering:pixelated]"
-              />
-            ) : (
-              <Image
-                src="/cab_icon.png"
-                alt={name}
-                width={96}
-                height={96}
-                className="opacity-30 [image-rendering:pixelated]"
-              />
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="h-1 rounded-full bg-white" />
-
-          {/* Stats section - only for rots */}
-          {isRot && (
-            <div className="flex flex-col gap-3">
-              {/* Rarity badge */}
-              <div className="flex items-center justify-between">
-                <span
-                  className="text-outline-sm text-[9px] text-white"
-                  style={{ fontFamily: "var(--font-pixel), monospace" }}
-                >
-                  RARITY
-                </span>
-                <span
-                  className="text-outline-sm rounded px-2 py-0.5 text-[9px] text-white"
-                  style={{
-                    fontFamily: "var(--font-pixel), monospace",
-                    background:
-                      species?.IsExclusive
-                        ? "#7f1d1d"
-                        : rarity >= 5
-                        ? "#92400e"
-                        : rarity >= 4
-                        ? "#3f6212"
-                        : rarity >= 3
-                        ? "#374151"
-                        : "#7f1d1d",
-                  }}
-                >
-                  {rarityLabel} {rarity.toFixed(2)}
-                </span>
-              </div>
-
-              {/* IV bar */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <span
-                    className="text-outline-sm text-[9px] text-white"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    IV
-                  </span>
-                  <span
-                    className="text-outline-sm text-[9px] text-white"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    {(rot!.IV * 100).toFixed(0)}%
-                  </span>
-                </div>
-                <div className="mt-1 h-4 overflow-hidden rounded-full bg-black/40">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${rot!.IV * 100}%`,
-                      background: "linear-gradient(180deg, #a3e635, #65a30d)",
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Health bar */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <span
-                    className="text-outline-sm text-[9px] text-white"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    HEALTH
-                  </span>
-                  <span
-                    className="text-outline-sm text-[9px] text-white"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    {currentHealth}/{maxHealth}
-                  </span>
-                </div>
-                <div className="mt-1 h-4 overflow-hidden rounded-full bg-black/40">
-                  <div
-                    className="grid h-full place-items-center rounded-full"
-                    style={{
-                      width: "100%",
-                      background: "linear-gradient(180deg, #4ade80, #16a34a)",
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
-                    }}
-                  >
-                    <span
-                      className="text-[8px] text-black"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      {currentHealth}/{maxHealth}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* EXP bar */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <span
-                    className="text-outline-sm text-[9px] text-white"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    EXP
-                  </span>
-                  <span
-                    className="text-outline-sm text-[9px] text-white"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    {currentExp}/{(maxExp / 1000).toFixed(1)}K
-                  </span>
-                </div>
-                <div className="mt-1 h-4 overflow-hidden rounded-full bg-black/40">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${Math.min((currentExp / maxExp) * 100, 100)}%`,
-                      background: "linear-gradient(180deg, #fb923c, #c2410c)",
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Sell value */}
-              {species && rot && (() => {
-                const sell = sellSpecies(species, rot.Level);
-                if (!sell) return null;
-                return (
-                  <div className="flex items-center justify-between rounded-lg bg-black/20 px-3 py-2">
-                    <span
-                      className="text-outline-sm text-[9px] text-white"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      EST. SELL VALUE
-                    </span>
-                    <span
-                      className="text-outline-sm text-sm font-bold text-yellow-300"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      {sell.display}
-                    </span>
-                  </div>
-                );
-              })()}
-            </div>
+              <p className="text-[10px] text-white/80">{bagItem?.info?.Description}</p>
+            </>
           )}
 
           {/* Bag item info - only for bag items */}
