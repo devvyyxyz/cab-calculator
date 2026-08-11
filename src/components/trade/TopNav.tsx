@@ -67,19 +67,19 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: "trade", label: "Trade", icon: "repeat", color: "#7cb3ff" },
   { id: "inventory", label: "Inventory", icon: "backpack", color: "#7ed957" },
-  { id: "database", label: "Database", icon: "book-open", color: "#fbbf24", children: [
+  { id: "database", label: "Database", icon: "database", color: "#fbbf24", children: [
     { id: "rots", label: "Brainrots", icon: "book-open", color: "#fbbf24" },
     { id: "skins", label: "Items", icon: "fire", color: "#c084fc" },
     { id: "movesets", label: "Movesets", icon: "scale", color: "#60a5fa" },
   ]},
-  { id: "battle", label: "Battle", icon: "fire", color: "#fb923c", children: [
+  { id: "battle", label: "Battle", icon: "sword", color: "#fb923c", children: [
     { id: "team-builder", label: "Team Builder", icon: "backpack", color: "#7ed957" },
     { id: "battle-simulator", label: "Battle Simulator", icon: "repeat", color: "#fbbf24" },
     { id: "damage-calculator", label: "Damage Calculator", icon: "scale", color: "#60a5fa" },
     { id: "compare", label: "Compare", icon: "info-box", color: "#c084fc" },
   ]},
-  { id: "values", label: "Values", icon: "scale", color: "#f472b6" },
-  { id: "news", label: "News", icon: "book-open", color: "#f59e0b" },
+  { id: "values", label: "Values", icon: "chart", color: "#f472b6" },
+  { id: "news", label: "News", icon: "megaphone", color: "#f59e0b" },
 ];
 
 const ACCOUNT_MENU_ITEMS = [

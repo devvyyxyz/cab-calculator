@@ -46,17 +46,13 @@ export function TradePanel({
           outline={border}
           outlineWidth={2}
         />
-        <span
-          className="text-right text-lg sm:text-2xl"
-          style={{
-            fontFamily: "var(--font-pixel-bold, var(--font-pixel)), monospace",
-            color: "#ffffff",
-            WebkitTextStroke: `3px ${border}`,
-            paintOrder: "stroke fill",
-          }}
-        >
-          {total.toFixed(0)}
-        </span>
+        <PixelIcon
+          name={compareTotal !== undefined && total < compareTotal ? "arrow-down" : "arrow-up"}
+          size={20}
+          color="#ffffff"
+          outline={border}
+          outlineWidth={2}
+        />
       </div>
 
       <div
