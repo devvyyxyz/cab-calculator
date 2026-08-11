@@ -250,7 +250,7 @@ export function InventoryView() {
                 const sp = state.rotsData[rot.Species];
                 const name = rot.Nickname || rot.Species;
                 const health = sp?.Health ?? 0;
-                const maxHealth = 500;
+                const maxHealth = 2;
                 const healthPercent = Math.min(100, Math.max(0, (health / maxHealth) * 100));
                 const tier = rarityTier(sp?.Rarity ?? 0, sp?.IsExclusive ?? false);
                 return (
@@ -286,7 +286,6 @@ export function InventoryView() {
                               style={{ width: `${healthPercent}%` }}
                             />
                           </div>
-                          <span className="text-[10px] font-bold text-white/90">{health.toFixed(0)}</span>
                         </div>
                         <div className="text-xs text-white/80">
                           lvl <span className="font-bold text-white">{rot.Level}</span>
