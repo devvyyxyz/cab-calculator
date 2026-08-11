@@ -77,17 +77,24 @@ export function ItemDetailModal({
         }}
       >
 
-        <div className="flex flex-col gap-3 p-5">
+        <div className="flex flex-col gap-2 p-4">
           {/* Top section: stats on left, icon on right */}
           {isRot ? (
-            <div className="grid grid-cols-[1fr_auto] gap-4">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
               {/* Left side - stats */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5 min-w-0">
                 {/* Serial - only for rots */}
                 {rot?.Serial && (
                   <div
-                    className="text-shimmer-gold text-center text-[10px] font-bold tracking-widest"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    className="text-left text-sm font-bold tracking-widest"
+                    style={{
+                      fontFamily: "var(--font-pixel), monospace",
+                      color: "#fcd34d",
+                      WebkitTextStroke: `1.5px rgba(180, 83, 9, 1)`,
+                      textShadow:
+                        "0 2px 0 rgba(180, 83, 9, 1), 0 -1px 0 rgba(180, 83, 9, 1), 1px 0 0 rgba(180, 83, 9, 1), -1px 0 0 rgba(180, 83, 9, 1)",
+                      paintOrder: "stroke fill",
+                    }}
                   >
                     #{rot.Serial}
                   </div>
@@ -109,7 +116,7 @@ export function ItemDetailModal({
                     color: "#fcd34d",
                   }}
                 >
-                  {rarityLabel} {rarity.toFixed(2)} · LVL {rot!.Level}
+                  {rarityLabel} LVL {rot!.Level}
                 </p>
 
                 {/* Divider */}
@@ -117,21 +124,13 @@ export function ItemDetailModal({
 
                 {/* Health bar */}
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="text-outline-sm text-[9px] text-white"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      HEALTH
-                    </span>
-                    <span
-                      className="text-outline-sm text-[9px] text-white"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      {currentHealth}/{maxHealth}
-                    </span>
-                  </div>
-                  <div className="mt-1 h-4 overflow-hidden rounded-full bg-black/40">
+                  <span
+                    className="text-outline-sm text-[9px] text-white"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    HEALTH
+                  </span>
+                  <div className="mt-0.5 h-3.5 overflow-hidden rounded-full bg-black/40">
                     <div
                       className="grid h-full place-items-center rounded-full"
                       style={{
@@ -152,29 +151,28 @@ export function ItemDetailModal({
 
                 {/* EXP bar */}
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="text-outline-sm text-[9px] text-white"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      EXP
-                    </span>
-                    <span
-                      className="text-outline-sm text-[9px] text-white"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      {currentExp}/{(maxExp / 1000).toFixed(1)}K
-                    </span>
-                  </div>
-                  <div className="mt-1 h-4 overflow-hidden rounded-full bg-black/40">
+                  <span
+                    className="text-outline-sm text-[9px] text-white"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    EXP
+                  </span>
+                  <div className="mt-0.5 h-3.5 overflow-hidden rounded-full bg-black/40">
                     <div
-                      className="h-full rounded-full"
+                      className="grid h-full place-items-center rounded-full"
                       style={{
-                        width: `${Math.min((currentExp / maxExp) * 100, 100)}%`,
+                        width: "100%",
                         background: "linear-gradient(180deg, #fb923c, #c2410c)",
                         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4)",
                       }}
-                    />
+                    >
+                      <span
+                        className="text-[8px] text-black"
+                        style={{ fontFamily: "var(--font-pixel), monospace" }}
+                      >
+                        {currentExp}/{(maxExp / 1000).toFixed(1)}K
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -202,7 +200,7 @@ export function ItemDetailModal({
               </div>
 
               {/* Right side - icon */}
-              <div className="grid h-28 w-28 shrink-0 place-items-center sm:h-32 sm:w-32">
+              <div className="grid h-28 w-28 shrink-0 place-items-center justify-self-center icon-idle-float sm:h-32 sm:w-32">
                 {icon ? (
                   <SmartImage
                     src={iconUrl(icon)}
@@ -302,7 +300,7 @@ export function ItemDetailModal({
           {/* Back button */}
           <button
             onClick={onClose}
-            className="w-full rounded-xl px-4 py-3 transition-transform active:translate-y-0.5"
+            className="btn-follow w-full rounded-xl px-4 py-3 transition-transform active:translate-y-0.5"
             style={{
               background: "#9ca3af",
               border: "2px solid rgba(0,0,0,0.2)",
