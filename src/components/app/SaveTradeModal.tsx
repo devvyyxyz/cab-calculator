@@ -45,11 +45,7 @@ export function SaveTradeModal({
         }}
       >
         <div className="mb-5 flex flex-col items-center text-center">
-          <div className="mb-3 h-20 w-20 overflow-hidden rounded-2xl border-4 border-black/40 bg-white/80 p-1 shadow-[0_4px_0_rgba(0,0,0,0.25)]">
-            <div className="grid h-full w-full place-items-center bg-green-100">
-              <PixelIcon name="check" size={32} color="#22c55e" />
-            </div>
-          </div>
+          <PixelIcon name="check" size={48} color="#22c55e" />
           <h3
             className="text-outline-white text-lg font-bold text-gray-900"
             style={{ fontFamily: "var(--font-pixel), monospace" }}
@@ -58,15 +54,6 @@ export function SaveTradeModal({
           </h3>
           <p className="mt-1 text-xs text-gray-600">
             Save this trade to your account history
-          </p>
-        </div>
-
-        <div className="mb-4 rounded-lg border-2 border-gray-200 bg-gray-50 p-3">
-          <p className="text-[10px] uppercase tracking-wider text-gray-500">
-            Trade Summary
-          </p>
-          <p className="mt-1 text-xs text-gray-700">
-            This will record the current trade offer to your account for future reference.
           </p>
         </div>
 
