@@ -112,17 +112,18 @@ export function InventoryView() {
   const currentRots = tab === "team" ? teamRots : pcRots;
 
   return (
-    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
-      <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
-        <h2
-          className="text-outline text-center text-2xl text-white sm:text-3xl"
-          style={{ fontFamily: "var(--font-pixel), monospace" }}
-        >
-          INVENTORY
-        </h2>
-      </div>
+    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 sm:px-6">
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        <div className="mb-4 flex flex-col items-center gap-2 pt-4">
+          <h2
+            className="text-outline text-center text-2xl text-white sm:text-3xl"
+            style={{ fontFamily: "var(--font-pixel), monospace" }}
+          >
+            INVENTORY
+          </h2>
+        </div>
 
-      <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -155,7 +156,7 @@ export function InventoryView() {
         />
       </div>
 
-      <div className="mb-4 flex shrink-0 flex-wrap justify-center gap-2">
+      <div className="mb-4 flex flex-wrap justify-center gap-2">
         {([
           { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
           { id: "pc", icon: "book-open", label: `PC (${pcRots.length})` },
@@ -187,8 +188,7 @@ export function InventoryView() {
         })}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-        {tab === "bag" ? (
+      {tab === "bag" ? (
           <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">
             {(() => {
               if (bagEntries.length === 0) {

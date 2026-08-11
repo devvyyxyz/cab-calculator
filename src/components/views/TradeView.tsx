@@ -32,7 +32,7 @@ export function TradeView() {
 
   return (
     <div className="relative flex h-full w-full flex-col">
-      <div className="shrink-0 px-4 pt-4 sm:px-6">
+      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 pt-4 pb-4 sm:px-6">
         <div className="mx-auto max-w-7xl flex flex-col items-center gap-2">
           <h2
             className="text-outline text-center text-2xl text-white sm:text-3xl"
@@ -41,10 +41,8 @@ export function TradeView() {
             TRADE CALCULATOR
           </h2>
         </div>
-      </div>
 
-      <div className="relative z-10 min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
-        <section className="relative mx-auto grid max-w-7xl grid-cols-1 gap-4 md:grid-cols-2">
+        <section className="relative mx-auto grid max-w-7xl grid-cols-1 gap-4 md:grid-cols-2 mt-4">
           <TradePanel
             title="YOUR OFFER"
             variant="you"

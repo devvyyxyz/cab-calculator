@@ -75,15 +75,6 @@ export function ItemDetailModal({
             "0 8px 0 rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.2)",
         }}
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="btn-follow absolute right-3 top-3 z-20 grid h-8 w-8 place-items-center rounded-full bg-red-500 text-white"
-          style={{ boxShadow: "0 2px 0 #7f1d1d" }}
-          aria-label="Close"
-        >
-          <PixelIcon name="close" size={20} color="#ffffff" />
-        </button>
 
         <div className="flex flex-col gap-3 p-5">
           {/* Header - name + subtitle */}
