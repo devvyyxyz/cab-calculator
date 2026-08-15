@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { PixelIcon } from "@/components/trade/PixelIcon";
 import { SmartImage } from "@/components/trade/SmartImage";
+import { Trash } from "pixelarticons/react";
 import { rarityTier } from "@/lib/trade-utils";
 import { iconUrl } from "@/lib/cab-client";
 import type { Rot, Species } from "@/lib/cab-types";
@@ -190,16 +191,28 @@ export function TeamBuilderView() {
                 </button>
 
                 {filled && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedSlot(isSelected ? null : index);
-                    }}
-                    className="absolute right-2 top-2 rounded-lg bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30"
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    <PixelIcon name="switch" size={14} color={isSelected ? "#fbbf24" : "#ffffff"} />
-                  </button>
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedSlot(isSelected ? null : index);
+                      }}
+                      className="absolute right-2 top-2 rounded-lg bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      <PixelIcon name="switch" size={14} color={isSelected ? "#fbbf24" : "#ffffff"} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearSlot(index);
+                      }}
+                      className="absolute right-2 bottom-2 rounded-lg bg-red-500/80 p-1.5 text-white transition-colors hover:bg-red-500"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      <Trash width={14} height={14} style={{ color: "#ffffff" }} />
+                    </button>
+                  </>
                 )}
               </div>
             );
@@ -268,7 +281,7 @@ export function TeamBuilderView() {
               <label className="mb-1 block text-[10px] uppercase tracking-wide text-gray-600">
                 Moves (max 4)
               </label>
-              <div className="max-h-48 overflow-y-auto rounded-lg border border-black/10 bg-white/80 p-2">
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-black/10 bg-white/80 p-2" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "30px 30px", backgroundRepeat: "repeat", backgroundBlendMode: "multiply" }}>
                 {availableMoves.length === 0 ? (
                   <div className="p-2 text-[10px] text-gray-500">Loading moves...</div>
                 ) : (
