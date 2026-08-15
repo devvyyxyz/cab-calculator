@@ -75,12 +75,14 @@ export function SettingsView() {
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase transition-all"
+                  className="relative flex items-center gap-2 px-4 py-2 text-[10px] uppercase transition-all"
                   style={{
                     color: isActive ? "#1e3a5f" : "#374151",
                     fontFamily: "var(--font-pixel), monospace",
                     borderRadius: "0.875rem",
-                    background: isActive ? "rgba(124,179,255,0.6)" : undefined,
+                    background: isActive ? "rgba(124,179,255,0.6)" : "#f3f4f6",
+                    boxShadow: isActive ? "0 2px 0 rgba(30,58,95,0.2)" : "none",
+                    transform: isActive ? "translateY(-1px)" : "none",
                   }}
                 >
                   <PixelIcon
@@ -95,62 +97,82 @@ export function SettingsView() {
           </div>
 
           {tab === "account" && (
-            <div
-              className="rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
-              style={{
-                backgroundImage: "url('/stud_texture.png')",
-                backgroundSize: "30px 30px",
-                backgroundRepeat: "repeat",
-                backgroundBlendMode: "multiply",
-              }}
-            >
-              <h3
-                className="text-outline-white mb-3 text-sm text-gray-900"
-                style={{ fontFamily: "var(--font-pixel), monospace" }}
+            <div className="space-y-4">
+              <div
+                className="rounded-xl border border-black/20 bg-white p-5 shadow-sm"
+                style={{
+                  backgroundImage: "url('/stud_texture.png')",
+                  backgroundSize: "30px 30px",
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "multiply",
+                }}
               >
-                ROBLOX ACCOUNT
-              </h3>
-              <div className="flex items-center gap-3">
-                {state.youProfile?.avatarUrl ? (
-                  <img
-                    src={state.youProfile.avatarUrl}
-                    alt={state.youProfile.displayName}
-                    className="h-12 w-12 rounded-lg object-cover [image-rendering:pixelated]"
-                  />
-                ) : (
-                  <div className="grid h-12 w-12 place-items-center rounded-lg bg-gray-200">
-                    <PixelIcon name="info-box" size={24} color="#6b7280" />
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-blue-100">
+                    <PixelIcon name="book-open" size={18} color="#3b82f6" />
                   </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold text-gray-900">
-                    {state.youProfile?.displayName ?? "Not logged in"}
-                  </div>
-                  <div className="truncate text-xs text-gray-600">
-                    {state.youProfile ? `ID: ${state.youProfile.id}` : ""}
-                  </div>
-                </div>
-                {state.youProfile && (
-                  <button
-                    onClick={state.handleSwitchAccount}
-                    className="btn-follow rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white active:translate-y-0.5"
-                    style={{
-                      fontFamily: "var(--font-pixel), monospace",
-                      boxShadow: "0 2px 0 #7f1d1d",
-                    }}
+                  <h3
+                    className="text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
                   >
-                    LOGOUT
-                  </button>
-                )}
+                    ROBLOX ACCOUNT
+                  </h3>
+                </div>
+                <div className="flex items-center gap-3">
+                  {state.youProfile?.avatarUrl ? (
+                    <img
+                      src={state.youProfile.avatarUrl}
+                      alt={state.youProfile.displayName}
+                      className="h-12 w-12 rounded-lg object-cover [image-rendering:pixelated]"
+                    />
+                  ) : (
+                    <div className="grid h-12 w-12 place-items-center rounded-lg bg-gray-200">
+                      <PixelIcon name="info-box" size={24} color="#6b7280" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-gray-900">
+                      {state.youProfile?.displayName ?? "Not logged in"}
+                    </div>
+                    <div className="truncate text-xs text-gray-600">
+                      {state.youProfile ? `ID: ${state.youProfile.id}` : ""}
+                    </div>
+                  </div>
+                  {state.youProfile && (
+                    <button
+                      onClick={state.handleSwitchAccount}
+                      className="btn-follow rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white active:translate-y-0.5"
+                      style={{
+                        fontFamily: "var(--font-pixel), monospace",
+                        boxShadow: "0 2px 0 #7f1d1d",
+                      }}
+                    >
+                      LOGOUT
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <div className="mt-6">
-                <h3
-                  className="text-outline-white mb-3 text-sm text-gray-900"
-                  style={{ fontFamily: "var(--font-pixel), monospace" }}
-                >
-                  DISCORD ACCOUNT
-                </h3>
+              <div
+                className="rounded-xl border border-black/20 bg-white p-5 shadow-sm"
+                style={{
+                  backgroundImage: "url('/stud_texture.png')",
+                  backgroundSize: "30px 30px",
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "multiply",
+                }}
+              >
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-indigo-100">
+                    <PixelIcon name="megaphone" size={18} color="#6366f1" />
+                  </div>
+                  <h3
+                    className="text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    DISCORD ACCOUNT
+                  </h3>
+                </div>
 
                 {isDiscordLoading ? (
                   <div className="text-xs text-gray-500">Loading Discord status...</div>
@@ -202,113 +224,191 @@ export function SettingsView() {
                 )}
               </div>
 
-              <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <ComingSoonSetting label="DISPLAY NAME" />
-                <ComingSoonSetting label="PRIVACY" />
+              <div
+                className="rounded-xl border border-black/20 bg-white p-5 shadow-sm"
+                style={{
+                  backgroundImage: "url('/stud_texture.png')",
+                  backgroundSize: "30px 30px",
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "multiply",
+                }}
+              >
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-gray-100">
+                    <PixelIcon name="switch" size={18} color="#6b7280" />
+                  </div>
+                  <h3
+                    className="text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    MORE SETTINGS
+                  </h3>
+                </div>
+                <p className="mb-3 text-[10px] text-gray-500 uppercase tracking-wide">
+                  Additional account options coming soon
+                </p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <ComingSoonSetting label="DISPLAY NAME" />
+                  <ComingSoonSetting label="PRIVACY" />
+                </div>
               </div>
             </div>
           )}
 
           {tab === "preferences" && (
-            <div
-              className="rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
-              style={{
-                backgroundImage: "url('/stud_texture.png')",
-                backgroundSize: "30px 30px",
-                backgroundRepeat: "repeat",
-                backgroundBlendMode: "multiply",
-              }}
-            >
-              <h3
-                className="text-outline-white mb-3 text-sm text-gray-900"
-                style={{ fontFamily: "var(--font-pixel), monospace" }}
-              >
-                PREFERENCES
-              </h3>
-
-              <div className="mb-4">
-                <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
-                  Value Method
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {VALUE_METHODS.map((option) => {
-                    const isActive = state.valueMethod === option.id;
-                    return (
-                      <button
-                        key={option.id}
-                        onClick={() => handleMethodChange(option.id)}
-                        className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
-                          isActive
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50"
-                        }`}
-                        style={{ fontFamily: "var(--font-pixel), monospace" }}
-                      >
-                        <span className={`text-sm font-bold ${isActive ? "text-blue-900" : "text-gray-900"}`}>
-                          {option.label}
-                        </span>
-                        <span className="mt-1 text-[9px] text-gray-600">
-                          {option.description}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
-                  Sell Method
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {SELL_METHODS.map((option) => {
-                    const isActive = state.sellMethod === option.id;
-                    return (
-                      <button
-                        key={option.id}
-                        onClick={() => handleSellMethodChange(option.id)}
-                        className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
-                          isActive
-                            ? "border-green-500 bg-green-50"
-                            : "border-gray-200 bg-white hover:border-green-300 hover:bg-green-50"
-                        }`}
-                        style={{ fontFamily: "var(--font-pixel), monospace" }}
-                      >
-                        <span className={`text-sm font-bold ${isActive ? "text-green-900" : "text-gray-900"}`}>
-                          {option.label}
-                        </span>
-                        <span className="mt-1 text-[9px] text-gray-600">
-                          {option.description}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <button
-                onClick={clearCache}
-                className={`btn-follow flex items-center justify-center active:translate-y-0.5 ${cacheCleared ? "bg-green-500" : "bg-red-500"} text-white`}
+            <div className="space-y-4">
+              <div
+                className="rounded-xl border border-black/20 bg-white p-5 shadow-sm"
                 style={{
-                  fontFamily: "var(--font-pixel), monospace",
-                  width: "3rem",
-                  height: "3rem",
-                  boxShadow: cacheCleared ? "0 2px 0 #15803d" : "0 2px 0 #7f1d1d",
+                  backgroundImage: "url('/stud_texture.png')",
+                  backgroundSize: "30px 30px",
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "multiply",
                 }}
-                aria-label={cacheCleared ? "Cache cleared" : "Clear cache"}
               >
-                <PixelIcon name="switch" size={18} color="#ffffff" />
-              </button>
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-green-100">
+                    <PixelIcon name="scale" size={18} color="#22c55e" />
+                  </div>
+                  <h3
+                    className="text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    VALUE CALCULATION
+                  </h3>
+                </div>
+                <div className="mb-4">
+                  <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+                    Value Method
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {VALUE_METHODS.map((option) => {
+                      const isActive = state.valueMethod === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => handleMethodChange(option.id)}
+                          className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
+                            isActive
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50"
+                          }`}
+                          style={{ fontFamily: "var(--font-pixel), monospace" }}
+                        >
+                          <span className={`text-sm font-bold ${isActive ? "text-blue-900" : "text-gray-900"}`}>
+                            {option.label}
+                          </span>
+                          <span className="mt-1 text-[9px] text-gray-600">
+                            {option.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-              <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <ComingSoonSetting label="THEME" />
-                <ComingSoonSetting label="NOTIFICATIONS" />
-                <ComingSoonSetting label="TRADE ALERTS" />
-                <ComingSoonSetting label="DEFAULT SORT" />
-                <ComingSoonSetting label="LANGUAGE" />
-                <ComingSoonSetting label="SOUND EFFECTS" />
-                <ComingSoonSetting label="ANIMATIONS" />
-                <ComingSoonSetting label="AUTO-UPDATE" />
+                <div className="mb-4">
+                  <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+                    Sell Method
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {SELL_METHODS.map((option) => {
+                      const isActive = state.sellMethod === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => handleSellMethodChange(option.id)}
+                          className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
+                            isActive
+                              ? "border-green-500 bg-green-50"
+                              : "border-gray-200 bg-white hover:border-green-300 hover:bg-green-50"
+                          }`}
+                          style={{ fontFamily: "var(--font-pixel), monospace" }}
+                        >
+                          <span className={`text-sm font-bold ${isActive ? "text-green-900" : "text-gray-900"}`}>
+                            {option.label}
+                          </span>
+                          <span className="mt-1 text-[9px] text-gray-600">
+                            {option.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="rounded-xl border border-black/20 bg-white p-5 shadow-sm"
+                style={{
+                  backgroundImage: "url('/stud_texture.png')",
+                  backgroundSize: "30px 30px",
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "multiply",
+                }}
+              >
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-orange-100">
+                    <PixelIcon name="switch" size={18} color="#f97316" />
+                  </div>
+                  <h3
+                    className="text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    DATA & CACHE
+                  </h3>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={clearCache}
+                    className={`btn-follow flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs uppercase active:translate-y-0.5 ${cacheCleared ? "bg-green-500" : "bg-red-500"} text-white`}
+                    style={{
+                      fontFamily: "var(--font-pixel), monospace",
+                      boxShadow: cacheCleared ? "0 2px 0 #15803d" : "0 2px 0 #7f1d1d",
+                    }}
+                  >
+                    <PixelIcon name="switch" size={14} color="#ffffff" />
+                    {cacheCleared ? "Cleared" : "Clear Cache"}
+                  </button>
+                  <span className="text-[10px] text-gray-500">
+                    Clears local game data and inventory cache
+                  </span>
+                </div>
+              </div>
+
+              <div
+                className="rounded-xl border border-black/20 bg-white p-5 shadow-sm"
+                style={{
+                  backgroundImage: "url('/stud_texture.png')",
+                  backgroundSize: "30px 30px",
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "multiply",
+                }}
+              >
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="grid h-8 w-8 place-items-center rounded-lg bg-purple-100">
+                    <PixelIcon name="chart" size={18} color="#a855f7" />
+                  </div>
+                  <h3
+                    className="text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    MORE SETTINGS
+                  </h3>
+                </div>
+                <p className="mb-3 text-[10px] text-gray-500 uppercase tracking-wide">
+                  Additional preferences coming soon
+                </p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <ComingSoonSetting label="THEME" />
+                  <ComingSoonSetting label="NOTIFICATIONS" />
+                  <ComingSoonSetting label="TRADE ALERTS" />
+                  <ComingSoonSetting label="DEFAULT SORT" />
+                  <ComingSoonSetting label="LANGUAGE" />
+                  <ComingSoonSetting label="SOUND EFFECTS" />
+                  <ComingSoonSetting label="ANIMATIONS" />
+                  <ComingSoonSetting label="AUTO-UPDATE" />
+                </div>
               </div>
             </div>
           )}

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import type { Rot, Species, BagItemInfo } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
 import { SmartImage } from "./SmartImage";
@@ -8,10 +8,17 @@ import { PixelIcon } from "./PixelIcon";
 import { TiltCard } from "./TiltCard";
 import { sellSpecies } from "@/lib/trade-values";
 
-/**
- * Item detail modal - shows when clicking a rot or item in the inventory.
- * Matches the in-game detail view layout: icon on right, stats + moves on left.
- */
+const MOVESET_CACHE_KEY = "cab_movesets_cache";
+
+interface MovesetInfo {
+  name: string;
+  energy: number;
+  type: "damage" | "healing" | "utility";
+  demonExclusive: boolean;
+  ownerCount: number;
+  owners: string[];
+}
+
 export function ItemDetailModal({
   rot,
   species,
@@ -27,6 +34,25 @@ export function ItemDetailModal({
   onAddToOffer?: () => void;
   inOffer?: boolean;
 }) {
+  const [movesetData, setMovesetData] = useState<Record<string, MovesetInfo>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(MOVESET_CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as MovesetInfo[];
+        if (Array.isArray(parsed)) {
+          const map: Record<string, MovesetInfo> = {};
+          for (const m of parsed) {
+            map[m.name] = m;
+          }
+          setMovesetData(map);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
   // Determine what we're showing
   const isRot = !!rot;
   const name = isRot
@@ -265,10 +291,12 @@ export function ItemDetailModal({
               {moveset.slice(0, 4).map((move, i) => {
                 const colors = ["#fbbf24", "#7dd3fc", "#ef4444", "#22d3ee"];
                 const color = colors[i % colors.length];
+                const moveInfo = movesetData[move];
+                const energy = moveInfo?.energy ?? null;
                 return (
                   <div
                     key={i}
-                    className="grid h-12 place-items-center rounded-xl px-3 py-2"
+                    className="grid place-items-center rounded-xl px-3 py-2"
                     style={{
                       background: color,
                       backgroundImage: "url('/stud_texture.png')",
@@ -280,12 +308,20 @@ export function ItemDetailModal({
                         "inset 2px 2px 0 rgba(255,255,255,0.4), inset -2px -2px 0 rgba(0,0,0,0.2)",
                     }}
                   >
-                    <span
-                      className="text-[10px] text-white"
-                      style={{ fontFamily: "var(--font-pixel), monospace" }}
-                    >
-                      {move.toUpperCase()}
-                    </span>
+                    <div className="flex flex-col items-center gap-1">
+                      <span
+                        className="text-[10px] text-white"
+                        style={{ fontFamily: "var(--font-pixel), monospace" }}
+                      >
+                        {move.toUpperCase()}
+                      </span>
+                      {energy !== null && (
+                        <span className="flex items-center gap-1 text-[9px] text-white/90">
+                          <PixelIcon name="bolt" size={10} color="#ffffff" />
+                          {energy}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
