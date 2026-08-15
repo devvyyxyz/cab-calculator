@@ -5,6 +5,7 @@ import { TopNav } from "@/components/trade/TopNav";
 import { Preloader } from "@/components/trade/Preloader";
 import { Onboarding } from "@/components/trade/Onboarding";
 import { Toaster } from "@/components/ui/toaster";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -66,9 +67,11 @@ export default function RootLayout({
         className={`antialiased bg-background text-foreground font-bold`}
         style={{ fontFamily: "var(--font-pixel), monospace" }}
       >
-        <AppStateProvider>
-          <Inner>{children}</Inner>
-        </AppStateProvider>
+        <SessionProvider>
+          <AppStateProvider>
+            <Inner>{children}</Inner>
+          </AppStateProvider>
+        </SessionProvider>
       </body>
     </html>
   );

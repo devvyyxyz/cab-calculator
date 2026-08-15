@@ -6,9 +6,12 @@ import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import { ComingSoonSetting } from "@/components/app/ComingSoonSetting";
 import { useAppState } from "@/components/app/AppStateProvider";
 import { VALUE_METHODS, type ValueMethod, SELL_METHODS, type SellMethod } from "@/lib/trade-values";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 export function SettingsView() {
   const state = useAppState();
+  const { data: session, status } = useSession();
+  const [tab, setTab] = useState<"account" | "preferences">("account");
   const [cacheCleared, setCacheCleared] = useState(false);
 
   const clearCache = () => {
@@ -44,6 +47,9 @@ export function SettingsView() {
     }
   };
 
+  const discordUser = session?.user;
+  const isDiscordLoading = status === "loading";
+
   return (
     <div className="relative flex h-full w-full flex-col">
       <div className="shrink-0 px-4 pt-4 sm:px-6">
@@ -59,152 +65,253 @@ export function SettingsView() {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
         <div className="mx-auto max-w-7xl">
-        <div
-          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
-          style={{
-            backgroundImage: "url('/stud_texture.png')",
-            backgroundSize: "30px 30px",
-            backgroundRepeat: "repeat",
-            backgroundBlendMode: "multiply",
-          }}
-        >
-          <h3
-            className="text-outline-white mb-3 text-sm text-gray-900"
-            style={{ fontFamily: "var(--font-pixel), monospace" }}
-          >
-            ACCOUNT
-          </h3>
-          <div className="flex items-center gap-3">
-            {state.youProfile?.avatarUrl ? (
-              <img
-                src={state.youProfile.avatarUrl}
-                alt={state.youProfile.displayName}
-                className="h-12 w-12 rounded-lg object-cover [image-rendering:pixelated]"
-              />
-            ) : (
-              <div className="grid h-12 w-12 place-items-center rounded-lg bg-gray-200">
-                <PixelIcon name="info-box" size={24} color="#6b7280" />
+          <div className="mb-6 flex shrink-0 flex-wrap justify-center gap-2">
+            {([
+              { id: "account", icon: "book-open", label: "ACCOUNT" },
+              { id: "preferences", icon: "switch", label: "PREFERENCES" },
+            ] as const).map((t) => {
+              const isActive = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase transition-all"
+                  style={{
+                    color: isActive ? "#1e3a5f" : "#374151",
+                    fontFamily: "var(--font-pixel), monospace",
+                    borderRadius: "0.875rem",
+                    background: isActive ? "rgba(124,179,255,0.6)" : undefined,
+                  }}
+                >
+                  <PixelIcon
+                    name={t.icon}
+                    size={16}
+                    color={isActive ? "#1e3a5f" : "#6b7280"}
+                  />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {tab === "account" && (
+            <div
+              className="rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+              style={{
+                backgroundImage: "url('/stud_texture.png')",
+                backgroundSize: "30px 30px",
+                backgroundRepeat: "repeat",
+                backgroundBlendMode: "multiply",
+              }}
+            >
+              <h3
+                className="text-outline-white mb-3 text-sm text-gray-900"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                ROBLOX ACCOUNT
+              </h3>
+              <div className="flex items-center gap-3">
+                {state.youProfile?.avatarUrl ? (
+                  <img
+                    src={state.youProfile.avatarUrl}
+                    alt={state.youProfile.displayName}
+                    className="h-12 w-12 rounded-lg object-cover [image-rendering:pixelated]"
+                  />
+                ) : (
+                  <div className="grid h-12 w-12 place-items-center rounded-lg bg-gray-200">
+                    <PixelIcon name="info-box" size={24} color="#6b7280" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold text-gray-900">
+                    {state.youProfile?.displayName ?? "Not logged in"}
+                  </div>
+                  <div className="truncate text-xs text-gray-600">
+                    {state.youProfile ? `ID: ${state.youProfile.id}` : ""}
+                  </div>
+                </div>
+                {state.youProfile && (
+                  <button
+                    onClick={state.handleSwitchAccount}
+                    className="btn-follow rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white active:translate-y-0.5"
+                    style={{
+                      fontFamily: "var(--font-pixel), monospace",
+                      boxShadow: "0 2px 0 #7f1d1d",
+                    }}
+                  >
+                    LOGOUT
+                  </button>
+                )}
               </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold text-gray-900">
-                {state.youProfile?.displayName ?? "Not logged in"}
+
+              <div className="mt-6">
+                <h3
+                  className="text-outline-white mb-3 text-sm text-gray-900"
+                  style={{ fontFamily: "var(--font-pixel), monospace" }}
+                >
+                  DISCORD ACCOUNT
+                </h3>
+
+                {isDiscordLoading ? (
+                  <div className="text-xs text-gray-500">Loading Discord status...</div>
+                ) : discordUser ? (
+                  <div className="flex items-center gap-3">
+                    {discordUser.image && (
+                      <img
+                        src={discordUser.image}
+                        alt={discordUser.name ?? "Discord user"}
+                        className="h-10 w-10 rounded-lg object-cover [image-rendering:pixelated]"
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-gray-900">
+                        {discordUser.name}
+                      </div>
+                      <div className="truncate text-xs text-gray-600">
+                        {discordUser.email ?? "Connected via Discord"}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => signOut()}
+                      className="btn-follow rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white active:translate-y-0.5"
+                      style={{
+                        fontFamily: "var(--font-pixel), monospace",
+                        boxShadow: "0 2px 0 #7f1d1d",
+                      }}
+                    >
+                      DISCONNECT
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    <p className="text-xs text-gray-600">
+                      Sign in with Discord to link your account for trade sharing and more.
+                    </p>
+                    <button
+                      onClick={() => signIn("discord")}
+                      className="btn-follow flex items-center justify-center gap-2 rounded-lg bg-indigo-500 px-4 py-3 text-xs uppercase text-white active:translate-y-0.5"
+                      style={{
+                        fontFamily: "var(--font-pixel), monospace",
+                        boxShadow: "0 3px 0 #3730a3",
+                      }}
+                    >
+                      <PixelIcon name="book-open" size={16} color="#ffffff" />
+                      Sign in with Discord
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="truncate text-xs text-gray-600">
-                {state.youProfile ? `ID: ${state.youProfile.id}` : ""}
+
+              <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <ComingSoonSetting label="DISPLAY NAME" />
+                <ComingSoonSetting label="PRIVACY" />
               </div>
             </div>
-            {state.youProfile && (
+          )}
+
+          {tab === "preferences" && (
+            <div
+              className="rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
+              style={{
+                backgroundImage: "url('/stud_texture.png')",
+                backgroundSize: "30px 30px",
+                backgroundRepeat: "repeat",
+                backgroundBlendMode: "multiply",
+              }}
+            >
+              <h3
+                className="text-outline-white mb-3 text-sm text-gray-900"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                PREFERENCES
+              </h3>
+
+              <div className="mb-4">
+                <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+                  Value Method
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {VALUE_METHODS.map((option) => {
+                    const isActive = state.valueMethod === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        onClick={() => handleMethodChange(option.id)}
+                        className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
+                          isActive
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50"
+                        }`}
+                        style={{ fontFamily: "var(--font-pixel), monospace" }}
+                      >
+                        <span className={`text-sm font-bold ${isActive ? "text-blue-900" : "text-gray-900"}`}>
+                          {option.label}
+                        </span>
+                        <span className="mt-1 text-[9px] text-gray-600">
+                          {option.description}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
+                  Sell Method
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {SELL_METHODS.map((option) => {
+                    const isActive = state.sellMethod === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        onClick={() => handleSellMethodChange(option.id)}
+                        className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
+                          isActive
+                            ? "border-green-500 bg-green-50"
+                            : "border-gray-200 bg-white hover:border-green-300 hover:bg-green-50"
+                        }`}
+                        style={{ fontFamily: "var(--font-pixel), monospace" }}
+                      >
+                        <span className={`text-sm font-bold ${isActive ? "text-green-900" : "text-gray-900"}`}>
+                          {option.label}
+                        </span>
+                        <span className="mt-1 text-[9px] text-gray-600">
+                          {option.description}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <button
-                onClick={state.handleSwitchAccount}
-                className="btn-follow rounded-lg bg-red-500 px-3 py-2 text-[9px] uppercase text-white active:translate-y-0.5"
+                onClick={clearCache}
+                className={`btn-follow flex items-center justify-center active:translate-y-0.5 ${cacheCleared ? "bg-green-500" : "bg-red-500"} text-white`}
                 style={{
                   fontFamily: "var(--font-pixel), monospace",
-                  boxShadow: "0 2px 0 #7f1d1d",
+                  width: "3rem",
+                  height: "3rem",
+                  boxShadow: cacheCleared ? "0 2px 0 #15803d" : "0 2px 0 #7f1d1d",
                 }}
+                aria-label={cacheCleared ? "Cache cleared" : "Clear cache"}
               >
-                LOGOUT
+                <PixelIcon name="switch" size={18} color="#ffffff" />
               </button>
-            )}
-          </div>
-        </div>
 
-        <div
-          className="mb-6 rounded-xl border border-white/10 bg-white/95 p-4 shadow-lg backdrop-blur-sm"
-          style={{
-            backgroundImage: "url('/stud_texture.png')",
-            backgroundSize: "30px 30px",
-            backgroundRepeat: "repeat",
-            backgroundBlendMode: "multiply",
-          }}
-        >
-          <h3
-            className="text-outline-white mb-3 text-sm text-gray-900"
-            style={{ fontFamily: "var(--font-pixel), monospace" }}
-          >
-            PREFERENCES
-          </h3>
-
-          <div className="mb-4">
-            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
-              Value Method
+              <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <ComingSoonSetting label="THEME" />
+                <ComingSoonSetting label="NOTIFICATIONS" />
+                <ComingSoonSetting label="TRADE ALERTS" />
+                <ComingSoonSetting label="DEFAULT SORT" />
+                <ComingSoonSetting label="LANGUAGE" />
+                <ComingSoonSetting label="SOUND EFFECTS" />
+                <ComingSoonSetting label="ANIMATIONS" />
+                <ComingSoonSetting label="AUTO-UPDATE" />
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {VALUE_METHODS.map((option) => {
-                const isActive = state.valueMethod === option.id;
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => handleMethodChange(option.id)}
-                    className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
-                      isActive
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50"
-                    }`}
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    <span className={`text-sm font-bold ${isActive ? "text-blue-900" : "text-gray-900"}`}>
-                      {option.label}
-                    </span>
-                    <span className="mt-1 text-[9px] text-gray-600">
-                      {option.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="mb-2 text-[10px] uppercase tracking-[0.25em] text-slate-700">
-              Sell Method
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {SELL_METHODS.map((option) => {
-                const isActive = state.sellMethod === option.id;
-                return (
-                  <button
-                    key={option.id}
-                    onClick={() => handleSellMethodChange(option.id)}
-                    className={`flex flex-col rounded-lg border-2 p-3 text-left transition-all ${
-                      isActive
-                        ? "border-green-500 bg-green-50"
-                        : "border-gray-200 bg-white hover:border-green-300 hover:bg-green-50"
-                    }`}
-                    style={{ fontFamily: "var(--font-pixel), monospace" }}
-                  >
-                    <span className={`text-sm font-bold ${isActive ? "text-green-900" : "text-gray-900"}`}>
-                      {option.label}
-                    </span>
-                    <span className="mt-1 text-[9px] text-gray-600">
-                      {option.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <button
-            onClick={clearCache}
-            className={`btn-follow flex items-center justify-center active:translate-y-0.5 ${cacheCleared ? "bg-green-500" : "bg-red-500"} text-white`}
-            style={{
-              fontFamily: "var(--font-pixel), monospace",
-              width: "3rem",
-              height: "3rem",
-              boxShadow: cacheCleared ? "0 2px 0 #15803d" : "0 2px 0 #7f1d1d",
-            }}
-            aria-label={cacheCleared ? "Cache cleared" : "Clear cache"}
-          >
-            <PixelIcon name="switch" size={18} color="#ffffff" />
-          </button>
-
-          <ComingSoonSetting label="THEME" />
-          <ComingSoonSetting label="NOTIFICATIONS" />
-          <ComingSoonSetting label="TRADE ALERTS" />
-          <ComingSoonSetting label="DEFAULT SORT" />
-          <ComingSoonSetting label="LANGUAGE" />
-        </div>
+          )}
         </div>
       </div>
 

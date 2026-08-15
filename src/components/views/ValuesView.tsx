@@ -364,6 +364,9 @@ export function ValuesView() {
                       {tier} · Speed {info.Speed.toFixed(1)}
                     </div>
                   </div>
+                  <div className="flex items-center gap-1">
+                    <DemandIcon demand={info.Demand} />
+                  </div>
                   <span
                     className="text-outline-sm-white text-sm font-bold text-gray-900"
                     style={{ fontFamily: "var(--font-pixel), monospace" }}
