@@ -22,7 +22,7 @@ export function Footer() {
 
   if (isLanding) return null;
 
-  return (
+   return (
     <footer
       className="mt-auto border-t border-white/10"
       style={{
@@ -33,29 +33,27 @@ export function Footer() {
         backgroundBlendMode: "soft-light",
       }}
     >
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="sm:col-span-1 lg:col-span-1">
-            <div className="flex items-center gap-3">
-              <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-white/10 p-1">
-                <Image
-                  src="/cab_icon.png"
-                  alt="CAB Rot Dex"
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-contain [image-rendering:pixelated]"
-                />
+          <div className="relative flex flex-col items-center justify-center text-center lg:col-span-1">
+            <div className="absolute -inset-4 flex items-center justify-center opacity-10 pointer-events-none lg:-inset-8">
+              <Image
+                src="/cab_icon.png"
+                alt=""
+                width={320}
+                height={320}
+                className="h-72 w-72 object-contain [image-rendering:pixelated]"
+              />
+            </div>
+            <div className="relative z-10">
+              <div
+                className="text-sm font-bold uppercase tracking-wide text-white"
+                style={{ fontFamily: "var(--font-pixel), monospace" }}
+              >
+                CAB: Rot Dex
               </div>
-              <div>
-                <div
-                  className="text-sm font-bold uppercase tracking-wide text-white"
-                  style={{ fontFamily: "var(--font-pixel), monospace" }}
-                >
-                  CAB: Rot Dex
-                </div>
-                <div className="text-[10px] uppercase tracking-widest text-white/60">
-                  Catch a Brainrot
-                </div>
+              <div className="text-[10px] uppercase tracking-widest text-white/60">
+                Catch a Brainrot
               </div>
             </div>
           </div>
