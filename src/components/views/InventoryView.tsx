@@ -121,7 +121,7 @@ export function InventoryView() {
           >
             INVENTORY
           </h2>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+          <p className="text-outline text-[10px] uppercase tracking-[0.3em] text-white/70">
             View and manage your brainrot inventory
           </p>
         </div>

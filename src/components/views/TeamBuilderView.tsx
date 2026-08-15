@@ -126,7 +126,7 @@ export function TeamBuilderView() {
         >
           TEAM BUILDER
         </h2>
-        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+        <p className="text-outline text-[10px] uppercase tracking-[0.3em] text-white/70">
           Build your custom team
         </p>
       </div>

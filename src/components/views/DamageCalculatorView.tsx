@@ -220,7 +220,7 @@ export function DamageCalculatorView({ embedded = false }: { embedded?: boolean 
         >
           DAMAGE CALCULATOR
         </h2>
-        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+        <p className="text-outline text-[10px] uppercase tracking-[0.3em] text-white/70">
           Calculate damage output
         </p>
       </div>

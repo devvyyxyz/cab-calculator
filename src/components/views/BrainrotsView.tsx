@@ -50,7 +50,7 @@ export function BrainrotsView() {
         >
           BRAINROTS
         </h2>
-        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+        <p className="text-outline text-[10px] uppercase tracking-[0.3em] text-white/70">
           Browse and manage your brainrots
         </p>
       </div>
