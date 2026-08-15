@@ -13,6 +13,9 @@ All endpoints return JSON unless noted. Most data is proxied from \`https://indi
 ### \`GET /cab/rots\`
 Returns all brainrot species.
 
+### \`GET /cab/rots/:name/data\`
+Returns a single brainrot species by name.
+
 ### \`GET /cab/bag\`
 Returns all bag items.
 
