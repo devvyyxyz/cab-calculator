@@ -15,6 +15,8 @@ import {
   Sword,
   Chart,
   Megaphone,
+  SettingsCog,
+  Pencil,
 } from "pixelarticons/react";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -37,6 +39,8 @@ const ICON_MAP: Record<string, IconComponent> = {
   sword: Sword,
   chart: Chart,
   megaphone: Megaphone,
+  gear: SettingsCog,
+  pencil: Pencil,
 };
 
 export type NavView =
@@ -116,14 +120,14 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const ACCOUNT_MENU_ITEMS = [
-  { id: "settings", label: "Settings", icon: "switch", color: "#60a5fa" },
+  { id: "settings", label: "Settings", icon: "gear", color: "#60a5fa" },
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
   ...(process.env.NODE_ENV !== "production"
     ? [
         {
           id: "news-admin",
           label: "News Admin",
-          icon: "megaphone",
+          icon: "pencil",
           color: "#f59e0b",
         },
       ]

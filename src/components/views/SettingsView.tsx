@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PixelIcon } from "@/components/trade/PixelIcon";
+import { SettingsCog } from "pixelarticons/react";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import { ComingSoonSetting } from "@/components/app/ComingSoonSetting";
 import { useAppState } from "@/components/app/AppStateProvider";
@@ -235,7 +236,7 @@ export function SettingsView() {
               >
                 <div className="mb-4 flex items-center gap-2">
                   <div className="grid h-8 w-8 place-items-center rounded-lg bg-gray-100">
-                    <PixelIcon name="switch" size={18} color="#6b7280" />
+                    <SettingsCog width={18} height={18} style={{ color: "#6b7280" }} />
                   </div>
                   <h3
                     className="text-sm font-bold text-gray-900"
@@ -349,7 +350,7 @@ export function SettingsView() {
               >
                 <div className="mb-4 flex items-center gap-2">
                   <div className="grid h-8 w-8 place-items-center rounded-lg bg-orange-100">
-                    <PixelIcon name="switch" size={18} color="#f97316" />
+                    <SettingsCog width={18} height={18} style={{ color: "#f97316" }} />
                   </div>
                   <h3
                     className="text-sm font-bold text-gray-900"
@@ -367,7 +368,7 @@ export function SettingsView() {
                       boxShadow: cacheCleared ? "0 2px 0 #15803d" : "0 2px 0 #7f1d1d",
                     }}
                   >
-                    <PixelIcon name="switch" size={14} color="#ffffff" />
+                    <SettingsCog width={14} height={14} style={{ color: "#ffffff" }} />
                     {cacheCleared ? "Cleared" : "Clear Cache"}
                   </button>
                   <span className="text-[10px] text-gray-500">

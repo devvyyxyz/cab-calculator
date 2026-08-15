@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { PixelIcon } from "@/components/trade/PixelIcon";
 import { SmartImage } from "@/components/trade/SmartImage";
-import { Trash } from "pixelarticons/react";
+import { Trash, Pencil } from "pixelarticons/react";
 import { rarityTier } from "@/lib/trade-utils";
 import { iconUrl } from "@/lib/cab-client";
 import type { Rot, Species } from "@/lib/cab-types";
@@ -200,7 +200,7 @@ export function TeamBuilderView() {
                       className="absolute right-2 top-2 rounded-lg bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30"
                       style={{ fontFamily: "var(--font-pixel), monospace" }}
                     >
-                      <PixelIcon name="switch" size={14} color={isSelected ? "#fbbf24" : "#ffffff"} />
+                      <Pencil width={14} height={14} style={{ color: isSelected ? "#fbbf24" : "#ffffff" }} />
                     </button>
                     <button
                       onClick={(e) => {
@@ -260,9 +260,6 @@ export function TeamBuilderView() {
           <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${selectedSlot === null ? "pointer-events-none opacity-50" : ""}`}>
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wide text-gray-600">
-                Species
-              </label>
-              <label className="mb-1 block text-[10px] uppercase tracking-wide text-gray-600">
                 Level
               </label>
               <Input
@@ -308,21 +305,6 @@ export function TeamBuilderView() {
                   </div>
                 )}
               </div>
-            </div>
-
-            <div className="md:col-span-2">
-              <button
-                type="button"
-                onClick={() => selectedSlot !== null && clearSlot(selectedSlot)}
-                disabled={selectedSlot === null}
-                className="btn-follow w-full rounded-lg bg-red-500 px-4 py-2.5 text-xs uppercase text-white active:translate-y-0.5 disabled:opacity-40"
-                style={{
-                  fontFamily: "var(--font-pixel), monospace",
-                  boxShadow: "0 2px 0 #7f1d1d",
-                }}
-              >
-                REMOVE
-              </button>
             </div>
           </div>
         </div>
