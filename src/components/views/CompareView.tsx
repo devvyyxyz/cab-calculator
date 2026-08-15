@@ -32,7 +32,7 @@ export function CompareView({ embedded = false }: { embedded?: boolean }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [weights, setWeights] = useState({ attack: 1.2, health: 1, speed: 1.1 });
   const [selectorOpen, setSelectorOpen] = useState(false);
-  const [mattersOpen, setMattersOpen] = useState(true);
+  const [mattersOpen, setMattersOpen] = useState(false);
   const [selectorSearch, setSelectorSearch] = useState("");
   const [selectorSortBy, setSelectorSortBy] = usePersistentState<"rarity-desc" | "rarity-asc" | "name-az" | "name-za">("cab_compare_sort", "rarity-desc");
 

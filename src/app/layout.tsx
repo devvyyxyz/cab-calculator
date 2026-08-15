@@ -2,6 +2,7 @@
 
 import { AppStateProvider, useAppState } from "@/components/app/AppStateProvider";
 import { TopNav } from "@/components/trade/TopNav";
+import { Footer } from "@/components/app/Footer";
 import { Preloader } from "@/components/trade/Preloader";
 import { Onboarding } from "@/components/trade/Onboarding";
 import { Toaster } from "@/components/ui/toaster";
@@ -46,6 +47,7 @@ function Inner({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
+      <Footer />
       <Toaster />
     </>
   );
