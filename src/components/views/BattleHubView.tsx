@@ -20,6 +20,9 @@ export function BattleHubView() {
         >
           BATTLE
         </h2>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+          Battle hub and team management
+        </p>
       </div>
 
       <div className="mb-4 flex shrink-0 flex-wrap justify-center gap-2">

@@ -760,6 +760,9 @@ export function CompareView({ embedded = false }: { embedded?: boolean }) {
         >
           COMPARE
         </h2>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+          Compare brainrots side by side
+        </p>
       </div>
 
       {inner}

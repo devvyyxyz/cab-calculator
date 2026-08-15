@@ -61,6 +61,9 @@ export function SettingsView() {
           >
             SETTINGS
           </h2>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+            Manage your account and preferences
+          </p>
         </div>
       </div>
 

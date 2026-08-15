@@ -220,8 +220,8 @@ export function DamageCalculatorView({ embedded = false }: { embedded?: boolean 
         >
           DAMAGE CALCULATOR
         </h2>
-        <p className="max-w-2xl text-center text-[11px] uppercase tracking-[0.25em] text-slate-700">
-          Estimate damage, crit spikes, and hits to KO using CAB: Rot Dex rots stats.
+        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+          Calculate damage output
         </p>
       </div>
 

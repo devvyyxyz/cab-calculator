@@ -199,6 +199,9 @@ export function ValuesView() {
         >
           VALUES
         </h2>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+          Brainrot values and item prices
+        </p>
       </div>
 
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">

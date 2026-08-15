@@ -133,6 +133,9 @@ export default function AdminNewsPage() {
         >
           NEWS ADMIN
         </h2>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+          Create and manage news posts
+        </p>
       </div>
 
       {error && (

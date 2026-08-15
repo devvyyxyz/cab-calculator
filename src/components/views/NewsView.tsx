@@ -78,6 +78,9 @@ export function NewsView() {
           >
             NEWS & ANNOUNCEMENTS
           </h2>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+            Latest updates, leaks, and announcements
+          </p>
         </div>
       </div>
 

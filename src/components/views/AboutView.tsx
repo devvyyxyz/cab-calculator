@@ -95,6 +95,9 @@ export function AboutView() {
           >
             ABOUT & STATS
           </h2>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+            Your progress and game statistics
+          </p>
         </div>
       </div>
 

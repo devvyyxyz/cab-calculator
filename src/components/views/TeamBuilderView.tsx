@@ -63,10 +63,18 @@ export function TeamBuilderView() {
   const handleAddCatalogRot = useCallback((speciesName: string) => {
     if (drawerSlot === null) return;
     const next = [...team];
+    const sp = state.rotsData[speciesName];
+    const moveset = sp?.Moveset ?? [];
+    const hasCharge = moveset.includes("Charge");
+    const currentMoves = next[drawerSlot].Moveset;
+    const newMoves = hasCharge && !currentMoves.includes("Charge")
+      ? [...currentMoves, "Charge"].slice(0, 3)
+      : currentMoves;
     next[drawerSlot] = {
       ...next[drawerSlot],
       Species: speciesName,
-      Nickname: state.rotsData[speciesName]?.ShortenedName || next[drawerSlot].Nickname,
+      Nickname: sp?.ShortenedName || next[drawerSlot].Nickname,
+      Moveset: newMoves,
     };
     setTeam(next);
     setDrawerSlot(null);
@@ -91,7 +99,7 @@ export function TeamBuilderView() {
     let nextMoves: string[];
     if (has) {
       nextMoves = rot.Moveset.filter((m) => m !== move);
-    } else if (rot.Moveset.length >= 4) {
+    } else if (rot.Moveset.length >= 3) {
       return;
     } else {
       nextMoves = [...rot.Moveset, move];
@@ -179,7 +187,7 @@ export function TeamBuilderView() {
                       <div className="mt-1 flex items-center gap-2 text-[10px] text-white/80">
                         <span>LVL {rot.Level}</span>
                         <span>·</span>
-                        <span>{rot.Moveset.length}/4 MOVES</span>
+                        <span>{rot.Moveset.length}/3 MOVES</span>
                       </div>
                     )}
                     {!filled && (
@@ -276,7 +284,7 @@ export function TeamBuilderView() {
 
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wide text-gray-600">
-                Moves (max 4)
+                Moves (max 3)
               </label>
               <div className="max-h-48 overflow-y-auto rounded-lg border border-black/10 bg-white/80 p-2" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "30px 30px", backgroundRepeat: "repeat", backgroundBlendMode: "multiply" }}>
                 {availableMoves.length === 0 ? (

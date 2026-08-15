@@ -40,6 +40,9 @@ export function TradeView() {
           >
             TRADE CALCULATOR
           </h2>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+            Calculate and manage your trades
+          </p>
         </div>
 
         <section className="relative mx-auto grid max-w-7xl grid-cols-1 gap-4 md:grid-cols-2 mt-4">

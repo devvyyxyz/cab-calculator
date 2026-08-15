@@ -140,6 +140,9 @@ export function MovesetsView() {
         >
           MOVESETS
         </h2>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
+          View and manage your brainrot movesets
+        </p>
       </div>
 
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-center gap-2">
