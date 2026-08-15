@@ -52,9 +52,6 @@ const ICON_PATHS: Record<string, IconPaths> = {
   "arrow-up": [
     { d: "M6 16h12l-6-6z" },
   ],
-  bolt: [
-    { d: "M13 2h-2v6H7v2h4v6h2v-6h4v-2h-6z" },
-  ],
 };
 
 export function PixelIcon({

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Rot, Species, BagItemInfo } from "@/lib/cab-types";
 import { iconUrl } from "@/lib/cab-client";
 import { SmartImage } from "./SmartImage";
-import { PixelIcon } from "./PixelIcon";
+import { Zap } from "pixelarticons/react";
 import { TiltCard } from "./TiltCard";
 import { sellSpecies } from "@/lib/trade-values";
 
@@ -308,20 +308,20 @@ export function ItemDetailModal({
                         "inset 2px 2px 0 rgba(255,255,255,0.4), inset -2px -2px 0 rgba(0,0,0,0.2)",
                     }}
                   >
-                    <div className="flex flex-col items-center gap-1">
-                      <span
-                        className="text-[10px] text-white"
-                        style={{ fontFamily: "var(--font-pixel), monospace" }}
-                      >
-                        {move.toUpperCase()}
-                      </span>
-                      {energy !== null && (
-                        <span className="flex items-center gap-1 text-[9px] text-white/90">
-                          <PixelIcon name="bolt" size={10} color="#ffffff" />
-                          {energy}
-                        </span>
-                      )}
-                    </div>
+                     <div className="flex flex-col items-center gap-1">
+                       <span
+                         className="text-sm font-bold text-white"
+                         style={{ fontFamily: "var(--font-pixel), monospace" }}
+                       >
+                         {move.toUpperCase()}
+                       </span>
+                       {energy !== null && (
+                         <span className="flex items-center gap-1 text-xs text-white/90">
+                           <Zap width={14} height={14} style={{ color: "#ffffff" }} />
+                           {energy}
+                         </span>
+                       )}
+                     </div>
                   </div>
                 );
               })}
