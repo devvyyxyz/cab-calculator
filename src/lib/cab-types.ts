@@ -47,6 +47,7 @@ export interface HoverboardInfo {
   Description: string;
   Icon: string;
   Speed: number;
+  Demand?: string;
 }
 
 /** A hoverboard owned by a player. */

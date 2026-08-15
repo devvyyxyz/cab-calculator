@@ -9,13 +9,14 @@ export async function GET(_req: NextRequest) {
       orderBy: { name: "asc" },
     });
 
-    const data: Record<string, { Name: string; Description: string; Icon: string; Speed: number }> = {};
+    const data: Record<string, { Name: string; Description: string; Icon: string; Speed: number; Demand: string }> = {};
     for (const hb of hoverboards) {
       data[hb.name] = {
         Name: hb.name,
         Description: hb.description,
         Icon: hb.icon,
         Speed: hb.speed,
+        Demand: hb.demand,
       };
     }
 

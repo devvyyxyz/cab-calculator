@@ -130,12 +130,15 @@ async function main() {
   console.log("Seeding hoverboards...");
   const skinEntries = await fetchSkins();
   for (const [name, info] of skinEntries) {
+    const speed = info.Speed;
+    const demand = speed >= 20 ? "high" : speed >= 15 ? "medium" : speed >= 10 ? "low" : "very-low";
     await prisma.hoverboard.create({
       data: {
         name,
         description: info.Description,
         icon: info.Icon,
-        speed: info.Speed,
+        speed,
+        demand,
       },
     });
   }

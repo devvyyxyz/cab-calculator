@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   getRots,
   getBag,
+  getSkins,
   getInventory,
 } from "@/lib/cab-client";
 import type {
@@ -15,6 +16,8 @@ import type {
   BagItemInfo,
   BagResponse,
   RotsResponse,
+  HoverboardInfo,
+  SkinsResponse,
 } from "@/lib/cab-types";
 import {
   valueRot,
@@ -45,6 +48,7 @@ export interface AppState {
   yourData: PlayerData | null;
   rotsData: Record<string, Species>;
   bagData: Record<string, BagItemInfo>;
+  hoverboardData: Record<string, HoverboardInfo>;
   yourOffer: Offer;
   theirOffer: Offer;
   inventoryOpenFor: "you" | "them" | null;
@@ -79,6 +83,7 @@ export interface AppState {
   setYourData: (v: PlayerData | null) => void;
   setRotsData: (v: Record<string, Species>) => void;
   setBagData: (v: Record<string, BagItemInfo>) => void;
+  setHoverboardData: (v: Record<string, HoverboardInfo>) => void;
   setYourOffer: (v: Offer) => void;
   setTheirOffer: (v: Offer) => void;
   setInventoryOpenFor: (v: "you" | "them" | null) => void;
@@ -133,6 +138,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
   const [rotsData, setRotsData] = useState<Record<string, Species>>({});
   const [bagData, setBagData] = useState<Record<string, BagItemInfo>>({});
+  const [hoverboardData, setHoverboardData] = useState<Record<string, HoverboardInfo>>({});
 
   const [yourOffer, setYourOffer] = useState<Offer>(EMPTY_OFFER);
   const [theirOffer, setTheirOffer] = useState<Offer>(EMPTY_OFFER);
@@ -216,10 +222,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
       setLoading("meta");
       try {
-        const [r, b] = await Promise.all([getRots(), getBag()]);
+        const [r, b, s] = await Promise.all([getRots(), getBag(), getSkins()]);
         if (cancelled) return;
         setRotsData((r as RotsResponse).Data);
         setBagData((b as BagResponse).Data);
+        setHoverboardData((s as SkinsResponse).Data);
         try {
           localStorage.setItem("cab_rots_cache", JSON.stringify(r));
           localStorage.setItem("cab_bag_cache", JSON.stringify(b));
@@ -594,6 +601,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     yourData,
     rotsData,
     bagData,
+    hoverboardData,
     yourOffer,
     theirOffer,
     inventoryOpenFor,
@@ -628,6 +636,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     setYourData,
     setRotsData,
     setBagData,
+    setHoverboardData,
     setYourOffer,
     setTheirOffer,
     setInventoryOpenFor,

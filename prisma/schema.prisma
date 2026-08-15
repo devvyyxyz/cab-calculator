@@ -97,6 +97,7 @@ model Hoverboard {
   description String
   icon        String
   speed       Float
+  demand      String   @default("medium") // "very-low" | "low" | "medium" | "high"
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

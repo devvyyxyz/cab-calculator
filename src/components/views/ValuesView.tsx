@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { SortPill } from "@/components/trade/SortPill";
 import { PixelIcon } from "@/components/trade/PixelIcon";
@@ -12,7 +12,7 @@ import {
   rarityTier,
 } from "@/lib/trade-utils";
 import { classifyItem, valueSpecies, type ValueMethod } from "@/lib/trade-values";
-import type { Species, BagItemInfo } from "@/lib/cab-types";
+import type { Species, BagItemInfo, HoverboardInfo } from "@/lib/cab-types";
 import { useAppState } from "@/components/app/AppStateProvider";
 import { usePersistentState } from "@/components/trade/usePersistentState";
 import { iconUrl } from "@/lib/cab-client";
@@ -39,10 +39,18 @@ function DemandIcon({ demand }: { demand?: string }) {
   return <Icon width={16} height={16} style={{ color }} />;
 }
 
+function hoverboardTier(speed: number): { tier: string; value: number } {
+  if (speed >= 20) return { tier: "Legendary", value: 500 };
+  if (speed >= 15) return { tier: "Epic", value: 300 };
+  if (speed >= 10) return { tier: "Rare", value: 150 };
+  if (speed >= 5) return { tier: "Uncommon", value: 80 };
+  return { tier: "Common", value: 40 };
+}
+
 export function ValuesView() {
   const state = useAppState();
   const [search, setSearch] = useState("");
-  const [tab, setTab] = useState<"rots" | "items">("rots");
+  const [tab, setTab] = useState<"rots" | "hoverboards" | "items" | "eggs" | "boxes">("rots");
   const [sortBy, setSortBy] = usePersistentState<"value-desc" | "value-asc" | "name-az" | "name-za">("cab_sort_values", "value-desc");
   const [method, setMethod] = useState<ValueMethod>(state.valueMethod);
 
@@ -69,26 +77,100 @@ export function ValuesView() {
       }
     });
 
-  const itemValues = Object.entries(state.bagData)
-    .map(([name, info]) => {
-      const { tier, value } = classifyItem(name);
-      return { name, info, value, tier };
-    })
-    .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "value-asc":
-          return a.value - b.value || a.name.localeCompare(b.name);
-        case "value-desc":
-          return b.value - a.value || a.name.localeCompare(b.name);
-        case "name-az":
-          return a.name.localeCompare(b.name);
-        case "name-za":
-          return b.name.localeCompare(a.name);
-        default:
-          return 0;
-      }
-    });
+  const hoverboardValues = useMemo(() => {
+    return Object.entries(state.hoverboardData)
+      .map(([name, hb]) => {
+        const { tier, value } = hoverboardTier(hb.Speed);
+        return { name, info: hb, value, tier };
+      })
+      .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "value-asc":
+            return a.value - b.value || a.name.localeCompare(b.name);
+          case "value-desc":
+            return b.value - a.value || a.name.localeCompare(b.name);
+          case "name-az":
+            return a.name.localeCompare(b.name);
+          case "name-za":
+            return b.name.localeCompare(a.name);
+          default:
+            return 0;
+        }
+      });
+  }, [state.hoverboardData, search, sortBy]);
+
+  const itemValues = useMemo(() => {
+    return Object.entries(state.bagData)
+      .filter(([name]) => !/egg/i.test(name) && !/box/i.test(name))
+      .map(([name, info]) => {
+        const { tier, value } = classifyItem(name);
+        return { name, info, value, tier };
+      })
+      .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "value-asc":
+            return a.value - b.value || a.name.localeCompare(b.name);
+          case "value-desc":
+            return b.value - a.value || a.name.localeCompare(b.name);
+          case "name-az":
+            return a.name.localeCompare(b.name);
+          case "name-za":
+            return b.name.localeCompare(a.name);
+          default:
+            return 0;
+        }
+      });
+  }, [state.bagData, search, sortBy]);
+
+  const eggValues = useMemo(() => {
+    return Object.entries(state.bagData)
+      .filter(([name]) => /egg/i.test(name))
+      .map(([name, info]) => {
+        const { tier, value } = classifyItem(name);
+        return { name, info, value, tier };
+      })
+      .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "value-asc":
+            return a.value - b.value || a.name.localeCompare(b.name);
+          case "value-desc":
+            return b.value - a.value || a.name.localeCompare(b.name);
+          case "name-az":
+            return a.name.localeCompare(b.name);
+          case "name-za":
+            return b.name.localeCompare(a.name);
+          default:
+            return 0;
+        }
+      });
+  }, [state.bagData, search, sortBy]);
+
+  const boxValues = useMemo(() => {
+    return Object.entries(state.bagData)
+      .filter(([name]) => /box/i.test(name))
+      .map(([name, info]) => {
+        const { tier, value } = classifyItem(name);
+        return { name, info, value, tier };
+      })
+      .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()))
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "value-asc":
+            return a.value - b.value || a.name.localeCompare(b.name);
+          case "value-desc":
+            return b.value - a.value || a.name.localeCompare(b.name);
+          case "name-az":
+            return a.name.localeCompare(b.name);
+          case "name-za":
+            return b.name.localeCompare(a.name);
+          default:
+            return 0;
+        }
+      });
+  }, [state.bagData, search, sortBy]);
 
   const handleMethodChange = (next: ValueMethod) => {
     setMethod(next);
@@ -99,6 +181,14 @@ export function ValuesView() {
       /* ignore */
     }
   };
+
+  const counts = useMemo(() => ({
+    rots: rotValues.length,
+    hoverboards: hoverboardValues.length,
+    items: itemValues.length,
+    eggs: eggValues.length,
+    boxes: boxValues.length,
+  }), [rotValues.length, hoverboardValues.length, itemValues.length, eggValues.length, boxValues.length]);
 
   return (
     <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
@@ -133,21 +223,26 @@ export function ValuesView() {
             { value: "name-za", label: "Name Z-A" },
           ]}
         />
-        <SortPill
-          value={method}
-          onChange={(next) => handleMethodChange(next)}
-          label="METHOD"
-          options={[
-            { value: "dev", label: "Dev" },
-            { value: "rot", label: "Rot" },
-          ]}
-        />
+        {tab === "rots" && (
+          <SortPill
+            value={method}
+            onChange={(next) => handleMethodChange(next)}
+            label="METHOD"
+            options={[
+              { value: "dev", label: "Dev" },
+              { value: "rot", label: "Rot" },
+            ]}
+          />
+        )}
       </div>
 
       <div className="mb-4 flex shrink-0 flex-wrap justify-center gap-2">
         {([
-          { id: "rots", icon: "book-open", label: `ROTS (${rotValues.length})` },
-          { id: "items", icon: "fire", label: `ITEMS (${itemValues.length})` },
+          { id: "rots", icon: "book-open", label: `ROTS (${counts.rots})` },
+          { id: "hoverboards", icon: "chart", label: `HOVERBOARDS (${counts.hoverboards})` },
+          { id: "items", icon: "fire", label: `ITEMS (${counts.items})` },
+          { id: "eggs", icon: "egg", label: `EGGS (${counts.eggs})` },
+          { id: "boxes", icon: "box", label: `BOXES (${counts.boxes})` },
         ] as const).map((t) => {
           const isActive = tab === t.id;
           return (
@@ -228,12 +323,171 @@ export function ValuesView() {
               ))
             )}
           </div>
-        ) : (
+        ) : tab === "hoverboards" ? (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {hoverboardValues.length === 0 ? (
+              <EmptyState text="No hoverboards match your search" />
+            ) : (
+              hoverboardValues.map(({ name, info, value, tier }) => (
+                <div
+                  key={name}
+                  className="flex items-center gap-3 rounded-xl p-2"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    backgroundImage: "url('/stud_texture.png')",
+                    backgroundSize: "30px 30px",
+                    backgroundRepeat: "repeat",
+                    backgroundBlendMode: "multiply",
+                    border: "2px solid rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+                    <SmartImage
+                      src={info.Icon ? iconUrl(info.Icon) : ""}
+                      alt={name}
+                      fill={false}
+                      fallbackSize={32}
+                      imgClassName="object-contain [image-rendering:pixelated]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className="truncate text-xs font-semibold text-gray-900"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {name}
+                    </div>
+                    <div
+                      className="truncate text-[10px] text-gray-600"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {tier} · Speed {info.Speed.toFixed(1)}
+                    </div>
+                  </div>
+                  <span
+                    className="text-outline-sm-white text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    {value.toFixed(0)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        ) : tab === "items" ? (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {itemValues.length === 0 ? (
               <EmptyState text="No items match your search" />
             ) : (
               itemValues.map(({ name, info, value, tier }) => (
+                <div
+                  key={name}
+                  className="flex items-center gap-3 rounded-xl p-2"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    backgroundImage: "url('/stud_texture.png')",
+                    backgroundSize: "30px 30px",
+                    backgroundRepeat: "repeat",
+                    backgroundBlendMode: "multiply",
+                    border: "2px solid rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+                    <SmartImage
+                      src={info.Icon ? iconUrl(info.Icon) : ""}
+                      alt={name}
+                      fill={false}
+                      fallbackSize={32}
+                      imgClassName="object-contain [image-rendering:pixelated]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className="truncate text-xs font-semibold text-gray-900"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {name}
+                    </div>
+                    <div
+                      className="truncate text-[10px] text-gray-600"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {tier}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <DemandIcon demand={info.Demand} />
+                  </div>
+                  <span
+                    className="text-outline-sm-white text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    {value.toFixed(0)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        ) : tab === "eggs" ? (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {eggValues.length === 0 ? (
+              <EmptyState text="No eggs match your search" />
+            ) : (
+              eggValues.map(({ name, info, value, tier }) => (
+                <div
+                  key={name}
+                  className="flex items-center gap-3 rounded-xl p-2"
+                  style={{
+                    background: "rgba(255,255,255,0.92)",
+                    backgroundImage: "url('/stud_texture.png')",
+                    backgroundSize: "30px 30px",
+                    backgroundRepeat: "repeat",
+                    backgroundBlendMode: "multiply",
+                    border: "2px solid rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-black/30 p-1">
+                    <SmartImage
+                      src={info.Icon ? iconUrl(info.Icon) : ""}
+                      alt={name}
+                      fill={false}
+                      fallbackSize={32}
+                      imgClassName="object-contain [image-rendering:pixelated]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className="truncate text-xs font-semibold text-gray-900"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {name}
+                    </div>
+                    <div
+                      className="truncate text-[10px] text-gray-600"
+                      style={{ fontFamily: "var(--font-pixel), monospace" }}
+                    >
+                      {tier}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <DemandIcon demand={info.Demand} />
+                  </div>
+                  <span
+                    className="text-outline-sm-white text-sm font-bold text-gray-900"
+                    style={{ fontFamily: "var(--font-pixel), monospace" }}
+                  >
+                    {value.toFixed(0)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {boxValues.length === 0 ? (
+              <EmptyState text="No boxes match your search" />
+            ) : (
+              boxValues.map(({ name, info, value, tier }) => (
                 <div
                   key={name}
                   className="flex items-center gap-3 rounded-xl p-2"
