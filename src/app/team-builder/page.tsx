@@ -1,7 +1,7 @@
 "use client";
 
-import { BattleView } from "@/components/views/BattleView";
+import { TeamBuilderView } from "@/components/views/TeamBuilderView";
 
 export default function TeamBuilderPage() {
-  return <BattleView title="TEAM BUILDER" />;
+  return <TeamBuilderView />;
 }
