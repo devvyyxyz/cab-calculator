@@ -117,6 +117,8 @@ export function TeamBuilderView() {
     return Array.from(moves).sort();
   }, [state.rotsData]);
 
+  const movesLoading = Object.keys(state.rotsData).length === 0;
+
   return (
     <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
@@ -237,9 +239,9 @@ export function TeamBuilderView() {
           }}
         >
           {selectedSlot === null && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-sm">
+            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-black/30 backdrop-blur-sm">
               <p
-                className="text-center text-xs uppercase tracking-widest text-gray-500"
+                className="text-center text-xs uppercase tracking-widest text-white"
                 style={{ fontFamily: "var(--font-pixel), monospace" }}
               >
                 Select a rot to see options
@@ -254,18 +256,9 @@ export function TeamBuilderView() {
             >
               EDIT OPTIONS
             </h3>
-            {selectedSlot !== null && (
-              <button
-                onClick={() => setSelectedSlot(null)}
-                className="rounded-lg bg-gray-200 p-1.5 text-gray-600 transition-colors hover:bg-gray-300"
-                style={{ fontFamily: "var(--font-pixel), monospace" }}
-              >
-                <PixelIcon name="close" size={16} color="#374151" />
-              </button>
-            )}
           </div>
 
-          <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${selectedSlot === null ? "pointer-events-none opacity-50" : ""}`}>
+          <div className={`grid grid-cols-1 gap-4 ${selectedSlot === null ? "pointer-events-none opacity-50" : ""}`}>
             <div>
               <label className="mb-1 block text-[10px] uppercase tracking-wide text-gray-600">
                 Level
@@ -287,8 +280,10 @@ export function TeamBuilderView() {
                 Moves (max 3)
               </label>
               <div className="max-h-48 overflow-y-auto rounded-lg border border-black/10 bg-white/80 p-2" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "30px 30px", backgroundRepeat: "repeat", backgroundBlendMode: "multiply" }}>
-                {availableMoves.length === 0 ? (
+                {movesLoading ? (
                   <div className="p-2 text-[10px] text-gray-500">Loading moves...</div>
+                ) : availableMoves.length === 0 ? (
+                  <div className="p-2 text-[10px] text-gray-500">No moves available</div>
                 ) : (
                   <div className="grid grid-cols-2 gap-1">
                     {availableMoves.map((move) => {
@@ -298,10 +293,10 @@ export function TeamBuilderView() {
                           key={move}
                           type="button"
                           onClick={() => selectedSlot !== null && toggleMove(selectedSlot, move)}
-                          className={`rounded-lg border-2 px-2 py-1.5 text-left text-[10px] transition-all ${selected ? "border-blue-500 bg-blue-50" : "border-gray-200 bg-white hover:border-blue-300"}`}
+                          className={`rounded-lg border-2 px-2 py-1.5 text-left text-[10px] transition-all ${selected ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white hover:border-blue-300"}`}
                           style={{ fontFamily: "var(--font-pixel), monospace" }}
                         >
-                          <span className={`block truncate ${selected ? "font-bold text-blue-900" : "text-gray-700"}`}>
+                          <span className={`block truncate ${selected ? "font-bold text-blue-900" : "text-gray-800"}`}>
                             {move}
                           </span>
                           {selected && (
