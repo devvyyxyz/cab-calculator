@@ -180,14 +180,24 @@ export function ItemDetailModal({
                 {species && rot && (() => {
                   const sell = sellSpecies(species, rot.Level);
                   if (!sell) return null;
+                  const coinIcon = species.SpawnLocation?.World === 2 ? iconUrl("108") : iconUrl("100");
                   return (
                     <div className="flex items-center justify-between rounded-lg bg-black/20 px-3 py-2">
-                      <span
-                        className="text-outline-sm text-[9px] text-white"
-                        style={{ fontFamily: "var(--font-pixel), monospace" }}
-                      >
-                        EST. SELL VALUE
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <SmartImage
+                          src={coinIcon}
+                          alt="coin"
+                          fill={false}
+                          fallbackSize={16}
+                          imgClassName="h-4 w-4 object-contain [image-rendering:pixelated]"
+                        />
+                        <span
+                          className="text-outline-sm text-[9px] text-white"
+                          style={{ fontFamily: "var(--font-pixel), monospace" }}
+                        >
+                          EST. SELL VALUE
+                        </span>
+                      </div>
                       <span
                         className="text-outline-sm text-sm font-bold text-yellow-300"
                         style={{ fontFamily: "var(--font-pixel), monospace" }}

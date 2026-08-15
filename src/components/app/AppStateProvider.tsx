@@ -229,10 +229,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         toast.error(`Failed to load game data: ${(e as Error).message}`);
       } finally {
-        if (!cancelled) {
-          setLoading(null);
-          setMetaLoaded(true);
-        }
+        if (!cancelled) setLoading(null);
       }
     })();
     return () => {
