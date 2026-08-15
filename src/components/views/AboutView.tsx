@@ -402,7 +402,7 @@ export function AboutView() {
           }}
         >
           <a
-            href="https://indieun.com/cab/rots"
+            href="/api"
             target="_blank"
             rel="noopener noreferrer"
             className="stud-input block rounded-cab-sm px-4 py-3 text-center text-[10px] font-bold uppercase text-gray-900 no-underline transition-all hover:bg-blue-50"
