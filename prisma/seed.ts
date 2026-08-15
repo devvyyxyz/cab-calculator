@@ -141,6 +141,70 @@ async function main() {
   }
   console.log(`Seeded ${skinEntries.length} hoverboards`);
 
+  // Seed news posts
+  console.log("Seeding news posts...");
+  const newsPosts = [
+    {
+      title: "Trading calculator, values list, inventory viewer & more",
+      description:
+        "Hey everyone, I have developed a server official catch a brainrot rotdex site. You can find the site here: https://cab.devvyy.xyz/",
+      category: "news",
+      channel: "#announcements",
+      date: "2025-01-15",
+      icon: "📢",
+      gradient: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+      border: "#1e3a5f",
+    },
+    {
+      title: "New Rotdex Features Released",
+      description:
+        "Added trade sharing, recent trades page, and damage calculator to the site.",
+      category: "updates",
+      channel: "#updates",
+      date: "2025-02-01",
+      icon: "🛠️",
+      gradient: "linear-gradient(135deg, #60a5fa, #3b82f6)",
+      border: "#1e3a5f",
+    },
+    {
+      title: "Upcoming Event Rot Leaked",
+      description:
+        "A new limited event rot has been datamined from the game files. Stay tuned for official reveal.",
+      category: "leaks",
+      channel: "#leaks",
+      date: "2025-02-10",
+      icon: "🕵️",
+      gradient: "linear-gradient(135deg, #f472b6, #ec4899)",
+      border: "#1e3a5f",
+    },
+    {
+      title: "Values List Updated",
+      description:
+        "Updated trading values to be more accurate with in-game trades and demand.",
+      category: "updates",
+      channel: "#updates",
+      date: "2025-02-15",
+      icon: "📊",
+      gradient: "linear-gradient(135deg, #34d399, #10b981)",
+      border: "#1e3a5f",
+    },
+    {
+      title: "New Moveset Teaser",
+      description:
+        "Unreleased moveset icons found in the latest game patch. Looks like a fire-type AOE move.",
+      category: "leaks",
+      channel: "#leaks",
+      date: "2025-02-20",
+      icon: "🔥",
+      gradient: "linear-gradient(135deg, #fb923c, #ea580c)",
+      border: "#1e3a5f",
+    },
+  ];
+  for (const post of newsPosts) {
+    await prisma.newsPost.create({ data: post });
+  }
+  console.log(`Seeded ${newsPosts.length} news posts`);
+
   console.log("Seeding complete!");
 }
 

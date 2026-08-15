@@ -102,3 +102,21 @@ model Hoverboard {
 
   @@index([name])
 }
+
+model NewsPost {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  category    String    @default("news") // "news" | "updates" | "leaks"
+  channel     String
+  date        String
+  icon        String?
+  gradient    String?
+  border      String?
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([category])
+  @@index([date])
+}

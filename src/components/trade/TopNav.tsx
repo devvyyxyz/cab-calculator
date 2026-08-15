@@ -118,6 +118,16 @@ const NAV_ITEMS: NavItem[] = [
 const ACCOUNT_MENU_ITEMS = [
   { id: "settings", label: "Settings", icon: "switch", color: "#60a5fa" },
   { id: "about", label: "About", icon: "info-box", color: "#94a3b8" },
+  ...(process.env.NODE_ENV !== "production"
+    ? [
+        {
+          id: "news-admin",
+          label: "News Admin",
+          icon: "megaphone",
+          color: "#f59e0b",
+        },
+      ]
+    : []),
   { id: "logout", label: "Logout", icon: "close", color: "#ef4444" },
 ];
 
@@ -191,6 +201,32 @@ export function TopNav({
             outlineWidth={1.5}
           />
           <span className="text-red-400">Logout</span>
+        </button>
+      );
+    }
+
+    if (item.id === "news-admin") {
+      return (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => {
+            setOpenMenus({});
+            setAccountOpen(false);
+            router.push("/admin/news");
+          }}
+          className="relative z-10 flex items-center gap-2 rounded-lg px-2 py-2 text-left text-[10px] uppercase tracking-wide transition-colors"
+        >
+          <PixelIcon
+            name={item.icon}
+            size={18}
+            color={isActive ? item.color : "#e2e8f0"}
+            outline={isActive ? "#000000" : "rgba(0,0,0,0.7)"}
+            outlineWidth={1.5}
+          />
+          <span className={isActive ? "text-white" : "text-slate-200"}>
+            {item.label}
+          </span>
         </button>
       );
     }
