@@ -17,6 +17,44 @@ interface Moveset {
 
 const CACHE_KEY = "cab_movesets_cache";
 
+function movesetTierColor(energy: number): string {
+  if (energy <= 3) return "#4c644e";
+  if (energy <= 6) return "#324b55";
+  if (energy <= 9) return "#473155";
+  return "#543233";
+}
+
+function MovesetCard({ move }: { move: Moveset }) {
+  const color = movesetTierColor(move.energy);
+  return (
+    <div
+      className="flex items-center gap-3 rounded-xl border border-black/20 p-3 shadow-sm"
+      style={{
+        background: color,
+        backgroundImage: "url('/stud_texture.png')",
+        backgroundSize: "30px 30px",
+        backgroundRepeat: "repeat",
+        backgroundBlendMode: "overlay",
+      }}
+    >
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/20">
+        <span className="text-sm font-bold text-white">{move.energy}</span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold uppercase tracking-wide text-white">
+          {move.name}
+        </div>
+        <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
+          <span className="capitalize">{move.type}</span>
+          <span>
+            {move.ownerCount} owner{move.ownerCount !== 1 ? "s" : ""}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MovesetsView() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = usePersistentState<"energy-asc" | "energy-desc" | "name-az" | "name-za">("cab_sort_movesets", "energy-asc");
@@ -129,11 +167,17 @@ export function MovesetsView() {
 
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         {loading ? (
-          <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="h-10 w-full animate-pulse rounded-xl bg-yellow-400/40"
+                className="h-16 animate-pulse rounded-xl bg-black/20"
+                style={{
+                  backgroundImage: "url('/stud_texture.png')",
+                  backgroundSize: "30px 30px",
+                  backgroundRepeat: "repeat",
+                  backgroundBlendMode: "overlay",
+                }}
               />
             ))}
           </div>
@@ -142,18 +186,13 @@ export function MovesetsView() {
         ) : (() => {
           if (sortBy === "energy-asc" || sortBy === "energy-desc") {
             return sections.map((section) => (
-              <div key={section.label} className="contents">
+              <div key={section.label}>
                 <SectionDivider label={section.label} />
-                {section.items.map((move) => (
-                  <div
-                    key={move.name}
-                    className="flex items-center rounded-xl bg-yellow-400 px-4 py-2.5 shadow-sm"
-                  >
-                    <span className="truncate text-sm font-semibold uppercase tracking-wide text-yellow-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
-                      {move.name}
-                    </span>
-                  </div>
-                ))}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {section.items.map((move) => (
+                    <MovesetCard key={move.name} move={move} />
+                  ))}
+                </div>
               </div>
             ));
           }
@@ -171,32 +210,24 @@ export function MovesetsView() {
               section.items.push(move);
             }
             return sections.map((section) => (
-              <div key={section.label} className="contents">
+              <div key={section.label}>
                 <SectionDivider label={section.label} />
-                {section.items.map((move) => (
-                  <div
-                    key={move.name}
-                    className="flex items-center rounded-xl bg-yellow-400 px-4 py-2.5 shadow-sm"
-                  >
-                    <span className="truncate text-sm font-semibold uppercase tracking-wide text-yellow-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
-                      {move.name}
-                    </span>
-                  </div>
-                ))}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {section.items.map((move) => (
+                    <MovesetCard key={move.name} move={move} />
+                  ))}
+                </div>
               </div>
             ));
           }
 
-          return filtered.map((move) => (
-            <div
-              key={move.name}
-              className="flex items-center rounded-xl bg-yellow-400 px-4 py-2.5 shadow-sm"
-            >
-              <span className="truncate text-sm font-semibold uppercase tracking-wide text-yellow-900" style={{ fontFamily: "var(--font-pixel), monospace" }}>
-                {move.name}
-              </span>
+          return (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {filtered.map((move) => (
+                <MovesetCard key={move.name} move={move} />
+              ))}
             </div>
-          ));
+          );
         })()}
       </div>
     </div>
