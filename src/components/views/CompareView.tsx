@@ -6,6 +6,7 @@ import { SortPill } from "@/components/trade/SortPill";
 import { SmartImage } from "@/components/trade/SmartImage";
 import { iconUrl } from "@/lib/cab-client";
 import { PixelIcon } from "@/components/trade/PixelIcon";
+import { Pencil, Trash } from "pixelarticons/react";
 import { AccountSwitchModal } from "@/components/app/AccountSwitchModal";
 import {
   ChartContainer,
@@ -752,7 +753,7 @@ export function CompareView({ embedded = false }: { embedded?: boolean }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col overflow-y-auto px-4 pt-4 sm:px-6">
+    <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 pt-4 sm:px-6">
       <div className="mb-4 flex shrink-0 flex-col items-center gap-2">
         <h2
           className="text-outline text-center text-2xl text-white sm:text-3xl"
@@ -765,7 +766,9 @@ export function CompareView({ embedded = false }: { embedded?: boolean }) {
         </p>
       </div>
 
-      {inner}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {inner}
+      </div>
 
       <AccountSwitchModal
         open={state.showAccountModal}

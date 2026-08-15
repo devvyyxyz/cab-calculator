@@ -113,83 +113,84 @@ export function InventoryView() {
 
   return (
     <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col px-4 sm:px-6">
-      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
-        <div className="mb-4 flex flex-col items-center gap-2 pt-4">
-          <h2
-            className="text-outline text-center text-2xl text-white sm:text-3xl"
-            style={{ fontFamily: "var(--font-pixel), monospace" }}
+      <div className="mb-4 shrink-0 flex flex-col items-center gap-2 pt-4">
+        <h2
+          className="text-outline text-center text-2xl text-white sm:text-3xl"
+          style={{ fontFamily: "var(--font-pixel), monospace" }}
+        >
+          INVENTORY
+        </h2>
+        <p className="text-outline text-[10px] uppercase tracking-[0.3em] text-white/70">
+          View and manage your brainrot inventory
+        </p>
+      </div>
+
+      <div className="mb-4 shrink-0 flex flex-wrap items-center justify-center gap-2">
+      <Input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="search inventory..."
+        className="stud-input h-9 max-w-md text-sm text-gray-900"
+        style={{
+          borderRadius: "0.875rem",
+          fontFamily: "var(--font-pixel), monospace",
+        }}
+      />
+      <SortPill
+        value={sortBy}
+        onChange={setSortBy}
+        options={
+          tab === "bag"
+            ? [
+                { value: "rarity-asc", label: "Type" },
+                { value: "name-az", label: "Name A-Z" },
+                { value: "name-za", label: "Name Z-A" },
+              ]
+            : [
+                { value: "rarity-asc", label: "Rarity ↑" },
+                { value: "rarity-desc", label: "Rarity ↓" },
+                { value: "name-az", label: "Name A-Z" },
+                { value: "name-za", label: "Name Z-A" },
+                { value: "level-asc", label: "Level ↑" },
+                { value: "level-desc", label: "Level ↓" },
+              ]
+        }
+      />
+    </div>
+
+    <div className="mb-4 shrink-0 flex flex-wrap justify-center gap-2">
+      {([
+        { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
+        { id: "pc", icon: "book-open", label: `PC (${pcRots.length})` },
+        { id: "bag", icon: "fire", label: `BAG (${bagEntries.length})` },
+      ] as const).map((t) => {
+        const isActive = tab === t.id;
+        return (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase transition-all"
+            style={{
+              color: isActive ? "#1e3a5f" : "#374151",
+              fontFamily: "var(--font-pixel), monospace",
+              borderRadius: "0.875rem",
+              background: isActive
+                ? "rgba(124,179,255,0.6)"
+                : undefined,
+            }}
           >
-            INVENTORY
-          </h2>
-          <p className="text-outline text-[10px] uppercase tracking-[0.3em] text-white/70">
-            View and manage your brainrot inventory
-          </p>
-        </div>
+            <PixelIcon
+              name={t.icon}
+              size={16}
+              color={isActive ? "#1e3a5f" : "#6b7280"}
+            />
+            {t.label}
+          </button>
+        );
+      })}
+    </div>
 
-        <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="search inventory..."
-          className="stud-input h-9 max-w-md text-sm text-gray-900"
-          style={{
-            borderRadius: "0.875rem",
-            fontFamily: "var(--font-pixel), monospace",
-          }}
-        />
-        <SortPill
-          value={sortBy}
-          onChange={setSortBy}
-          options={
-            tab === "bag"
-              ? [
-                  { value: "rarity-asc", label: "Type" },
-                  { value: "name-az", label: "Name A-Z" },
-                  { value: "name-za", label: "Name Z-A" },
-                ]
-              : [
-                  { value: "rarity-asc", label: "Rarity ↑" },
-                  { value: "rarity-desc", label: "Rarity ↓" },
-                  { value: "name-az", label: "Name A-Z" },
-                  { value: "name-za", label: "Name Z-A" },
-                  { value: "level-asc", label: "Level ↑" },
-                  { value: "level-desc", label: "Level ↓" },
-                ]
-          }
-        />
-      </div>
-
-      <div className="mb-4 flex flex-wrap justify-center gap-2">
-        {([
-          { id: "team", icon: "backpack", label: `TEAM (${teamRots.length})` },
-          { id: "pc", icon: "book-open", label: `PC (${pcRots.length})` },
-          { id: "bag", icon: "fire", label: `BAG (${bagEntries.length})` },
-        ] as const).map((t) => {
-          const isActive = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className="stud-input flex items-center gap-2 px-3 py-2 text-[10px] uppercase transition-all"
-              style={{
-                color: isActive ? "#1e3a5f" : "#374151",
-                fontFamily: "var(--font-pixel), monospace",
-                borderRadius: "0.875rem",
-                background: isActive
-                  ? "rgba(124,179,255,0.6)"
-                  : undefined,
-              }}
-            >
-              <PixelIcon
-                name={t.icon}
-                size={16}
-                color={isActive ? "#1e3a5f" : "#6b7280"}
-              />
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
 
       {tab === "bag" ? (
           <div className="grid grid-cols-4 gap-2 p-1 sm:grid-cols-6 md:grid-cols-8 sm:p-2">

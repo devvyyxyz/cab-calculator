@@ -17,7 +17,7 @@ export function BattleView({ title = "BATTLE" }: { title?: string }) {
         </h2>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-4">
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         <div className="mx-auto flex max-w-2xl flex-col gap-3 rounded-[1.5rem] border border-black/20 bg-[#f8f6ef] p-4 text-sm text-slate-800 shadow-[inset_0_2px_2px_rgba(255,255,255,0.7)]" style={{ backgroundImage: "url('/stud_texture.png')", backgroundSize: "50px 50px", backgroundRepeat: "repeat" }}>
           <p className="text-[11px] uppercase tracking-[0.3em] text-slate-700">
             Battle tools

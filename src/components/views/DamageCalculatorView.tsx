@@ -225,7 +225,9 @@ export function DamageCalculatorView({ embedded = false }: { embedded?: boolean 
         </p>
       </div>
 
-      {inner}
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {inner}
+      </div>
 
       <AccountSwitchModal
         open={state.showAccountModal}

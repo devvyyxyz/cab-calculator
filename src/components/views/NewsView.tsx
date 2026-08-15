@@ -84,7 +84,7 @@ export function NewsView() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
+      <div className="shrink-0 px-4 sm:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
             <Input
@@ -130,6 +130,11 @@ export function NewsView() {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 sm:px-6">
+        <div className="mx-auto max-w-7xl">
 
           {loading ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
